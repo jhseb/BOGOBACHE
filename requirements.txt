@@ -1,0 +1,5 @@
+Django==4.0.3
+djangorestfamework==3.13.1
+os
+pillow
+mysqlclient
