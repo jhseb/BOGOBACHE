@@ -1,0 +1,203 @@
+{% extends "administrador/base_admin.html" %}
+
+{% block titulo %} Editar producto {% endblock %}
+
+{% block contenido %}
+
+<style>
+  .form-box {
+    background-color: white;
+    width: 100%;
+    max-width: 350px;
+    margin: 20px auto;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.08);
+  }
+
+  .form-header {
+    background-color: #c8102e;
+    color: white;
+    padding: 8px;
+    text-align: center;
+    font-weight: bold;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    font-size: 16px;
+  }
+
+  .form-title {
+    color: #c8102e;
+    text-align: center;
+    font-weight: bold;
+    margin: 10px 0 15px;
+    font-size: 16px;
+  }
+
+  .form-step {
+    display: none;
+  }
+
+  .form-step.active {
+    display: block;
+  }
+
+  .form-group {
+    margin-bottom: 12px;
+  }
+
+  .form-group label {
+    font-size: 13px;
+    margin-bottom: 3px;
+    display: block;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border-radius: 16px;
+    border: 1px solid #ccc;
+    background-color: #f5f5f5;
+    font-size: 13px;
+  }
+
+  .form-group img {
+    margin-top: 6px;
+    border-radius: 8px;
+  }
+
+  .help-text {
+    color: red;
+    font-size: 12px;
+  }
+
+  .button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+  }
+
+  .btn-custom {
+    background-color: #c8102e;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .btn-custom:hover {
+    background-color: #a10d23;
+  }
+
+  .card {
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .card-body {
+    padding: 15px;
+  }
+
+  .btn-back {
+  display: inline-block;
+  margin: 10px 0;
+  padding: 6px 12px;
+  background-color: #c8102e;
+  color: white;
+  text-decoration: none;
+  border-radius: 16px;
+  font-size: 14px;
+}
+
+.btn-back:hover {
+  background-color: #a10d23;
+}
+</style>
+
+<div class="card">
+  <a href="javascript:history.back()" class="btn-back">← Atrás</a>
+  <div class="card-body">
+    <div class="form-box">
+      <div class="form-header">BOGOBACHE</div>
+      <div class="form-title">CREA UNA CUENTA NUEVA</div>
+
+      <form method="post" enctype="multipart/form-data" id="multiStepForm">
+        {% csrf_token %}
+
+        {% for campo in formulario %}
+          {% if forloop.counter0|divisibleby:3 %}
+            <div class="form-step {% if forloop.first %}active{% endif %}">
+          {% endif %}
+
+          <div class="form-group">
+            <label>{{ campo.label }}:</label>
+
+            {% if campo.field.widget.input_type == 'file' and campo.value %}
+              <img src="{{ MEDIA_URL }}imagenes/{{ campo.value }}" width="100" alt="Imagen actual">
+            {% endif %}
+
+            <input
+              type="{{ campo.field.widget.input_type }}"
+              name="{{ campo.name }}"
+              placeholder="{{ campo.label }}"
+              value="{{ campo.value|default:'' }}"
+            />
+            <div class="help-text">{{ campo.errors }}</div>
+          </div>
+
+          {% if forloop.counter|divisibleby:3 or forloop.last %}
+            </div>
+          {% endif %}
+        {% endfor %}
+
+        <div class="button-group">
+          <button type="button" class="btn-custom" onclick="prevStep()">Atrás</button>
+          <button type="button" class="btn-custom" onclick="nextStep()">Siguiente</button>
+          <button type="submit" class="btn-custom" style="display: none;" id="submitBtn">Enviar</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+  <div class="card-footer text-muted"></div>
+</div>
+
+<script>
+  let currentStep = 0;
+  const steps = document.querySelectorAll('.form-step');
+  const submitBtn = document.getElementById('submitBtn');
+
+  function showStep(index) {
+    steps.forEach((step, i) => {
+      step.classList.toggle('active', i === index);
+    });
+
+    document.querySelector('[onclick="prevStep()"]').style.display = index === 0 ? 'none' : 'inline-block';
+    document.querySelector('[onclick="nextStep()"]').style.display = index === steps.length - 1 ? 'none' : 'inline-block';
+    submitBtn.style.display = index === steps.length - 1 ? 'inline-block' : 'none';
+  }
+
+  function nextStep() {
+    if (currentStep < steps.length - 1) {
+      currentStep++;
+      showStep(currentStep);
+    }
+  }
+
+  function prevStep() {
+    if (currentStep > 0) {
+      currentStep--;
+      showStep(currentStep);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    showStep(currentStep);
+  });
+</script>
+
+{% endblock %}

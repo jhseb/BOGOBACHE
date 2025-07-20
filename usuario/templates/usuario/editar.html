@@ -1,0 +1,157 @@
+{% extends "administrador/base_admin.html" %}
+
+{% block titulo %} Editar usuario {% endblock %}
+
+{% block contenido %}
+
+<style>
+    .titulo-formulario {
+        font-weight: bold;
+        color: #b00000;
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+        text-align: center;
+        text-transform: uppercase;
+    }
+
+    .formulario-contenedor {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        max-width: 900px;
+        margin: 0 auto;
+        border: 1px solid #ddd;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .formulario-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .mb-3 {
+        display: flex;
+        flex-direction: column;
+    }
+
+    label {
+        font-size: 0.85rem;
+        color: #333;
+        margin-bottom: 4px;
+        font-weight: bold;
+    }
+
+    input,
+    select,
+    textarea {
+        border: none;
+        border-bottom: 2px solid #999;
+        background-color: transparent;
+        padding: 6px 4px;
+        font-size: 0.9rem;
+        outline: none;
+        color: #000;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-bottom: 2px solid #b00000;
+    }
+
+    /* Estilo Botones (Acorde institucional) */
+    .boton-formulario {
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        margin-right: 10px;
+        transition: background-color 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-enviar {
+        background-color: #b00000;
+        color: #fff;
+        border: none;
+    }
+
+    .btn-enviar:hover {
+        background-color: #800000;
+    }
+
+    .btn-cancelar {
+        background-color: #000;
+        color: #fff;
+        border: none;
+    }
+
+    .btn-cancelar:hover {
+        background-color: #333;
+    }
+
+    @media(max-width: 768px) {
+        .formulario-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+
+<div class="formulario-contenedor">
+    <div class="titulo-formulario">GESTIÓN DE USUARIOS</div>
+
+    <form enctype="multipart/form-data" method="post">
+        {% csrf_token %}
+        
+        <div class="formulario-grid">
+            {% for campo in formulario %}
+                <div class="mb-3">
+                    <label class="form-label">{{ campo.label }}:</label>
+
+                    {% if campo.field.widget.input_type == 'file' and campo.value %}
+                        <br/>
+                        <img src="{{ MEDIA_URL }}imagenes/{{ campo.value }}" width="100" alt="">
+                    {% endif %}
+
+                    {% if campo.field.widget.input_type == 'checkbox' %}
+                        <input
+                            type="checkbox"
+                            name="{{ campo.name }}"
+                            {% if campo.value %}
+                                checked
+                            {% endif %}
+                        />
+                    {% else %}
+                        <input
+                            type="{{ campo.field.widget.input_type }}"
+                            class="form-control"
+                            name="{{ campo.name }}"
+                            placeholder="{{ campo.label }}"
+                            {% if campo.name == 'fecha_nacimiento' %}
+                                value="{{ campo.value|date:'Y-m-d' }}"
+                            {% else %}
+                                value="{{ campo.value|default:'' }}"
+                            {% endif %}
+                        />
+                    {% endif %}
+
+                    <div class="help-text">{{ campo.errors }}</div>
+                </div>
+            {% endfor %}
+
+        </div>
+
+        <br>
+        <input type="submit" value="Enviar información" class="boton-formulario btn-enviar"/>
+        <a href="{% url 'usuario' %}" class="boton-formulario btn-cancelar">Cancelar</a>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,152 @@
+{% extends "administrador/base_admin.html" %}
+
+{% block titulo %}Usuarios{% endblock %}
+
+{% block contenido %}
+
+<!-- Íconos de Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #fff;
+    }
+
+    .contenedor-principal {
+        width: 90%;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .botones-acciones {
+        display: flex;
+        justify-content: flex-start;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .boton {
+        background-color: #d41f28;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .boton:hover {
+        background-color: #b81820;
+    }
+
+    h4 {
+        font-size: 18px;
+        margin-bottom: 15px;
+        color: #d41f28;
+        border-bottom: 2px solid #d41f28;
+        display: inline-block;
+        padding-bottom: 5px;
+    }
+
+    .tabla-estilizada {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px; /* Aumentado de 12px a 14px */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .tabla-estilizada thead {
+        background-color: #d41f28;
+        color: white;
+        font-weight: bold;
+        font-size: 14px; /* Aumentado el tamaño del encabezado */
+    }
+
+    .tabla-estilizada th,
+    .tabla-estilizada td {
+        padding: 12px 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .tabla-estilizada td {
+        font-size: 14px; /* Asegurado para el cuerpo */
+        color: black; /* Letras negras en las celdas */
+    }
+
+    .tabla-estilizada tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .acciones-btn {
+        cursor: pointer;
+        font-size: 18px;
+        margin: 0 4px;
+    }
+
+    .btn-aceptar {
+        color: green;
+    }
+
+    .btn-rechazar {
+        color: red;
+    }
+
+    .icono-accion {
+        font-size: 16px;
+        color: #0d6efd;
+        margin: 0 4px;
+        cursor: pointer;
+    }
+
+    .icono-accion:hover {
+        color: #084298;
+    }
+</style>
+
+<div class="contenedor-principal">
+    <div class="botones-acciones">
+        <a href="{% url 'crear_usuario' %}" class="boton">CREAR USUARIO</a>
+        <!--<button type="button" class="boton" onclick="alert('Abrir modal')">AGREGAR PERMISOS</button>-->
+    </div>
+
+    <h4>Usuarios</h4>
+
+    <table class="tabla-estilizada">
+        <thead>
+            <tr>
+                <th>Cédula</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Correo</th>
+                <th>Rol</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <td>{{ usuario.cedula }}</td>
+                <td>{{ usuario.nombre }}</td>
+                <td>{{ usuario.apellido }}</td>
+                <td>{{ usuario.email }}</td>
+                <td>{{ usuario.rol }}</td>
+                <td>
+                    <a href="{% url 'editar_usuario' usuario.cedula %}" title="Editar">
+                        <i class="fas fa-pen-to-square icono-accion"></i>
+                    </a>
+                    |
+                    <!--<span class="acciones-btn btn-rechazar" title="Rechazar">&#10060;</span>-->
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

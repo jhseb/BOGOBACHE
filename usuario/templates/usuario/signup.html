@@ -1,0 +1,324 @@
+{% extends "visitante/base.html" %}
+{% load static %}
+{% block titulo %} Crear Usuario {% endblock %}
+
+{% block content %}
+
+<!-- Choices.js CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+
+<style>
+  .form-box {
+    background-color: white;
+    width: 100%;
+    max-width: 350px;
+    margin: 20px auto;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.08);
+  }
+
+  .form-header {
+    background-color: #c8102e;
+    color: white;
+    padding: 8px;
+    text-align: center;
+    font-weight: bold;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    font-size: 16px;
+  }
+
+.form-header img {
+  max-width: 180px;
+  width: 100%;
+  margin: 0 auto;
+  display: block;
+}
+
+  .form-title {
+    color: #c8102e;
+    text-align: center;
+    font-weight: bold;
+    margin: 10px 0 15px;
+    font-size: 16px;
+  }
+
+  .form-step {
+    display: none;
+  }
+
+  .form-step.active {
+    display: block;
+  }
+
+  .form-group {
+    margin-bottom: 12px;
+  }
+
+  .form-group label {
+    font-size: 13px;
+    margin-bottom: 3px;
+    display: block;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 16px;
+    border: 1px solid #ccc;
+    background-color: #f5f5f5;
+    font-size: 13px;
+  }
+
+  .form-group input[type="checkbox"] {
+    width: auto;
+    margin-right: 8px;
+  }
+
+  .button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+  }
+
+  .btn-custom {
+    background-color: #c8102e;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .btn-custom:hover {
+    background-color: #a10d23;
+  }
+
+ .card {
+  margin: 0 auto;
+  width: 100%;
+}
+
+  .card-body {
+    padding: 15px;
+  }
+
+  .help-text {
+    color: red;
+    font-size: 12px;
+    margin-top: 3px;
+  }
+
+  input.invalid, select.invalid, textarea.invalid {
+    border: 2px solid red;
+    background-color: #ffe5e5;
+  }
+
+  .choices {
+    width: 100%;
+  }
+
+  .choices__inner {
+    background-color: #f5f5f5;
+    border-radius: 16px;
+    border: 1px solid #ccc;
+    padding: 8px;
+    font-size: 13px;
+    min-height: auto;
+  }
+
+  .choices__list--dropdown {
+    max-height: 150px;
+    overflow-y: auto;
+    border-radius: 12px;
+  }
+
+  .choices__list--single {
+    padding: 0;
+  }
+</style>
+
+<div class="card">
+  <div class="card-body">
+    <div class="form-box">
+      <div class="form-header">
+        <img src="{% static 'centro.jpeg' %}" alt="BOGOBACHE" style="width: 100%; border-top-left-radius: 16px; border-top-right-radius: 16px;">
+      </div>
+      <div class="form-title">CREA UNA CUENTA NUEVA</div>
+
+      <form method="post" action="{% url 'signup' %}">
+        {% csrf_token %}
+
+        <div class="form-step active">
+          <div class="form-group">
+            <label for="cedula">Cédula</label>
+            <input type="text" name="cedula" id="cedula" placeholder="10 dígitos" maxlength="10" required>
+            <div class="help-text" id="cedula-error" style="display:none;">La cédula debe tener exactamente 10 dígitos numéricos.</div>
+          </div>
+
+          <div class="form-group">
+            <label for="nombre">Nombre</label>
+            <input type="text" name="nombre" id="nombre" required>
+          </div>
+
+          <div class="form-group">
+            <label for="apellido">Apellido</label>
+            <input type="text" name="apellido" id="apellido" required>
+          </div>
+        </div>
+        {{error}}
+        <div class="form-step">
+          <div class="form-group">
+            <label for="fecha_nacimiento">Fecha de Nacimiento</label>
+            <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" required>
+          </div>
+
+          <div class="form-group">
+            <label for="localidad">Localidad</label>
+            <select name="localidad" id="localidad" required>
+              <option value="">Seleccione una localidad</option>
+              <option value="Antonio Nariño">Antonio Nariño</option>
+              <option value="Barrios Unidos">Barrios Unidos</option>
+              <option value="Bosa">Bosa</option>
+              <option value="Chapinero">Chapinero</option>
+              <option value="Ciudad Bolívar">Ciudad Bolívar</option>
+              <option value="Engativá">Engativá</option>
+              <option value="Fontibón">Fontibón</option>
+              <option value="Kennedy">Kennedy</option>
+              <option value="La Candelaria">La Candelaria</option>
+              <option value="Los Mártires">Los Mártires</option>
+              <option value="Puente Aranda">Puente Aranda</option>
+              <option value="Rafael Uribe Uribe">Rafael Uribe Uribe</option>
+              <option value="San Cristóbal">San Cristóbal</option>
+              <option value="Santa Fe">Santa Fe</option>
+              <option value="Suba">Suba</option>
+              <option value="Sumapaz">Sumapaz</option>
+              <option value="Teusaquillo">Teusaquillo</option>
+              <option value="Tunjuelito">Tunjuelito</option>
+              <option value="Usaquén">Usaquén</option>
+              <option value="Usme">Usme</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="medio_trans">Medio de Transporte</label>
+            <input type="text" name="medio_trans" id="medio_trans" required>
+          </div>
+        </div>
+
+        <div class="form-step">
+          <div class="form-group">
+            <label for="email">Correo Electrónico</label>
+            <input type="email" name="email" id="email" required>
+          </div>
+
+          <div class="form-group">
+            <label for="notificacion">
+              <input type="checkbox" name="notificacion" id="notificacion">
+              ¿Desea recibir notificaciones?
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label for="password1">Contraseña</label>
+            <input type="password" name="password1" id="password1" required placeholder="Ingrese una contraseña segura">
+          </div>
+
+          <div class="form-group">
+            <label for="password2">Repita la Contraseña</label>
+            <input type="password" name="password2" id="password2" required placeholder="Confirme la contraseña">
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button type="button" class="btn-custom" onclick="prevStep()">Atrás</button>
+          <button type="button" class="btn-custom" onclick="nextStep()">Siguiente</button>
+          <button type="submit" class="btn-custom" id="submitBtn" style="display: none;">Crear usuario</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Choices.js JS -->
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    showStep(currentStep);
+
+    const selectElement = document.getElementById('localidad');
+    new Choices(selectElement, {
+      searchEnabled: false,
+      itemSelectText: '',
+      shouldSort: false
+    });
+  });
+
+  let currentStep = 0;
+  const steps = document.querySelectorAll('.form-step');
+  const submitBtn = document.getElementById('submitBtn');
+
+  function showStep(index) {
+    steps.forEach((step, i) => {
+      step.classList.toggle('active', i === index);
+    });
+
+    document.querySelector('[onclick="prevStep()"]').style.display = index === 0 ? 'none' : 'inline-block';
+    document.querySelector('[onclick="nextStep()"]').style.display = index === steps.length - 1 ? 'none' : 'inline-block';
+    submitBtn.style.display = index === steps.length - 1 ? 'inline-block' : 'none';
+  }
+
+  function nextStep() {
+    const currentFields = steps[currentStep].querySelectorAll('input, select, textarea');
+    let allValid = true;
+
+    currentFields.forEach(field => {
+      const errorId = `${field.id}-error`;
+      const errorDiv = document.getElementById(errorId);
+
+      // Validación personalizada para la cédula
+      if (field.id === "cedula") {
+        const val = field.value.trim();
+        const validCedula = /^\d{10}$/.test(val);
+        if (!validCedula) {
+          field.classList.add('invalid');
+          if (errorDiv) errorDiv.style.display = 'block';
+          allValid = false;
+        } else {
+          field.classList.remove('invalid');
+          if (errorDiv) errorDiv.style.display = 'none';
+        }
+        return; // saltar a la siguiente iteración
+      }
+
+      // Validación general
+      if (field.hasAttribute('required') && !field.value.trim()) {
+        field.classList.add('invalid');
+        if (errorDiv) errorDiv.style.display = 'block';
+        allValid = false;
+      } else {
+        field.classList.remove('invalid');
+        if (errorDiv) errorDiv.style.display = 'none';
+      }
+    });
+
+    if (allValid && currentStep < steps.length - 1) {
+      currentStep++;
+      showStep(currentStep);
+    }
+  }
+
+  function prevStep() {
+    if (currentStep > 0) {
+      currentStep--;
+      showStep(currentStep);
+    }
+  }
+</script>
+
+{% endblock %}

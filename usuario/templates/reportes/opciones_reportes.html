@@ -1,0 +1,55 @@
+{% extends "usuario/principal_usuario.html" %}
+
+{% block titulo %}GESTION DE USUARIOS{% endblock %}
+
+{% block contenido %}
+<style>
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    background-color: #f0f2f5;
+  }
+
+  .panel-admin {
+    background-color: #fff;
+    padding: 40px 30px;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+  }
+
+  .panel-admin h2 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #b10000;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+  }
+
+  .panel-admin ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .panel-admin li {
+    font-size: 16px;
+    color: #000;
+    margin-bottom: 20px;
+  }
+
+  .panel-admin a {
+    text-decoration: none;
+    color: inherit;
+  }
+</style>
+
+<div class="panel-admin">
+  <h2>Opciones de Reporte</h2>
+  <ul>
+    <li><a href="{% url 'consultar_reportes' %}">CONSULTAR REPORTE</a></li>
+    <li><a href="{% url 'consultar_reportes' %}">CREAR REPORTE</a></li>
+    <li><a href="{% url 'consultar_reportes' %}">CONECTARSE</a></li>
+    <li><a href="{% url 'consultar_reportes' %}">DESCONECTARSE</a></li>
+  </ul>
+</div>
+{% endblock %}

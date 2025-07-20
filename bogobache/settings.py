@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-&g0%=z$ea$x@1u#f2a0sq^#_8l6twd1ja!+^3(pi9&zmk*qpvb
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'bache'
+    'bache',
+    'usuario',
 ]
 
 MIDDLEWARE = [
@@ -48,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
 ROOT_URLCONF = 'bogobache.urls'
@@ -55,13 +57,15 @@ ROOT_URLCONF = 'bogobache.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'usuario', 'templates')],
+        
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'usuario.context_processors.rol_usuario',
             ],
         },
     },
@@ -80,10 +84,13 @@ DATABASES = {
         'USER':'root',
         'PASSWORD':'',
         'HOST':'localhost',
-        'PORT':'3306'
+        'PORT':'33065'
     }
 }
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # Carpeta global "static" en la raíz del proyecto
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -107,8 +114,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
+LANGUAGE_CODE = 'es'
+USE_I18N = True
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
@@ -125,3 +132,32 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+STATIC_URL = '/static/'
+
+
+#STATICFILES_DIRS = (os.path.join(BASE_DIR,'/static'),)
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+
+MEDIA_ROOT = os.path.join(BASE_DIR,'')
+MEDIA_URL = '/imagenes/'
+
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'bogobacheteam@gmail.com'
+EMAIL_HOST_PASSWORD = 'ljtofleseohftnuv'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+
