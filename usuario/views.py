@@ -268,41 +268,44 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import redirect
 
+from django.shortcuts import render, redirect
+from django.urls import reverse
+
 def actualizar_correo(request):
     title = 'PÁGINA'
     usuario = obtener_usuario(request)
+
+    if not usuario:
+        return render(request, 'usuario/actualizar_correo.html', {
+            'error': 'Usuario no encontrado',
+            'correo_actual': '',
+            'title': title
+        })
 
     if request.method == 'POST':
         nuevo_correo = request.POST.get('nuevo_correo')
         nuevo_correo2 = request.POST.get('nuevo_correo2')
 
         if nuevo_correo and nuevo_correo2 and nuevo_correo == nuevo_correo2:
-            if usuario:
-                usuario.email = nuevo_correo
-                usuario.save()
-                # Redirige con el parámetro GET (para mostrar la alerta)
-                return redirect(reverse('actualizar_correo') + '?actualizado=1')
-            else:
-                return render(request, 'usuario/actualizar_correo.html', {
-                    'error': 'Usuario no encontrado',
-                    'correo_actual': '',
-                    'title': title
-                })
+            usuario.email = nuevo_correo
+            usuario.save()
+            # Redirección con indicador de éxito
+            return redirect(reverse('actualizar_correo') + '?actualizado=1')
         else:
             return render(request, 'usuario/actualizar_correo.html', {
                 'error': 'Los correos no coinciden',
-                'correo_actual': usuario.email if usuario else '',
+                'correo_actual': usuario.email,
                 'title': title
             })
 
-    # Si es GET y se actualizó correctamente, muestra el mensaje
+    # GET normal
     mensaje = None
     if request.GET.get('actualizado') == '1':
         mensaje = 'Correo actualizado correctamente.'
 
     return render(request, 'usuario/actualizar_correo.html', {
         'title': title,
-        'correo_actual': usuario.email if usuario else '',
+        'correo_actual': usuario.email,
         'mensaje': mensaje
     })
 
