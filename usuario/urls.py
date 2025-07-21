@@ -16,6 +16,9 @@ urlpatterns = [
     path('usuario/mostrar/',views.usuario_view, name='usuario'),
     path('usuario/editar//<int:id>',views.editar_usuario, name='editar_usuario'),
     path('usuario/principal/',views.principal_usuario, name='principal_usuario'),
+    path('usuario/correo_usuario/',views.actualizar_correo, name='actualizar_correo'),
+                
+
 
     path('signup/',views.signup,name='signup'),
     path('logout/',views.signout,name='logout'),

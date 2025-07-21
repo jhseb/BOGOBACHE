@@ -8,6 +8,9 @@ from django.db import IntegrityError
 from django.contrib.auth.models import Group
 from django.contrib.auth import login,logout, authenticate
 from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
 # Create your views here.
 def index(request):
     #return HttpResponse("HOLA")
@@ -258,4 +261,50 @@ def opciones_bache_usuario(request):
 def consultar_reportes(request):
     title = 'PÁGINA'
     return render(request, 'reportes/consultar_reportes.html', {'title': title})
+
+from django.urls import reverse
+from django.http import HttpResponseRedirect
+
+from django.urls import reverse
+from django.shortcuts import redirect
+
+def actualizar_correo(request):
+    title = 'PÁGINA'
+    usuario = obtener_usuario(request)
+
+    if request.method == 'POST':
+        nuevo_correo = request.POST.get('nuevo_correo')
+        nuevo_correo2 = request.POST.get('nuevo_correo2')
+
+        if nuevo_correo and nuevo_correo2 and nuevo_correo == nuevo_correo2:
+            if usuario:
+                usuario.email = nuevo_correo
+                usuario.save()
+                # Redirige con el parámetro GET (para mostrar la alerta)
+                return redirect(reverse('actualizar_correo') + '?actualizado=1')
+            else:
+                return render(request, 'usuario/actualizar_correo.html', {
+                    'error': 'Usuario no encontrado',
+                    'correo_actual': '',
+                    'title': title
+                })
+        else:
+            return render(request, 'usuario/actualizar_correo.html', {
+                'error': 'Los correos no coinciden',
+                'correo_actual': usuario.email if usuario else '',
+                'title': title
+            })
+
+    # Si es GET y se actualizó correctamente, muestra el mensaje
+    mensaje = None
+    if request.GET.get('actualizado') == '1':
+        mensaje = 'Correo actualizado correctamente.'
+
+    return render(request, 'usuario/actualizar_correo.html', {
+        'title': title,
+        'correo_actual': usuario.email if usuario else '',
+        'mensaje': mensaje
+    })
+
+
 

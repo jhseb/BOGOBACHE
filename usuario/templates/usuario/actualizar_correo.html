@@ -1,0 +1,98 @@
+{% extends "usuario/base_configuracion.html" %}
+{% block titulo %}Usuarios{% endblock %}
+
+{% block contenido %}
+
+<style>
+    .contenedor-actualizar {
+        max-width: 500px;
+        margin: 30px auto;
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    .contenedor-actualizar h2 {
+        color: #b00000;
+        font-weight: bold;
+        margin-bottom: 20px;
+        font-size: 18px;
+    }
+
+    .input-correo {
+        width: 100%;
+        margin: 15px 0;
+        border: none;
+        border-bottom: 2px solid #ccc;
+        padding: 8px;
+        font-size: 16px;
+        outline: none;
+        transition: border-color 0.3s ease;
+        background-color: transparent;
+    }
+
+    .input-correo:focus {
+        border-bottom: 2px solid #b00000;
+    }
+
+    .btn-actualizar {
+        background-color: #b00000;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+
+    .btn-actualizar:hover {
+        background-color: #8a0000;
+    }
+
+    .alerta {
+        background-color: #d4edda;
+        color: #155724;
+        padding: 10px;
+        border: 1px solid #c3e6cb;
+        border-radius: 4px;
+        margin-top: 20px;
+        font-weight: bold;
+    }
+
+    .alerta-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 10px;
+        border: 1px solid #f5c6cb;
+        border-radius: 4px;
+        margin-top: 20px;
+        font-weight: bold;
+    }
+</style>
+
+<div class="contenedor-actualizar">
+    <h2>ACTUALIZAR CORREO</h2>
+    <form method="POST" action="{% url 'actualizar_correo' %}">
+        {% csrf_token %}
+        <input type="email" name="nuevo_correo" placeholder="Ingrese correo nuevo"
+               value="{{ correo_actual }}" required class="input-correo">
+
+        <input type="email" name="nuevo_correo2" placeholder="Confirmar correo nuevo"
+               required class="input-correo">
+
+        <button type="submit" class="btn-actualizar">Actualizar correo</button>
+    </form>
+
+    {% if mensaje %}
+        <div class="alerta">{{ mensaje }}</div>
+    {% endif %}
+
+    {% if error %}
+        <div class="alerta-error">{{ error }}</div>
+    {% endif %}
+</div>
+
+{% endblock %}
