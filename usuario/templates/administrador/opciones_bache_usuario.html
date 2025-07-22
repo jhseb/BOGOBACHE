@@ -47,13 +47,13 @@
   <h2>GESTION DE BACHES</h2>
   <ul>
     {% if rol == 2 %}
-      <li><a href="{% url 'ver_filtrado_baches' %}">Consultar baches</a></li>
-      <li><a href="{% url 'crear_bache' %}">Crear baches</a></li>
-      <li><a href="{% url 'ver_filtrado_baches' %}">Consultar baches</a></li>
-      <li><a href="{% url 'crear_bache' %}">Crear baches</a></li>
+     <!--nada-->
     {% else %}
-      <li><a href="{% url 'ver_filtrado_baches' %}">Consultar baches</a></li>
       <li><a href="{% url 'crear_bache' %}">Crear baches</a></li>
+      <li><a href="{% url 'ver_filtrado_baches' %}">Consultar baches</a></li>
+      <li><a href="{% url 'mostrar_modificar_bache' %}">Modificar baches</a></li>
+      <li><a href="{% url 'mostrar_eliminar_bache' %}">Eliminar baches</a></li>
+      <li><a href="{% url 'mostrar_registrar_accidente' %}">Registrar accidente por bache</a></li>
     {% endif %}
   </ul>
 </div>

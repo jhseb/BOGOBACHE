@@ -310,4 +310,58 @@ def actualizar_correo(request):
     })
 
 
+def crear_usuario_admin(request):
+    if request.method == 'GET':
+        return render(request, 'usuario/crear_usuario_admin.html', {'form': UserCreationForm})
+    else:
+        cedula = request.POST['cedula']
+        correo = request.POST['email']
+
+        cedula_existe = Usuario.objects.filter(cedula=cedula).exists()
+        correo_existe = Usuario.objects.filter(email=correo).exists()
+
+        if cedula_existe or correo_existe:
+            return render(request, 'usuario/crear_usuario_admin.html', {
+                'form': UserCreationForm,
+                'error': 'La cédula o el correo ya están registrados'
+            })
+
+        if request.POST['password1'] == request.POST['password2']:
+            try:
+                user = User.objects.create_user(
+                    username=request.POST['cedula'],
+                    password=request.POST['password1'],
+                    email=request.POST['email']
+                )
+
+                usuario = Usuario.objects.create(
+                    cedula=cedula,
+                    nombre=request.POST['nombre'],
+                    apellido=request.POST['apellido'],
+                    fecha_nacimiento=request.POST['fecha_nacimiento'],
+                    localidad=request.POST['localidad'],
+                    medio_trans=request.POST['medio_trans'],
+                    email=request.POST['email'],
+                    notificacion=bool(request.POST.get('notificacion')),
+                    rol=request.POST['rol'], 
+
+                )
+
+                user.save()
+                enviar_correo_usuario(user)
+                restringir(request, cedula)
+                login(request, user)
+
+                return redirect('usuario')
+
+            except IntegrityError:
+                return render(request, 'usuario/crear_usuario_admin.html', {
+                    'form': UserCreationForm,
+                    'error': 'El usuario ya existe'
+                })
+
+        return render(request, 'usuario/crear_usuario_admin.html', {
+            'form': UserCreationForm,
+            'error': 'Las contraseñas no coinciden'
+        })
 

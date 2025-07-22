@@ -26,12 +26,18 @@
       <p><strong>Diámetro aproximado (cm):</strong> <span id="bache-diametro"></span></p>
       <p><strong>Foto:</strong><br><img id="bache-foto" src="" alt="Foto del bache" style="max-width: 100%; margin-top: 5px;"></p>
       
-      <button id="btn-eliminar">Confirmar Eliminación Bache (Usuario)</button>
+
+       {% if rol == 1 %}
+        <button id="btn-eliminar">Confirmar Eliminación Bache (Usuario)</button>
+      {% endif %}
+      {% if rol == 2 %}
+        <button id="btn-eliminar-admin" style="background-color: #444444; margin-top: 10px;">
+          Eliminar directamente como Admin
+        </button>
+      {% endif %}
 
       <!-- Siempre visible por ahora -->
-      <button id="btn-eliminar-admin" style="background-color: #444444; margin-top: 10px;">
-        Eliminar directamente como Admin
-      </button>
+ 
     </div>
   </div>
 
@@ -118,7 +124,8 @@ function mostrarDetalle(bache) {
 }
 
 // Botón usuario
-document.getElementById("btn-eliminar").addEventListener("click", () => {
+const botonEliminar = document.getElementById("btn-eliminar");
+if (botonEliminar) {
   const id = document.getElementById("bache-id").textContent;
 
   Swal.fire({
@@ -151,7 +158,7 @@ document.getElementById("btn-eliminar").addEventListener("click", () => {
       });
     }
   });
-});
+}
 
 // Botón admin
 document.getElementById("btn-eliminar-admin").addEventListener("click", () => {

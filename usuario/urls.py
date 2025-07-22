@@ -33,7 +33,8 @@ urlpatterns = [
     path('opciones_bache/', views.opciones_bache, name='opciones_bache'),
     path('opciones_admin/', views.opciones_admin, name='opciones_admin'),
     path('opciones_bache_usuario/', views.opciones_bache_usuario, name='opciones_bache_usuario'),
-
+    path('crear_usuario_admin/', views.crear_usuario_admin, name='crear_usuario_admin'),
+            
     
     re_path(r'^reset/password_reset/$', auth_views.PasswordResetView.as_view(
         template_name='registration/password_reset_form.html',

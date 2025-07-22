@@ -9,9 +9,19 @@
     max-width: 400px;
     margin: auto;
     background-color: #ffffff;
-    padding: 40px 30px;
+    padding: 0; /* Quitar el padding general para controlar mejor el espacio */
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* Evita que la imagen sobresalga */
+  }
+
+  .login-banner {
+    width: 100%;
+    display: block;
+  }
+
+  .login-content {
+    padding: 30px;
   }
 
   .login-title {
@@ -87,29 +97,33 @@
 <main style="background-color: #e3e1eb; min-height: 100vh; padding-top: 50px;">
   <div class="login-card">
 
-    <h2 class="login-title">INICIAR SESIÓN</h2>
+    <img src="{% static 'centro.jpeg' %}" alt="Logo" class="login-banner">
 
-    <form method="post" action="{% url 'signin' %}">
-      {% csrf_token %}
-      <div class="form-group">
-        <label for="username">Cédula</label>
-        <input type="text" id="username" name="username" required
-              maxlength="10" minlength="10" pattern="\d{10}" title="La cédula debe tener exactamente 10 dígitos numéricos.">
-      </div>
-      <div class="form-group">
-        <label for="password">Contraseña</label>
-        <input type="password" id="password" name="password" required>
-      </div>
-      <div class="forgot-password">
-        <a href="{% url 'password_reset' %}">¿Olvidaste tu contraseña?</a>
-      </div>
-      <div class="button-group">
-        <button type="submit" class="btn rojo">Iniciar sesión</button>
-        <a href="{% url 'signup' %}" class="btn rojo">Crear cuenta</a>
-      </div>
-      {{error}}
-    </form>
+    <div class="login-content">
+      <h2 class="login-title">INICIAR SESIÓN</h2>
+
+      <form method="post" action="{% url 'signin' %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="username">Cédula</label>
+          <input type="text" id="username" name="username" required
+                maxlength="10" minlength="10" pattern="\d{10}" title="La cédula debe tener exactamente 10 dígitos numéricos.">
+        </div>
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        <div class="forgot-password">
+          <a href="{% url 'password_reset' %}">¿Olvidaste tu contraseña?</a>
+        </div>
+        <div class="button-group">
+          <button type="submit" class="btn rojo">Iniciar sesión</button>
+          <a href="{% url 'signup' %}" class="btn rojo">Crear cuenta</a>
+        </div>
+        {{error}}
+      </form>
+    </div>
+    
   </div>
 </main>
 {% endblock %}
-

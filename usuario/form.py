@@ -19,7 +19,7 @@ class usuarioForm(forms.ModelForm):
             raise forms.ValidationError("La cédula debe contener solo números.")
 
         if len(cedula) != 10:
-            raise forms.ValidationError("La cédula debe tener exactamente 10 dígitos.")
+            raise forms.ValidationError("Se necesita 10 digitos")
 
         return cedula
 
