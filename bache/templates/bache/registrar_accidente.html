@@ -26,6 +26,7 @@
       <p><strong>UPZ:</strong> <span id="nombre-upz"></span></p>
       <p><strong>Barrio:</strong> <span id="nombre-barrio"></span></p>
       <p><strong>Estado:</strong> <span id="bache-estado"></span></p>
+      <p><strong>Profundidad:</strong> <span id="bache-profundidad"></span></p>
       <p><strong>Peligrosidad:</strong> <span id="bache-peligrosidad"></span></p>
       <p><strong>Tipo de calle:</strong> <span id="bache-tipo_calle"></span></p>
       <p><strong>Accidentes reportados:</strong> <span id="bache-accidentes"></span></p>
@@ -103,6 +104,7 @@ function mostrarDetalle(bache) {
   document.getElementById("nombre-upz").textContent = bache.nombre_upz || "Sin UPZ";
   document.getElementById("nombre-barrio").textContent = bache.nombre_barrio || "Sin barrio";
   document.getElementById("bache-estado").textContent = bache.estado;
+  document.getElementById("bache-profundidad").textContent = bache.profundidad;
   document.getElementById("bache-peligrosidad").textContent = bache.peligrosidad;
   document.getElementById("bache-tipo_calle").textContent = bache.tipo_calle;
   document.getElementById("bache-accidentes").textContent = bache.accidentes;

@@ -1,0 +1,100 @@
+{% extends "usuario/configuracion.html" %}
+{% block titulo %}Verificación{% endblock %}
+
+{% block contenido %}
+
+<!-- Importar SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    .contenedor-verificacion {
+        max-width: 500px;
+        margin: 30px auto;
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .contenedor-verificacion h2 {
+        color: #b00000;
+        font-weight: bold;
+        margin-bottom: 20px;
+        font-size: 18px;
+    }
+
+    .input-codigo {
+        width: 100%;
+        margin: 15px 0;
+        border: none;
+        border-bottom: 2px solid #ccc;
+        padding: 8px;
+        font-size: 16px;
+        outline: none;
+        background-color: transparent;
+        text-align: center;
+        letter-spacing: 4px;
+        transition: border-color 0.3s ease;
+    }
+
+    .input-codigo:focus {
+        border-bottom: 2px solid #b00000;
+    }
+
+    .btn-verificar {
+        background-color: #b00000;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+
+    .btn-verificar:hover {
+        background-color: #8a0000;
+    }
+</style>
+
+<div class="contenedor-verificacion">
+    <h2>INGRESE CÓDIGO DE VERIFICACIÓN</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="codigo" maxlength="6" pattern="\d{6}" placeholder="123456"
+               required class="input-codigo">
+        <button type="submit" class="btn-verificar">Verificar</button>
+    </form>
+</div>
+
+<!-- Alerta de éxito con redirección -->
+{% if correo_actualizado %}
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: '¡Correo actualizado!',
+        text: 'Tu correo fue actualizado exitosamente.',
+        confirmButtonColor: '#b00000',
+        timer: 2500,
+        timerProgressBar: true,
+        showConfirmButton: false
+    }).then(() => {
+        window.location.href = "{% url 'actualizar_correo' %}";  // Asegúrate que esta URL esté bien
+    });
+</script>
+{% endif %}
+
+<!-- Alerta de error -->
+{% if error %}
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: '{{ error }}',
+        confirmButtonColor: '#b00000'
+    });
+</script>
+{% endif %}
+
+{% endblock %}

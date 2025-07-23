@@ -10,7 +10,13 @@ from django.contrib.auth import login,logout, authenticate
 from django.http import HttpResponse, JsonResponse
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-
+from django.utils import timezone
+import random
+from django.contrib import messages
+from django.contrib import messages
+from .models import Servicio
+from usuario.models import Usuario
+from django.core.exceptions import MultipleObjectsReturned
 # Create your views here.
 def index(request):
     #return HttpResponse("HOLA")
@@ -95,7 +101,6 @@ def usuario_view(request):
 
 
 def editar_usuario(request, id):
-
     usuario1 = Usuario.objects.get(cedula=id)
     formulario = usuarioForm(request.POST or None, request.FILES or None, instance=usuario1)
     nombre_grupo = 'admin'
@@ -105,12 +110,17 @@ def editar_usuario(request, id):
 
     if formulario.is_valid() and  request.POST:
         formulario.save()
-        userb = User.objects.get(username=formulario.cleaned_data['cedula'])
+        userb = User.objects.get(username=usuario1.cedula)
+        print(userb.cedula)
+        userb.email = formulario.cleaned_data['email']
         userb.groups.clear()   
         if formulario.cleaned_data['rol'] == 1:
             userb.groups.add(grupo1)
         else:
             userb.groups.add(grupo)
+
+        userb.username = formulario.cleaned_data['cedula']
+        userb.save()
 
         return redirect('usuario')
     return render(request,'usuario/editar.html',{'formulario': formulario})
@@ -137,24 +147,104 @@ def enviar_correo_usuario(user):
         fail_silently=False,
     )
 
+def caso_usuario_3(cedula, request):
+    try:
+        usuario = Usuario.objects.get(cedula=cedula)
+    except Usuario.DoesNotExist:
+        return  # O manejar el caso de error según necesites
 
+    usuario.nombre = request.POST['nombre']
+    usuario.apellido = request.POST['apellido']
+    usuario.fecha_nacimiento = request.POST['fecha_nacimiento']
+    usuario.localidad = request.POST['localidad']
+    usuario.medio_trans = request.POST['medio_trans']
 
-
+    if request.POST['email'] == usuario.email:
+        if request.POST['password1'] != request.POST['password2']:
+            usuario.email = request.POST['email']
+            usuario.notificacion = bool(request.POST.get('notificacion'))
+            usuario.rol = 1  # Si deseas forzar siempre rol=1
+            usuario.save()
+            user = User.objects.get(username=cedula)
+            user.email = request.POST['email']
+            user.password = request.POST['password1']
+            user.save()
+            login(request, user)
+            return redirect('principal_usuario')
+    else:
+        correo_existe = Usuario.objects.filter(email=request.POST['email']).exists()
+        if not correo_existe:
+            if request.POST['password1'] != request.POST['password2']:
+                usuario.email = request.POST['email']
+                usuario.notificacion = bool(request.POST.get('notificacion'))
+                usuario.rol = 1  # Si deseas forzar siempre rol=1
+                usuario.save()
+                user = User.objects.get(username=cedula)
+                user.email = request.POST['email']
+                user.password = request.POST['password1']
+                user.save()
+                login(request, user)
+                return redirect('principal_usuario')
+        
+            
 
 def signup(request):
     if request.method == 'GET':
         return render(request, 'usuario/signup.html', {'form': UserCreationForm})
     else:
         cedula = request.POST['cedula']
-        correo = request.POST['email']
 
+        try:
+            user_rol = Usuario.objects.get(cedula=cedula).rol
+            if user_rol == 3:
+                try:
+                    usuario = Usuario.objects.get(cedula=cedula)
+                except Usuario.DoesNotExist:
+                    return  # O manejar el caso de error según necesites
+
+                usuario.nombre = request.POST['nombre']
+                usuario.apellido = request.POST['apellido']
+                usuario.fecha_nacimiento = request.POST['fecha_nacimiento']
+                usuario.localidad = request.POST['localidad']
+                usuario.medio_trans = request.POST['medio_trans']
+
+                if request.POST['email'] == usuario.email:
+                    if request.POST['password1'] == request.POST['password2']:
+                        usuario.email = request.POST['email']
+                        usuario.notificacion = bool(request.POST.get('notificacion'))
+                        usuario.rol = 1  # Si deseas forzar siempre rol=1
+                        usuario.save()
+                        user = User.objects.get(username=cedula)
+                        user.email = request.POST['email']
+                        user.set_password(request.POST['password1'])
+                        user.save()
+                        login(request, user)
+                        return redirect('principal_usuario')
+                else:
+                    correo_existe = Usuario.objects.filter(email=request.POST['email']).exists()
+                    if not correo_existe:
+                        if request.POST['password1'] == request.POST['password2']:
+                            usuario.email = request.POST['email']
+                            usuario.notificacion = bool(request.POST.get('notificacion'))
+                            usuario.rol = 1  # Si deseas forzar siempre rol=1
+                            usuario.save()
+                            user = User.objects.get(username=cedula)
+                            user.email = request.POST['email']
+                            user.set_password(request.POST['password1'])
+                            user.save()
+                            login(request, user)
+                            return redirect('principal_usuario')  
+        except Usuario.DoesNotExist:
+            pass  # Si no existe el usuario, continúa normalmente
+
+        correo = request.POST['email']
         cedula_existe = Usuario.objects.filter(cedula=cedula).exists()
         correo_existe = Usuario.objects.filter(email=correo).exists()
 
         if cedula_existe or correo_existe:
             return render(request, 'usuario/signup.html', {
                 'form': UserCreationForm,
-                'error': 'La cédula o el correo ya están registrados'
+                'error': 'La cédula o el correo ya están registrados o contraseña incorrecta'
             })
 
         if request.POST['password1'] == request.POST['password2']:
@@ -200,27 +290,41 @@ def signup(request):
 
 
 def signin(request):
-    if request.method=='GET':
-        return render(request,'visitante/sesion.html',{ 'form': AuthenticationForm})
+    if request.method == 'GET':
+        return render(request, 'visitante/sesion.html', {'form': AuthenticationForm})
     else:
-        user = authenticate(request,username=request.POST['username'], password=request.POST['password'])
+        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
         if user is None:
-             return render(request,'visitante/sesion.html',{ 'form': AuthenticationForm,'error':'Contraseña incorrecta o usuario inexistente'})
+            return render(request, 'visitante/sesion.html', {
+                'form': AuthenticationForm,
+                'error': 'Contraseña incorrecta o usuario inexistente'
+            })
         else:
-            usu=(Usuario.objects.get(cedula=(request.POST['username']))).rol
-            login(request,user)
-            print(usu)
-            if usu == 2 :
+            try:
+                usu = Usuario.objects.get(cedula=request.POST['username']).rol
+            except Usuario.DoesNotExist:
+                return render(request, 'visitante/sesion.html', {
+                    'form': AuthenticationForm,
+                    'error': 'Usuario no registrado en el sistema'
+                })
+
+            if usu == 3:
+                return render(request, 'visitante/sesion.html', {
+                    'form': AuthenticationForm,
+                    'error': 'Usuario no registrado en el sistema'
+                })
+
+            login(request, user)
+
+            if usu == 2:
                 return redirect('opciones_admin')
             else:
                 return redirect('principal_usuario')
+
             
-
-
 def signout(request):
     logout(request)
     return redirect('signin')
-
 
 
 def configuracion_usuario(request):
@@ -237,12 +341,9 @@ def opciones_bache(request):
     title = 'PÁGINA'
     return render(request, 'administrador/opciones_bache.html', {'title': title})
 
-
 def opciones_admin(request):
     title = 'PÁGINA'
     return render(request, 'administrador/base_admin.html', {'title': title})
-
-
 
 def principal_usuario(request):
     title = 'PÁGINA'
@@ -262,14 +363,10 @@ def consultar_reportes(request):
     title = 'PÁGINA'
     return render(request, 'reportes/consultar_reportes.html', {'title': title})
 
+from django.core.mail import send_mail
+from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.http import HttpResponseRedirect
-
-from django.urls import reverse
-from django.shortcuts import redirect
-
-from django.shortcuts import render, redirect
-from django.urls import reverse
+import random
 
 def actualizar_correo(request):
     title = 'PÁGINA'
@@ -286,28 +383,79 @@ def actualizar_correo(request):
         nuevo_correo = request.POST.get('nuevo_correo')
         nuevo_correo2 = request.POST.get('nuevo_correo2')
 
-        if nuevo_correo and nuevo_correo2 and nuevo_correo == nuevo_correo2:
-            usuario.email = nuevo_correo
-            usuario.save()
-            # Redirección con indicador de éxito
-            return redirect(reverse('actualizar_correo') + '?actualizado=1')
+        if nuevo_correo and nuevo_correo2:
+            if nuevo_correo == nuevo_correo2:
+                # Generar código de verificación
+                codigo = random.randint(100000, 999999)
+
+                # Guardar temporalmente en sesión
+                request.session['codigo_verificacion'] = str(codigo)
+                request.session['nuevo_correo'] = nuevo_correo
+
+                # Enviar correo con código
+                send_mail(
+                    'Código de verificación',
+                    f'Tu código de verificación es: {codigo}',
+                    'no-responder@miapp.com',  # Cambia por el remitente real
+                    [nuevo_correo],
+                    fail_silently=False,
+                )
+
+                return redirect('verificar_codigo_correo')
+            else:
+                return render(request, 'usuario/actualizar_correo.html', {
+                    'error': 'Los correos ingresados no coinciden.',
+                    'correo_actual': usuario.email,
+                    'title': title
+                })
         else:
             return render(request, 'usuario/actualizar_correo.html', {
-                'error': 'Los correos no coinciden',
+                'error': 'Debe ingresar ambos correos.',
                 'correo_actual': usuario.email,
                 'title': title
             })
 
-    # GET normal
-    mensaje = None
-    if request.GET.get('actualizado') == '1':
-        mensaje = 'Correo actualizado correctamente.'
-
     return render(request, 'usuario/actualizar_correo.html', {
         'title': title,
-        'correo_actual': usuario.email,
-        'mensaje': mensaje
+        'correo_actual': usuario.email
     })
+
+
+def verificar_codigo_correo(request):
+    title = 'PÁGINA'
+    usuario = obtener_usuario(request)
+
+    if not usuario:
+        return redirect('actualizar_correo')
+
+    if request.method == 'POST':
+        codigo_ingresado = request.POST.get('codigo')
+        codigo_enviado = request.session.get('codigo_verificacion')
+        nuevo_correo = request.session.get('nuevo_correo')
+
+        if codigo_ingresado == codigo_enviado:
+            usuario.email = nuevo_correo
+            usuario.save()
+
+            # Limpia la sesión
+            request.session.pop('codigo_verificacion', None)
+            request.session.pop('nuevo_correo', None)
+
+            return render(request, 'usuario/verificar_codigo.html', {
+                'correo_actualizado': True,
+                'title': title
+            })
+
+        else:
+            return render(request, 'usuario/verificar_codigo.html', {
+                'error': 'Código incorrecto.',
+                'title': title
+            })
+
+    return render(request, 'usuario/verificar_codigo.html', {
+        'title': title
+    })
+
 
 
 def crear_usuario_admin(request):
@@ -365,3 +513,223 @@ def crear_usuario_admin(request):
             'error': 'Las contraseñas no coinciden'
         })
 
+
+def enviar_codigo_recuperacion(request):
+    if request.method == 'POST':
+        email = request.user.email  
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return render(request, 'usuario//usuario_contraseña/enviar_codigo.html', {
+                'error': 'No se encontró el usuario.'
+            })
+        except MultipleObjectsReturned:
+            return render(request, 'usuario//usuario_contraseña/enviar_codigo.html', {
+                'error': 'Se encontraron múltiples usuarios con este correo. Contacta soporte.'
+            })
+
+        # Si todo está bien, continuar
+        codigo = str(random.randint(100000, 999999))
+
+        request.session['codigo_recuperacion'] = codigo
+        request.session['codigo_usuario_id'] = user.id
+        request.session['codigo_expiracion'] = timezone.now().timestamp() + 300  # 5 minutos
+
+        # Enviar correo
+        send_mail(
+            'Código de recuperación de contraseña',
+            f'Tu código es: {codigo}',
+            'no-reply@tuapp.com',
+            [email],
+            fail_silently=False,
+        )
+
+        return redirect('confirmar_codigo')
+
+    return render(request, 'usuario//usuario_contraseña/enviar_codigo.html')
+
+
+def confirmar_codigo(request):
+    if request.method == 'POST':
+        codigo_ingresado = request.POST.get('codigo')
+
+        codigo_guardado = request.session.get('codigo_recuperacion')
+        usuario_id = request.session.get('codigo_usuario_id')
+        expiracion = request.session.get('codigo_expiracion')
+
+        if not codigo_guardado or not usuario_id:
+            return render(request, 'usuario//usuario_contraseña/confirmar_codigo.html', {'error': 'No se ha solicitado recuperación.'})
+
+        if timezone.now().timestamp() > expiracion:
+            return render(request, 'usuario//usuario_contraseña/confirmar_codigo.html', {'error': 'El código ha expirado.'})
+
+        if codigo_ingresado != codigo_guardado:
+            return render(request, 'usuario//usuario_contraseña/confirmar_codigo.html', {'error': 'Código incorrecto.'})
+
+        # Código correcto -> marcar como verificado en sesión
+        request.session['codigo_verificado'] = True
+
+        return redirect('establecer_nueva_contrasena')
+
+    return render(request, 'usuario//usuario_contraseña/confirmar_codigo.html')
+
+
+def establecer_nueva_contrasena(request):
+    if not request.session.get('codigo_verificado'):
+        return redirect('enviar_codigo_recuperacion')
+
+    if request.method == 'POST':
+        nueva_contrasena = request.POST.get('nueva_contrasena')
+        confirmar_contrasena = request.POST.get('confirmar_contrasena')
+        usuario_id = request.session.get('codigo_usuario_id')
+
+        if nueva_contrasena != confirmar_contrasena:
+            return render(request, 'usuario//usuario_contraseña/nueva_contrasena.html', {'error': 'Las contraseñas no coinciden.'})
+
+        try:
+            user = User.objects.get(id=usuario_id)
+            user.set_password(nueva_contrasena)
+            user.save()
+
+            request.session.flush()  # Limpiar sesión
+
+            # Mostrar alerta directamente
+            return render(request, 'usuario//usuario_contraseña/nueva_contrasena.html', {'success': True})
+
+        except User.DoesNotExist:
+            return render(request, 'usuario//usuario_contraseña/nueva_contrasena.html', {'error': 'Usuario no encontrado.'})
+
+    return render(request, 'usuario/usuario_contraseña/nueva_contrasena.html')
+
+
+def datos_personales(request):
+    usuario1 = Usuario.objects.get(cedula=request.user.username)
+    formulario = usuarioForm(request.POST or None, request.FILES or None, instance=usuario1)
+    nombre_grupo = 'admin'
+    nombre_grupo1 = 'usuario'
+    grupo = Group.objects.filter(name=nombre_grupo).first()
+    grupo1 = Group.objects.filter(name=nombre_grupo1).first()
+
+    if formulario.is_valid() and  request.POST:
+        formulario.save()
+        userb = User.objects.get(username=usuario1.cedula)
+        userb.email = formulario.cleaned_data['email']
+        userb.groups.clear()   
+        if formulario.cleaned_data['rol'] == 1:
+            userb.groups.add(grupo1)
+        else:
+            userb.groups.add(grupo)
+
+        userb.username = formulario.cleaned_data['cedula']
+        userb.save()
+
+        return redirect('configuracion_usuario')
+    print("hola")
+    return render(request,'usuario/datos_personales.html',{'formulario': formulario})
+
+
+def notificaciones_usuario(request):
+    usuario = obtener_usuario(request)
+
+    if request.method == 'POST':
+        # Obtener el valor del checkbox: existe solo si está activado
+        notificaciones_activadas = request.POST.get('notificaciones') == 'on'
+        usuario.notificacion = notificaciones_activadas
+        usuario.save()
+
+    return render(request, 'usuario/notificacion_usuario.html', {
+        'usuario': usuario
+    })
+
+def gestionar_cuenta(request):
+    usuario = obtener_usuario(request)
+   
+    return render(request, 'usuario/gestion_cuenta.html', {
+            'error': 'Usuario no encontrado'
+    })  
+
+def PQR(request):
+    if request.method == 'POST':
+        tipo = request.POST.get('tipo')
+        comentario = request.POST.get('comentario')
+
+        usuario = request.user
+
+        try:
+            usuario_obj = Usuario.objects.get(cedula=usuario.username)
+        except Usuario.DoesNotExist:
+            messages.error(request, 'Usuario no encontrado.')
+            return redirect('PQR')
+
+        # Prefijo según tipo
+        prefijo = {
+            'Queja': 'QJ',
+            'Petición': 'PT',
+            'Reclamo': 'RC'
+        }.get(tipo, 'XX')
+
+        contador = Servicio.objects.filter(tipo=tipo).count() + 1
+        id_request = f"{prefijo}-{contador}"
+
+        Servicio.objects.create(
+            id_request=id_request,
+            cedula=usuario_obj,
+            tipo=tipo,
+            valor=0,
+            comentario=comentario,
+            respuesta=''
+        )
+
+        return redirect(f'/usuario/PQR/?enviado={tipo}')
+
+    enviado = request.GET.get('enviado', None)
+    return render(request, 'usuario/gestion_cuenta/PQR.html', {
+        'title': 'PQR',
+        'enviado': enviado
+    })
+
+
+def usuario_calificacion(request):
+    if request.method == 'POST':
+        puntuacion = request.POST.get('puntuacion')
+        comentario = request.POST.get('comentario')
+        usuario = request.user
+
+        try:
+            usuario_obj = Usuario.objects.get(cedula=usuario.username)
+        except Usuario.DoesNotExist:
+            messages.error(request, 'Usuario no encontrado.')
+            return redirect('PQR')
+
+        # Contar registros existentes tipo calificacion
+        total = Servicio.objects.filter(tipo='calificacion').count() + 1
+        id_personalizado = f"CALIFI-{total}"
+
+        # Crear el registro en Servicio
+        Servicio.objects.create(
+            id_request=id_personalizado,
+            cedula=usuario_obj,
+            tipo='calificacion',
+            valor=int(puntuacion),
+            respuesta=comentario,
+            comentario=""
+        )
+
+        messages.success(request, 'Gracias por tu calificación.')
+        return redirect('calificacion')
+
+    return render(request, 'usuario/gestion_cuenta/calificacion.html', {
+        'title': 'Calificación del Servicio'
+    })
+
+
+def desactivar_cuenta(request):
+    usuario = obtener_usuario(request)
+    if request.method == 'POST':
+        usuario.rol = 3
+        usuario.save()  # Guarda el cambio en la base de datos
+        return redirect('sesion')  # Redirige tras desactivar (ajusta según tu proyecto)
+
+    return render(request, 'usuario/gestion_cuenta/desactivar_cuenta.html', {
+        'usuario': usuario,
+    })

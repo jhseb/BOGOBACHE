@@ -1,4 +1,4 @@
-{% extends "usuario/base_configuracion.html" %}
+{% extends "usuario/configuracion.html" %}
 {% block titulo %}Usuarios{% endblock %}
 
 {% block contenido %}
@@ -68,19 +68,27 @@
 
         <button type="submit" class="btn-actualizar">Actualizar correo</button>
     </form>
-
-    {% if error %}
-        <div class="alerta-error">{{ error }}</div>
-    {% endif %}
 </div>
 
-<!-- Mostrar alerta SweetAlert si mensaje existe -->
+<!-- Mostrar alerta SweetAlert si mensaje de éxito existe -->
 {% if mensaje %}
 <script>
     Swal.fire({
         icon: 'success',
         title: '¡Correo actualizado!',
         text: '{{ mensaje }}',
+        confirmButtonColor: '#b00000'
+    });
+</script>
+{% endif %}
+
+<!-- Mostrar alerta SweetAlert si error existe -->
+{% if error %}
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Error al actualizar',
+        text: '{{ error }}',
         confirmButtonColor: '#b00000'
     });
 </script>

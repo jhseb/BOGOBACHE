@@ -76,6 +76,13 @@
         {% endfor %}
       </select>
 
+      <label for="profundidad">Profundidad:</label>
+      <select id="profundidad" name="profundidad" required>
+        {% for valor, nombre in profundidad %}
+          <option value="{{ valor }}">{{ nombre }}</option>
+        {% endfor %}
+      </select>
+
       <label for="peligrosidad">Peligrosidad:</label>
       <select id="peligrosidad" name="peligrosidad" required>
         {% for valor, nombre in peligrosidades %}
@@ -154,6 +161,7 @@ function mostrarDetalle(bache) {
   document.getElementById("direccion").value = bache.direccion;
   document.getElementById("tipo_calle").value = bache.tipo_calle;
   document.getElementById("estado").value = bache.estado;
+  document.getElementById("profundidad").value = bache.profundidad;
   document.getElementById("peligrosidad").value = bache.peligrosidad;
   document.getElementById("diametro").value = bache.diametro;
   document.getElementById("accidentes").value = bache.accidentes;

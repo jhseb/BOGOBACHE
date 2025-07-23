@@ -5,8 +5,15 @@
 <div class="main-container">
   <!-- Panel izquierdo de filtros -->
   <div class="filter-panel">
-    <h3>CONSULTAR BACHES</h3>
-
+    <h3>CONSULTAR BACHES POR ID</h3>
+    
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <label>Buscador de baches por ID:</label>
+      <input type="text" id="buscar-id" placeholder="Ej. B1023" style="border-radius: 20px; padding: 6px 12px; border: 1px solid #ccc;">
+      <button id="btn-buscar-id" style="padding: 6px 12px; border-radius: 20px; background-color: #d20000; color: white; border: none; font-weight: bold;">Buscar</button>
+    </div>
+    <br>
+     <h3>CONSULTAR BACHES POR FILTROS</h3>
     <label for="localidad">Localidad</label>
     <select id="localidad">
       <option value="">Todas</option>
@@ -38,6 +45,17 @@
       <select name="peligrosidad" id="peligrosidad" class="form-control">
         <option value="">Todas</option>
         {% for valor, nombre in peligrosidades %}
+          <option value="{{ valor }}">{{ nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+      <!-- Filtro de Profundidad -->
+    <div class="filtro">
+      <label for="profundidad">Profundidad:</label>
+      <select name="profundidad" id="profundidad" class="form-control">
+        <option value="">Todas</option>
+        {% for valor, nombre in profundidad %}
           <option value="{{ valor }}">{{ nombre }}</option>
         {% endfor %}
       </select>
@@ -82,6 +100,7 @@
       <p><strong>Barrio:</strong><span id="detalle-barrio"></span></p></p>
       <p><strong>Estado:</strong> <span id="detalle-estado"></span></p>
       <p><strong>Peligrosidad:</strong> <span id="detalle-peligrosidad"></span></p>
+      <p><strong>Profundidad:</strong> <span id="detalle-profundidad"></span></p>
       <p><strong>Diámetro:</strong> <span id="detalle-diametro"></span> cm</p>
       <p><strong>Accidentes:</strong> <span id="detalle-accidentes"></span></p>
       
@@ -122,6 +141,7 @@
       barrio: document.getElementById("barrio").value,
       estado: document.getElementById("estado").value,
       peligrosidad: document.getElementById("peligrosidad").value,
+      profundidad:document.getElementById("profundidad").value,
       tipo_calle: document.getElementById("tipo_calle").value,
       accidentes: document.getElementById("accidentes").value,
       diametro: document.getElementById("diametro").value,
@@ -169,6 +189,7 @@
     document.getElementById("detalle-barrio").textContent = bache.barrio;
     document.getElementById("detalle-estado").textContent = bache.estado;
     document.getElementById("detalle-peligrosidad").textContent = bache.peligrosidad;
+    document.getElementById("detalle-profundidad").textContent = bache.profundidad;
     document.getElementById("detalle-diametro").textContent = bache.diametro;
     document.getElementById("detalle-accidentes").textContent = bache.accidentes;
   }
@@ -217,6 +238,41 @@
     e.preventDefault();
     filtrarBaches();
   });
+});
+
+document.getElementById("btn-buscar-id").addEventListener("click", async () => {
+  const id = document.getElementById("buscar-id").value.trim().toUpperCase();
+
+  if (!id) {
+    alert("Por favor ingresa un ID válido.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`/ajax/bache-por-id/${id}/`);
+    if (!response.ok) throw new Error("No encontrado");
+
+    const bache = await response.json();
+
+    // Limpia marcadores previos
+    markersLayer.clearLayers();
+    markers = [];
+
+    const marker = L.marker([bache.latitud, bache.longitud], { icon: iconoRojo })
+      .addTo(markersLayer)
+      .on("click", () => mostrarDetalle(bache))
+      .bindPopup(`Bache ID: ${bache.id_bache}`)
+      .openPopup();
+
+    markers.push(marker);
+
+    // Centrar y hacer zoom
+    map.setView([bache.latitud, bache.longitud], 17);
+    mostrarDetalle(bache);
+
+  } catch (err) {
+    alert("Bache no encontrado.");
+  }
 });
 </script>
 {% endblock %}

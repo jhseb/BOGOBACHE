@@ -71,8 +71,17 @@
 {% block content %}
 <div class="contenedor">
   <div id="menuLateral" class="menu-lateral">
-    <a href="{% url 'opciones_bache_usuario' %}"><button>BACHES</button></a>
-    <a href="{% url 'opciones_reportes' %}"><button>REPORTES</button></a>
+<a href="{% url 'opciones_bache_usuario' %}">
+  <button class="{% if request.resolver_match.url_name == 'opciones_bache_usuario' %}btn-inicio-activo{% endif %}">
+    BACHES
+  </button>
+</a>
+
+<a href="{% url 'opciones_reportes' %}">
+  <button class="{% if request.resolver_match.url_name == 'opciones_reportes' %}btn-inicio-activo{% endif %}">
+    REPORTES
+  </button>
+</a>
   </div>
 
   <div class="contenido">

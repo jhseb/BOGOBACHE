@@ -1,0 +1,118 @@
+{% extends "usuario/configuracion.html" %}
+
+{% block titulo %}GESTIÓN DE NOTIFICACIONES{% endblock %}
+
+{% block contenido %}
+<div class="contenedor-general">
+    <h2 class="titulo-seccion">Notificaciones</h2>
+
+    <form method="post" action="{% url 'notificacion_usuario' %}">
+        {% csrf_token %}
+        <div class="contenedor-switch">
+            <label class="switch">
+                <input type="checkbox" name="notificaciones" {% if usuario.notificacion %}checked{% endif %}>
+                <span class="slider round"></span>
+            </label>
+            <span class="estado-notificacion">
+                {% if usuario.notificacion %}
+                    Activadas
+                {% else %}
+                    Desactivadas
+                {% endif %}
+            </span>
+        </div>
+        <button type="submit" class="boton-guardar">Guardar cambios</button>
+    </form>
+</div>
+
+<style>
+    .contenedor-general {
+        max-width: 400px;
+        margin: 40px auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        text-align: center;
+    }
+
+    .titulo-seccion {
+        color: #b00000;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .contenedor-switch {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 15px;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 34px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #b00000;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+
+    .estado-notificacion {
+        font-size: 1rem;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .boton-guardar {
+        background: #b00000;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        font-weight: bold;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .boton-guardar:hover {
+        background: #7e0000;
+    }
+</style>
+{% endblock %}

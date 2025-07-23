@@ -1,0 +1,81 @@
+{% extends "usuario/base_configuracion.html" %}
+{% load static %}
+{% block titulo %}Recuperar Contraseña{% endblock %}
+
+{% block contenido %}
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    body {
+        background-color: #f7f7fb;
+        font-family: Arial, sans-serif;
+    }
+
+    .login-card {
+        max-width: 400px;
+        margin: 40px auto;
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        padding: 30px 20px;
+        text-align: center;
+    }
+
+    .logo {
+        width: 120px;
+        margin-bottom: 15px;
+    }
+
+    h2 {
+        font-weight: bold;
+        font-size: 22px;
+        margin-bottom: 10px;
+    }
+
+    .info-text {
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 20px;
+    }
+
+    .btn-rojo {
+        background-color: #b00000;
+        color: white;
+        padding: 10px 20px;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-rojo:hover {
+        background-color: #900000;
+    }
+</style>
+
+<div class="login-card">
+    <h2>RECUPERAR CONTRASEÑA</h2>
+    <p class="info-text">
+        Presiona el botón y te enviaremos un código a tu correo registrado.
+    </p>
+    <form method="POST" action="{% url 'enviar_codigo_recuperacion' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn-rojo">Recuperar contraseña</button>
+    </form>
+</div>
+
+{% if error %}
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: '{{ error }}',
+        confirmButtonColor: '#b00000'
+    });
+</script>
+{% endif %}
+
+{% endblock %}

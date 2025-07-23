@@ -17,8 +17,16 @@ urlpatterns = [
     path('usuario/editar//<int:id>',views.editar_usuario, name='editar_usuario'),
     path('usuario/principal/',views.principal_usuario, name='principal_usuario'),
     path('usuario/correo_usuario/',views.actualizar_correo, name='actualizar_correo'),
-                
-
+    path('usuario/recuperar/', views.enviar_codigo_recuperacion, name='enviar_codigo_recuperacion'),         
+    path('usuario/confirmar/', views.confirmar_codigo, name='confirmar_codigo'),
+    path('usuario/nueva_contrasena/', views.establecer_nueva_contrasena, name='establecer_nueva_contrasena'),
+    path('usuario/datos_personales/', views.datos_personales, name='datos_personales'),
+    path('usuario/notificacion_usuario/', views.notificaciones_usuario, name='notificacion_usuario'),
+    path('usuario/gestionar_cuenta/', views.gestionar_cuenta, name='gestionar_cuenta'),
+    path('usuario/PQR/', views.PQR, name='PQR'),
+    path('usuario/calificacion/', views.usuario_calificacion, name='calificacion'),
+    path('usuario//desactivar_cuenta', views.desactivar_cuenta, name='desactivar_cuenta'),
+    path('usuario/verificar-codigo/', views.verificar_codigo_correo, name='verificar_codigo_correo'),
 
     path('signup/',views.signup,name='signup'),
     path('logout/',views.signout,name='logout'),

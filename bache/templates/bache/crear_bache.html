@@ -112,6 +112,9 @@
         {{ form.peligrosidad }}
         {{ form.estado }}
 
+        <label>Profundidad</label>
+        {{ form.profundidad}}
+
         <label>Tipo de calle</label>
         {{ form.tipo_calle }}
 
@@ -124,9 +127,9 @@
         <div class="campo-formulario">
           <label>Sufrió un accidente por este bache?</label>
           <div>
-            <button type="button" class="btn-accidente" onclick="seleccionarAccidente(1)">Sí</button>
-            <button type="button" class="btn-accidente" onclick="seleccionarAccidente(0)">No</button>
-            <input type="hidden" name="accidentes" id="id_accidentes">
+            <button type="button" class="btn-accidente" onclick="seleccionarAccidente(1)">Si</button>
+            <button type="button" class="btn-accidente selected" onclick="seleccionarAccidente(0)">No</button>
+            <input type="hidden" name="accidentes" id="id_accidentes" value="0">
           </div>
         </div>
 
@@ -162,25 +165,45 @@
 {% block extra_js %}
 {{ block.super }}
 <script>
+  let accidenteSeleccionado = 0; 
   function seleccionarAccidente(valor) {
-    document.getElementById('id_accidentes').value = valor;
+    accidenteSeleccionado = valor;
 
     const botones = document.querySelectorAll('.btn-accidente');
     botones.forEach(btn => btn.classList.remove('selected'));
 
     if (valor === 1) {
       botones[0].classList.add('selected');
+      Swal.fire({
+        title: 'Detalles del accidente',
+        html: `<iframe src="{% url 'consultar_reportes' %}" width="100%" height="500px" style="border:none;"></iframe>`,
+        width: '90%',
+        heightAuto: false,
+        showConfirmButton: false,
+        showCloseButton: true,
+        background: '#fff',
+        customClass: {
+          popup: 'swal-wide'
+        }
+      });
     } else {
       botones[1].classList.add('selected');
     }
   }
 </script>
-
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function () {
+      document.getElementById('id_accidentes').value = accidenteSeleccionado;
+    });
+  });
+</script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   let map;
   let marcador;
-  let mapaIniciado = false;
+  let puntosExistentes = [];
 
   document.addEventListener('DOMContentLoaded', function () {
     map = L.map('map').setView([4.6097, -74.0817], 13);
@@ -188,9 +211,43 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
+    // Traer puntos ya registrados
+    fetch('/ajax/baches/')
+      .then(response => response.json())
+      .then(data => {
+        puntosExistentes = data;
+
+        data.forEach(punto => {
+          L.marker([punto.lat, punto.lng], {
+            icon: L.icon({
+              iconUrl: "{% static 'bache/images/punto_rojo.png' %}",
+              iconSize: [32, 32],
+              iconAnchor: [16, 32],
+              popupAnchor: [0, -32]
+            })
+          }).addTo(map).bindPopup("Bache existente, seleccione otro lugar");
+        });
+      });
+
+    // Evento click en el mapa
     map.on('click', function (e) {
-      const lat = e.latlng.lat.toFixed(6);
-      const lng = e.latlng.lng.toFixed(6);
+      const lat = parseFloat(e.latlng.lat.toFixed(6));
+      const lng = parseFloat(e.latlng.lng.toFixed(6));
+
+      // Verificar si ya existe un punto muy cerca
+      const existe = puntosExistentes.some(p =>
+        Math.abs(p.lat - lat) < 0.00001 && Math.abs(p.lng - lng) < 0.00001
+      );
+
+      if (existe) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Punto ya registrado',
+          text: 'Ya existe un bache en esta ubicación.'
+        });
+        return;
+      }
+
       document.getElementById("latitud").value = lat;
       document.getElementById("longitud").value = lng;
 
@@ -206,6 +263,7 @@
       }).addTo(map).bindPopup("Ubicación seleccionada").openPopup();
     });
 
+    // Selects anidados
     const localidadSelect = document.getElementById('id_localidad');
     const upzSelect = document.getElementById('id_upz');
     const barrioSelect = document.getElementById('id_barrio');

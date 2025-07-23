@@ -8,13 +8,14 @@ class BacheForm(forms.ModelForm):
     
     class Meta:
         model = Bache
-        fields = ['latitud', 'longitud', 'localidad', 'upz', 'barrio', 'estado',
+        fields = ['latitud', 'longitud', 'localidad', 'upz', 'barrio', 'estado','profundidad',
                   'peligrosidad', 'tipo_calle', 'direccion', 'diametro', 'accidentes', 'foto']
         exclude = ['id_bache', 'created_at', 'updated_at', 'deleted_at']
         widgets = {
             'latitud': forms.NumberInput(attrs={'step': '0.000001', 'class': 'form-control'}),
             'longitud': forms.NumberInput(attrs={'step': '0.000001', 'class': 'form-control'}),
             'estado': forms.HiddenInput(),
+            'profundidad': forms.Select(attrs={'class': 'form-control'}),
             'peligrosidad': forms.HiddenInput(),
             'localidad': forms.Select(attrs={'class': 'form-control'}),
             'upz': forms.Select(attrs={'class': 'form-control', 'disabled': True}),
@@ -32,6 +33,7 @@ class BacheForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['estado'].initial = 'sin_arreglar'  # ✅ Valor por defecto
+        self.fields['profundidad'].initial ='leve'
         self.fields['diametro'].initial = 5
         self.fields['accidentes'].initial = 0
         self.fields['peligrosidad'].initial = 'Alto'

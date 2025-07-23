@@ -1,0 +1,197 @@
+{% extends "usuario/configuracion.html" %}
+
+{% block titulo %} Editar usuario {% endblock %}
+
+{% block contenido %}
+
+<style>
+    .titulo-formulario {
+        font-weight: bold;
+        color: #b00000;
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+        text-align: center;
+        text-transform: uppercase;
+    }
+
+    .formulario-contenedor {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        max-width: 900px;
+        margin: 0 auto;
+        border: 1px solid #ddd;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .formulario-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .mb-3 {
+        display: flex;
+        flex-direction: column;
+    }
+
+    label {
+        font-size: 0.85rem;
+        color: #333;
+        margin-bottom: 4px;
+        font-weight: bold;
+    }
+
+    input,
+    select,
+    textarea {
+        border: none;
+        border-bottom: 2px solid #999;
+        background-color: transparent;
+        padding: 6px 4px;
+        font-size: 0.9rem;
+        outline: none;
+        color: #000;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-bottom: 2px solid #b00000;
+    }
+
+    .boton-formulario {
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        margin-right: 10px;
+        transition: background-color 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-enviar {
+        background-color: #b00000;
+        color: #fff;
+        border: none;
+    }
+
+    .btn-enviar:hover {
+        background-color: #800000;
+    }
+
+    .btn-cancelar {
+        background-color: #000;
+        color: #fff;
+        border: none;
+    }
+
+    .btn-cancelar:hover {
+        background-color: #333;
+    }
+
+    @media(max-width: 768px) {
+        .formulario-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="formulario-contenedor">
+    <div class="titulo-formulario">DATOS PERSONALES</div>
+
+    <form enctype="multipart/form-data" method="post">
+        {% csrf_token %}
+
+        <div class="formulario-grid">
+            {% for campo in formulario %}
+                {% if campo.name != 'rol' %}
+                    <div class="mb-3">
+                        <label class="form-label">{{ campo.label }}:</label>
+
+                        {% if campo.field.widget.input_type == 'file' and campo.value %}
+                            <br/>
+                            <img src="{{ MEDIA_URL }}imagenes/{{ campo.value }}" width="100" alt="">
+                        {% endif %}
+
+                        {% if campo.name == 'localidad' %}
+                            <select name="{{ campo.name }}" class="form-control">
+                                <option value="Antonio_narino" {% if campo.value == 'Antonio_narino' %}selected{% endif %}>Antonio Nariño</option>
+                                <option value="Barrios_unidos" {% if campo.value == 'Barrios_unidos' %}selected{% endif %}>Barrios Unidos</option>
+                                <option value="Bosa" {% if campo.value == 'Bosa' %}selected{% endif %}>Bosa</option>
+                                <option value="Chapinero" {% if campo.value == 'Chapinero' %}selected{% endif %}>Chapinero</option>
+                                <option value="Ciudad_bolivar" {% if campo.value == 'Ciudad_bolivar' %}selected{% endif %}>Ciudad Bolívar</option>
+                                <option value="Engativa" {% if campo.value == 'Engativa' %}selected{% endif %}>Engativá</option>
+                                <option value="Fontibon" {% if campo.value == 'Fontibon' %}selected{% endif %}>Fontibón</option>
+                                <option value="Kennedy" {% if campo.value == 'Kennedy' %}selected{% endif %}>Kennedy</option>
+                                <option value="La_candelaria" {% if campo.value == 'La_candelaria' %}selected{% endif %}>La Candelaria</option>
+                                <option value="Martires" {% if campo.value == 'Martires' %}selected{% endif %}>Mártires</option>
+                                <option value="Puente_aranda" {% if campo.value == 'Puente_aranda' %}selected{% endif %}>Puente Aranda</option>
+                                <option value="Rafael_uribe_uribe" {% if campo.value == 'Rafael_uribe_uribe' %}selected{% endif %}>Rafael Uribe Uribe</option>
+                                <option value="Santa_fe" {% if campo.value == 'Santa_fe' %}selected{% endif %}>Santa Fe</option>
+                                <option value="San_cristobal" {% if campo.value == 'San_cristobal' %}selected{% endif %}>San Cristóbal</option>
+                                <option value="Suba" {% if campo.value == 'Suba' %}selected{% endif %}>Suba</option>
+                                <option value="Teusaquillo" {% if campo.value == 'Teusaquillo' %}selected{% endif %}>Teusaquillo</option>
+                                <option value="Tunjuelito" {% if campo.value == 'Tunjuelito' %}selected{% endif %}>Tunjuelito</option>
+                                <option value="Usaquen" {% if campo.value == 'Usaquen' %}selected{% endif %}>Usaquén</option>
+                                <option value="Usme" {% if campo.value == 'Usme' %}selected{% endif %}>Usme</option>
+                            </select>
+
+                        {% elif campo.name == 'medio_trans' %}
+                            <select name="{{ campo.name }}" class="form-control">
+                                <option value="">Seleccione una opción</option>
+                                <option value="carro" {% if campo.value == 'carro' %}selected{% endif %}>Carro propio</option>
+                                <option value="bicicleta" {% if campo.value == 'bicicleta' %}selected{% endif %}>Bicicleta</option>
+                                <option value="moto" {% if campo.value == 'moto' %}selected{% endif %}>Moto</option>
+                                <option value="Monopatin" {% if campo.value == 'Monopatin' %}selected{% endif %}>Monopatin</option>
+                                <option value="A pie" {% if campo.value == 'A pie' %}selected{% endif %}>A pie</option>
+                            </select>
+
+                        {% elif campo.field.widget.input_type == 'checkbox' %}
+                            <input
+                                type="checkbox"
+                                name="{{ campo.name }}"
+                                {% if campo.value %}
+                                    checked
+                                {% endif %}
+                            />
+
+                        {% else %}
+                            <input
+                                type="{{ campo.field.widget.input_type }}"
+                                class="form-control"
+                                name="{{ campo.name }}"
+                                placeholder="{{ campo.label }}"
+                                {% if campo.name == 'fecha_nacimiento' %}
+                                    value="{{ campo.value|date:'Y-m-d' }}"
+                                {% else %}
+                                    value="{{ campo.value|default:'' }}"
+                                {% endif %}
+                                {% if campo.name == 'cedula' or campo.name == 'email' %}
+                                    readonly
+                                    style="background-color: #f5f5f5; cursor: not-allowed;"
+                                {% endif %}
+                            />
+                        {% endif %}
+
+                        <div class="help-text">{{ campo.errors }}</div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Campo rol oculto -->
+        <input type="hidden" name="rol" value="{{ formulario.rol.value|default:'1' }}">
+
+        <br>
+        <input type="submit" value="Enviar información" class="boton-formulario btn-enviar"/>
+        <a class="boton-formulario btn-cancelar" href="{% url 'configuracion_usuario' %}">Cancelar</a>
+    </form>
+</div>
+
+{% endblock %}

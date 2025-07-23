@@ -1,0 +1,223 @@
+{% extends "usuario/configuracion.html" %}
+
+{% block titulo %}CREAR QUEJA PETICION O RECLAMO{% endblock %}
+
+{% block contenido %}
+
+<style>
+    body, .contenido-principal {
+        background-color: white !important;
+    }
+
+    .formulario-servicio {
+        max-width: 800px;
+        margin: 30px auto;
+        background-color: white;
+        padding: 30px 20px;
+        border-radius: 0;
+    }
+
+    .formulario-servicio label {
+        font-weight: normal;
+        display: block;
+        margin-top: 10px;
+        color: #6c6c6c;
+        font-size: 1rem;
+    }
+
+    .formulario-servicio select {
+        padding: 5px 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+        margin-left: 10px;
+    }
+
+    .formulario-servicio textarea {
+        width: 100%;
+        height: 150px;
+        background-color: #e8e6ef;
+        color: black;
+        font-size: 1rem;
+        font-family: Arial, sans-serif;
+        border: 1px solid black;
+        padding: 15px;
+        resize: none;
+        margin: 10px 0 20px 0;
+    }
+
+    .boton-enviar {
+        display: block;
+        width: 150px;
+        margin: 0 auto;
+        background-color: #d20000;
+        color: white;
+        border: none;
+        font-weight: bold;
+        font-size: 1rem;
+        padding: 10px 0;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+
+    .boton-enviar:hover {
+        background-color: #b00000;
+    }
+
+    .formulario-servicio h3 {
+        color: #d20000;
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+    }
+
+    /* Modal */
+    .modal-exito {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+
+    .modal-exito.mostrar {
+        display: flex;
+        opacity: 1;
+    }
+
+    .modal-contenido {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        max-width: 400px;
+        margin: auto;
+        transform: scale(0.8);
+        transition: transform 0.4s ease;
+    }
+
+    .modal-exito.mostrar .modal-contenido {
+        transform: scale(1);
+    }
+
+    .icono-check {
+        font-size: 60px;
+        color: #4CAF50;
+        border: 3px solid #c3e6cb;
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: giroCheck 0.8s ease forwards;
+    }
+
+    @keyframes giroCheck {
+        0% {
+            transform: rotate(0deg) scale(0);
+            opacity: 0;
+        }
+        50% {
+            transform: rotate(180deg) scale(1.2);
+            opacity: 1;
+        }
+        100% {
+            transform: rotate(360deg) scale(1);
+            opacity: 1;
+        }
+    }
+
+    .modal-contenido h2 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .modal-contenido p {
+        color: #555;
+        margin: 15px 0;
+    }
+
+    .modal-contenido button {
+        background-color: #d20000;
+        color: white;
+        padding: 10px 25px;
+        border: none;
+        font-weight: bold;
+        font-size: 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .modal-contenido button:hover {
+        background-color: #b00000;
+    }
+</style>
+
+<div class="formulario-servicio">
+    <h3>CREAR QUEJA PETICION O RECLAMO</h3>
+
+    <form method="post" id="form-pqr">
+        {% csrf_token %}
+
+        <label>Por favor, indique el tipo de petición que está realizando:
+            <select name="tipo" required>
+                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="Petición">Petición</option>
+                <option value="Queja">Queja</option>
+                <option value="Reclamo">Reclamo</option>
+            </select>
+        </label>
+
+        <label>Describa la situación en breve</label>
+        <textarea name="comentario" required></textarea>
+
+        <button type="submit" class="boton-enviar">Enviar</button>
+    </form>
+</div>
+
+<!-- Modal -->
+<div class="modal-exito" id="modal-exito">
+    <div class="modal-contenido">
+        <div class="icono-check">
+            ✓
+        </div>
+        <h2>¡Solicitud enviada!</h2>
+        <p>Su solicitud fue registrada correctamente.</p>
+        <button onclick="cerrarModal()">OK</button>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('form-pqr');
+    const modal = document.getElementById('modal-exito');
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const icono = modal.querySelector('.icono-check');
+        icono.style.animation = 'none';
+        void icono.offsetWidth;  // Reinicia animación
+        icono.style.animation = 'giroCheck 0.8s ease forwards';
+        modal.classList.add('mostrar');
+    });
+
+    function cerrarModal() {
+        modal.classList.remove('mostrar');
+        setTimeout(() => {
+            form.submit();
+        }, 200);
+    }
+</script>
+
+{% endblock %}

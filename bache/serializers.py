@@ -104,7 +104,7 @@ class BacheSerializer(serializers.ModelSerializer):
         model = Bache
         fields = '__all__'
         read_only_fields = [f.name for f in Bache._meta.get_fields() 
-                          if f.name not in ['localidad','accidentes', 'diametro', 'direccion', 
+                          if f.name not in ['localidad','accidentes', 'diametro', 'direccion', 'profundidad',
                                           'peligrosidad', 'estado', 'foto','tipo_calle']]
         #read_only_fields = ['id_bache', 'created_at', 'deleted_at']
 
@@ -151,4 +151,4 @@ class BacheUpdateSerializer(serializers.ModelSerializer):
         # Restringe escritura a solo estos campos
         read_only_fields = [f.name for f in Bache._meta.get_fields() 
                           if f.name not in ['accidentes', 'diametro', 'direccion', 
-                                          'peligrosidad', 'estado', 'foto','tipo_calle']]
+                                          'peligrosidad', 'estado', 'foto','tipo_calle','profundidad']]

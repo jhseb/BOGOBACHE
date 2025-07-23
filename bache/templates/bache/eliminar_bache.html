@@ -20,15 +20,14 @@
       <p><strong>UPZ:</strong> <span id="nombre-upz"></span></p>
       <p><strong>Barrio:</strong> <span id="nombre-barrio"></span></p>
       <p><strong>Estado:</strong> <span id="bache-estado"></span></p>
+      <p><strong>Profundidad:</strong> <span id="bache-profundidad"></span></p>
       <p><strong>Peligrosidad:</strong> <span id="bache-peligrosidad"></span></p>
       <p><strong>Tipo de calle:</strong> <span id="bache-tipo-calle"></span></p>
       <p><strong>Accidentes reportados:</strong> <span id="bache-accidentes"></span></p>
       <p><strong>Diámetro aproximado (cm):</strong> <span id="bache-diametro"></span></p>
       <p><strong>Foto:</strong><br><img id="bache-foto" src="" alt="Foto del bache" style="max-width: 100%; margin-top: 5px;"></p>
-      
-
-       {% if rol == 1 %}
-        <button id="btn-eliminar">Confirmar Eliminación Bache (Usuario)</button>
+      {% if rol == 1 %}
+      <button id="btn-eliminar">Confirmar Eliminación Bache (Usuario)</button>
       {% endif %}
       {% if rol == 2 %}
         <button id="btn-eliminar-admin" style="background-color: #444444; margin-top: 10px;">
@@ -107,6 +106,7 @@ function mostrarDetalle(bache) {
   document.getElementById("nombre-upz").textContent = bache.nombre_upz || "Sin UPZ";
   document.getElementById("nombre-barrio").textContent = bache.nombre_barrio || "Sin barrio";
   document.getElementById("bache-estado").textContent = bache.estado;
+  document.getElementById("bache-profundidad").textContent = bache.profundidad;
   document.getElementById("bache-peligrosidad").textContent = bache.peligrosidad;
   document.getElementById("bache-tipo-calle").textContent = bache.tipo_calle;
   document.getElementById("bache-accidentes").textContent = bache.accidentes;
@@ -161,39 +161,42 @@ if (botonEliminar) {
 }
 
 // Botón admin
-document.getElementById("btn-eliminar-admin").addEventListener("click", () => {
-  const id = document.getElementById("bache-id").textContent;
-  Swal.fire({
-    title: '¿Eliminar como administrador?',
-    text: `El bache con ID ${id} será eliminado permanentemente.`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#444',
-    cancelButtonColor: '#d20000',
-    confirmButtonText: 'Eliminar ya',
-    cancelButtonText: 'Cancelar'
-  }).then(result => {
-    if (result.isConfirmed) {
-      fetch(`/admin_eliminar_bache_directo/${id}/`, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': getCookie('csrftoken')
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          Swal.fire('Eliminado como Admin', 'El bache ha sido eliminado definitivamente.', 'success');
-          document.getElementById("info-bache").classList.add("hidden");
-          document.getElementById("busqueda-por-id").style.display = "block";
-          cargarBaches();
-        } else {
-          Swal.fire('Error', data.error || 'No se pudo eliminar como admin.', 'error');
-        }
-      });
-    }
+const botonEliminarAdmin = document.getElementById("btn-eliminar-admin");
+if (botonEliminarAdmin) {
+  botonEliminarAdmin.addEventListener("click", () => {
+    const id = document.getElementById("bache-id").textContent;
+    Swal.fire({
+      title: '¿Eliminar como administrador?',
+      text: `El bache con ID ${id} será eliminado permanentemente.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#444',
+      cancelButtonColor: '#d20000',
+      confirmButtonText: 'Eliminar ya',
+      cancelButtonText: 'Cancelar'
+    }).then(result => {
+      if (result.isConfirmed) {
+        fetch(`/admin_eliminar_bache_directo/${id}/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire('Eliminado como Admin', 'El bache ha sido eliminado definitivamente.', 'success');
+            document.getElementById("info-bache").classList.add("hidden");
+            document.getElementById("busqueda-por-id").style.display = "block";
+            cargarBaches();
+          } else {
+            Swal.fire('Error', data.error || 'No se pudo eliminar como admin.', 'error');
+          }
+        });
+      }
+    });
   });
-});
+}
 
 
 document.getElementById("btn-buscar-id").addEventListener("click", function () {

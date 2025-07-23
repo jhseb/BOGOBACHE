@@ -50,6 +50,12 @@ class Tipo_calle(models.TextChoices):
     Diagonales ="Diagonal"
     CALLEJONES = "Callejones"
 
+class Profundidad(models.TextChoices):
+    LEVE = 'leve','leve (Menos de 5cm)'
+    MODERADA = 'Moderada', 'Moderada (Entre 5 a 10 cm)'
+    ALTA = 'Alta', 'Alta (Entre 10 a 15 cm)' 
+    EXTREMA = 'Extrema', 'Extrema (Mas de 15cm)'
+
 class Bache(models.Model):
     #localidad = models.CharField(max_length=100, choices=Localidad.choices, default=Localidad.USAQUEN)
     # Modificar las relaciones para mejor consistencia
@@ -58,7 +64,8 @@ class Bache(models.Model):
     barrio = models.ForeignKey(Barrio, on_delete=models.PROTECT, related_name='baches')
     
     estado = models.CharField(max_length=100, choices=Estado.choices, default=Estado.SIN_ARREGLAR)
-
+    
+    profundidad = models.CharField(max_length=100, choices=Profundidad.choices, default=Profundidad.LEVE)
     peligrosidad = models.CharField(max_length=100, choices=Peligrosidad.choices, default=Peligrosidad.BAJO)
 
     tipo_calle = models.CharField(max_length=100, choices=Tipo_calle.choices, default=Tipo_calle.CALLES)

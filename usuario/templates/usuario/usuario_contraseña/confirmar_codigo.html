@@ -1,0 +1,80 @@
+{% extends "usuario/base_configuracion.html" %}
+{% block titulo %}Confirmar Código{% endblock %}
+
+{% block contenido %}
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    .contenedor-actualizar {
+        max-width: 500px;
+        margin: 30px auto;
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    .contenedor-actualizar h2 {
+        color: #b00000;
+        font-weight: bold;
+        margin-bottom: 20px;
+        font-size: 18px;
+    }
+
+    .input-correo {
+        width: 100%;
+        margin: 15px 0;
+        border: none;
+        border-bottom: 2px solid #ccc;
+        padding: 8px;
+        font-size: 16px;
+        outline: none;
+        transition: border-color 0.3s ease;
+        background-color: transparent;
+    }
+
+    .input-correo:focus {
+        border-bottom: 2px solid #b00000;
+    }
+
+    .btn-actualizar {
+        background-color: #b00000;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+
+    .btn-actualizar:hover {
+        background-color: #8a0000;
+    }
+</style>
+
+<div class="contenedor-actualizar">
+    <h2>INGRESE EL CÓDIGO</h2>
+    <form method="POST" action="{% url 'confirmar_codigo' %}">
+        {% csrf_token %}
+        <input type="text" name="codigo" placeholder="Código recibido en el correo"
+               required class="input-correo">
+
+        <button type="submit" class="btn-actualizar">Confirmar código</button>
+    </form>
+</div>
+
+{% if error %}
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: '{{ error }}',
+        confirmButtonColor: '#b00000'
+    });
+</script>
+{% endif %}
+
+{% endblock %}

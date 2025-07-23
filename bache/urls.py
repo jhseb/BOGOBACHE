@@ -5,7 +5,6 @@ from . import views
 from .views import mapa_baches, upzs_por_localidad, barrios_por_upz
 from .routers import router
 from django.contrib import admin
-from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
@@ -16,6 +15,9 @@ urlpatterns = [
     #path('somos/', views.somos, name="somos"),
     #path('sesion/', views.sesion, name="sesion"),
     path('mapa/', mapa_baches, name='mapa-baches'),
+    path('ajax/baches/', views.listar_baches, name='listar_baches'),
+    path('ajax/bache-por-id/<str:id>/', views.obtener_bache_por_id, name='bache_por_id'),
+
     path('ajax/upzs/', views.cargar_upzs, name='ajax_cargar_upzs'),
     path('ajax/barrios/', views.cargar_barrios, name='ajax_cargar_barrios'),
     path('api/', include(router.urls)),

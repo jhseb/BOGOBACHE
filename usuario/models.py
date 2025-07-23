@@ -24,3 +24,24 @@ class Usuario(models.Model):
 
     def __str__(self):
         return f"{self.nombre} {self.apellido} ({self.cedula})"
+
+
+class Servicio(models.Model):
+    id_request = models.CharField(
+        primary_key=True,
+        max_length=50, 
+        verbose_name="ID de Solicitud"
+    )
+    cedula = models.ForeignKey(
+        Usuario,
+        to_field='cedula',
+        on_delete=models.CASCADE,
+        verbose_name="Cédula o Nombre de Usuario"
+    )
+    tipo = models.CharField(max_length=100)
+    valor = models.IntegerField()
+    comentario = models.TextField(blank=True, null=True)
+    respuesta = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Servicio {self.id_request} - Usuario: {self.username_cedula}"

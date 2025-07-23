@@ -11,7 +11,7 @@ from rest_framework.response import Response
 
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
-from .models import Bache, UPZ, Barrio, Localidad, Tipo_calle, Peligrosidad, Estado
+from .models import Bache, UPZ, Barrio, Localidad, Tipo_calle, Peligrosidad, Estado, Profundidad
 from .serializers import BacheSerializer, BacheUpdateSerializer, UPZSerializer, BarrioSerializer
 from .forms import BacheForm
 from django.core.serializers import serialize
@@ -47,7 +47,7 @@ def barrios_por_upz(request, upz_id):
 
 # Página: mapa estático
 def mapa_baches(request):
-    baches = Bache.objects.filter(deleted_at__isnull=True).values('id_bache', 'latitud', 'longitud', 'estado', 'peligrosidad')
+    baches = Bache.objects.filter(deleted_at__isnull=True).values('id_bache', 'latitud', 'longitud', 'estado', 'peligrosidad','profundidad')
     return render(request, 'mapa.html', {
         'baches': list(baches),
         'google_maps_api_key': 'TU_API_KEY_DE_GOOGLE_MAPS'
@@ -96,6 +96,8 @@ def ver_filtrado_baches(request):
     upz = request.GET.get('upz')
     barrio = request.GET.get('barrio')
     estado = request.GET.get('estado')
+    profundidad = request.GET.get('profundidad')
+
     peligrosidad = request.GET.get('peligrosidad')
     tipo_calle = request.GET.get('tipo_calle')
     accidentes_min = request.GET.get('accidentes_min')
@@ -111,6 +113,8 @@ def ver_filtrado_baches(request):
         baches = baches.filter(barrio__nombre=barrio)
     if estado:
         baches = baches.filter(estado=estado)
+    if profundidad:
+        baches = baches.filter(profundidad=profundidad)
     if peligrosidad:
         baches = baches.filter(peligrosidad=peligrosidad)
     if tipo_calle:
@@ -134,6 +138,7 @@ def ver_filtrado_baches(request):
             'upz': b.upz.nombre if b.upz else "",
             'barrio': b.barrio.nombre if b.barrio else "",
             'estado': b.estado,
+            'profundidad':b.profundidad,
             'peligrosidad': b.peligrosidad,
             'tipo_calle': b.tipo_calle,
             'accidentes': b.accidentes,
@@ -152,7 +157,8 @@ def ver_filtrado_baches(request):
         'barrios': Barrio.objects.all(),
         'peligrosidades': Peligrosidad.choices,
         'tipos_calle': Tipo_calle.choices,
-        'estados': Estado.choices
+        'estados': Estado.choices,
+        'profundidad':Profundidad.choices
     }
 
     return render(request, 'bache/filtrar_baches.html', context)
@@ -173,6 +179,7 @@ def filtrar_baches(request):
     upz = data.get('upz')
     barrio = data.get('barrio')
     estado = data.get('estado')
+    profundidad= data.get('profundidad')
     peligrosidad = data.get('peligrosidad')
     tipo_calle = data.get('tipo_calle')
     accidentes = data.get('accidentes')
@@ -186,6 +193,8 @@ def filtrar_baches(request):
         baches = baches.filter(barrio_id=barrio)
     if estado:
         baches = baches.filter(estado=estado)
+    if profundidad:
+        baches = baches.filter(profundidad=profundidad)
     if peligrosidad:
         baches = baches.filter(peligrosidad=peligrosidad)
     if tipo_calle:
@@ -209,6 +218,7 @@ def filtrar_baches(request):
             'longitud': float(b.longitud),
             'direccion': b.direccion,
             'estado': b.estado,
+            'profundidad':b.profundidad,
             'peligrosidad': b.peligrosidad,
             'tipo_calle': b.tipo_calle,
             'accidentes': b.accidentes,
@@ -227,6 +237,7 @@ def obtener_filtros(request):
     barrios = list(Barrio.objects.values('id', 'nombre', 'upz_id'))
     tipos_calle = list(Bache.objects.values_list('tipo_calle', flat=True).distinct())
     estados = list(Bache.objects.values_list('estado', flat=True).distinct())
+    profundidad= list(Bache.objects.values_list('profundidad',flat=True).distinct())
     niveles_peligrosidad = list(Bache.objects.values_list('peligrosidad', flat=True).distinct())
 
     max_accidentes = Bache.objects.filter(deleted_at__isnull=True).order_by('-accidentes').first().accidentes if Bache.objects.exists() else 0
@@ -238,6 +249,7 @@ def obtener_filtros(request):
         'barrios': barrios,
         'tipos_calle': tipos_calle,
         'estados': estados,
+        'profundidad': profundidad,
         'peligrosidad': niveles_peligrosidad,
         'max_accidentes': max_accidentes,
         'max_diametro': float(max_diametro),
@@ -295,6 +307,7 @@ def mostrar_modificar_bache(request):
         'localidades': Localidad.objects.all(),
         'tipos_calle': list(Tipo_calle.choices),
         'estados': list(Estado.choices),
+        'profundidad':list(Profundidad.choices),
         'peligrosidades': list(Peligrosidad.choices),
     }
     return render(request, 'bache/modificar_bache.html', context)
@@ -324,6 +337,7 @@ def get_bache(request, id_bache):
             } if bache.barrio else None,
             "peligrosidad": bache.peligrosidad,
             "estado": bache.estado,
+            "profundidad": bache.profundidad,
             "tipo_calle": bache.tipo_calle,
             "direccion": bache.direccion,
             "accidentes": bache.accidentes,
@@ -348,6 +362,7 @@ def modificar_bache_post(request, id_bache):
         bache = get_object_or_404(Bache, id_bache=id_bache)
 
         estado = request.POST.get('estado')
+        profundidad = request.POST.get('profundidad')
         peligrosidad = request.POST.get('peligrosidad')
         tipo_calle = request.POST.get('tipo_calle')
         direccion = request.POST.get('direccion')
@@ -355,6 +370,7 @@ def modificar_bache_post(request, id_bache):
         diametro = request.POST.get('diametro')
 
         bache.estado = estado or bache.estado
+        bache.profundidad = profundidad or bache.profundidad
         bache.peligrosidad = peligrosidad or bache.peligrosidad
         bache.tipo_calle = tipo_calle or bache.tipo_calle
         bache.direccion = direccion or bache.direccion
@@ -379,6 +395,7 @@ def buscar_bache_eliminar(request):
             'upz': bache.upz.nombre,
             'barrio': bache.barrio.nombre,
             'estado': bache.estado,
+            'profundidad': bache.profundidad,
             'peligrosidad': bache.peligrosidad,
             'tipo_calle': bache.tipo_calle,
             'direccion': bache.direccion,
@@ -442,3 +459,38 @@ def api_registrar_accidente(request, id_bache):
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)})
     return JsonResponse({'status': 'error', 'message': 'Método no permitido'})
+
+def listar_baches(request):
+    baches = Bache.objects.filter(deleted_at__isnull=True)
+
+    data = [
+        {
+            'lat': float(bache.latitud),
+            'lng': float(bache.longitud)
+        }
+        for bache in baches
+    ]
+    return JsonResponse(data, safe=False)
+
+def obtener_bache_por_id(request, id):
+    id = id.strip().upper()
+    try:
+        bache = Bache.objects.get(id_bache=id)
+        return JsonResponse({
+            "id_bache": bache.id_bache,
+            "latitud": bache.latitud,
+            "longitud": bache.longitud,
+            "foto": bache.foto.url if bache.foto else "",
+            "direccion": bache.direccion,
+            "tipo_calle": bache.get_tipo_calle_display(),
+            "localidad": bache.localidad.nombre,
+            "upz": bache.upz.nombre,
+            "barrio": bache.barrio.nombre,
+            "estado": bache.get_estado_display(),
+            "peligrosidad": bache.get_peligrosidad_display(),
+            "profundidad": bache.get_profundidad_display(),
+            "diametro": bache.diametro,
+            "accidentes": bache.accidentes,
+        })
+    except Bache.DoesNotExist:
+        raise Http404("Bache no encontrado")
