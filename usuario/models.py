@@ -26,6 +26,9 @@ class Usuario(models.Model):
         return f"{self.nombre} {self.apellido} ({self.cedula})"
 
 
+from django.db import models
+from datetime import datetime
+
 class Servicio(models.Model):
     id_request = models.CharField(
         primary_key=True,
@@ -33,7 +36,7 @@ class Servicio(models.Model):
         verbose_name="ID de Solicitud"
     )
     cedula = models.ForeignKey(
-        Usuario,
+        'Usuario',  # Asegúrate que 'Usuario' esté definido en el mismo archivo o importa correctamente
         to_field='cedula',
         on_delete=models.CASCADE,
         verbose_name="Cédula o Nombre de Usuario"
@@ -42,6 +45,14 @@ class Servicio(models.Model):
     valor = models.IntegerField()
     comentario = models.TextField(blank=True, null=True)
     respuesta = models.TextField(blank=True, null=True)
+    fecha_solicitud = models.DateTimeField(
+        verbose_name="Fecha de Solicitud"
+    )
+    estado = models.CharField(
+        max_length=100,
+        verbose_name="Estado"
+    )
 
     def __str__(self):
-        return f"Servicio {self.id_request} - Usuario: {self.username_cedula}"
+        return f"Servicio {self.id_request} - Usuario: {self.cedula}"
+

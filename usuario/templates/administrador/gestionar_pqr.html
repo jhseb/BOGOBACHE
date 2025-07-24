@@ -1,0 +1,294 @@
+{% extends "administrador/base_admin.html" %}
+{% load static %}
+
+{% block titulo %}Gestionar PQR{% endblock %}
+
+{% block contenido %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    body {
+        background-color: white !important;
+    }
+
+    .contenedor-pagina {
+        background-color: white;
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .contenedor-principal {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        font-family: Arial, sans-serif;
+    }
+
+    .tabla-container {
+        background-color: white;
+        width: 90%;
+        max-width: 1000px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 12px;
+        color: black;
+        table-layout: fixed;
+    }
+
+    thead {
+        color: #d41f28;
+        font-weight: bold;
+        font-size: 16px;
+        text-align: left;
+    }
+
+    th, td {
+        padding: 8px 10px;
+        vertical-align: top;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    th:nth-child(1), td:nth-child(1) { width: 7%; }
+    th:nth-child(2), td:nth-child(2) { width: 10%; }
+    th:nth-child(3), td:nth-child(3) { width: 18%; }
+    th:nth-child(4), td:nth-child(4) { width: 15%; }
+    th:nth-child(5), td:nth-child(5) { width: 20%; }
+    th:nth-child(6), td:nth-child(6) { width: 22%; }
+    th:nth-child(7), td:nth-child(7) { width: 8%; }
+
+    tbody tr {
+        background-color: white;
+        border-bottom: 1px solid #ddd;
+    }
+
+    tbody td {
+        font-size: 14px;
+    }
+
+    .campo-gris {
+        background-color: #e9e9f3;
+        padding: 8px;
+        border-radius: 4px;
+        max-width: 100%;
+        white-space: normal;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .icono-editar {
+        color: #0d6efd;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .modal-editar {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(0, 0, 0, 0.4);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-contenido {
+        background-color: white;
+        width: 400px;
+        padding: 25px;
+        border-radius: 10px;
+        font-family: Arial, sans-serif;
+        font-size: 13px;
+    }
+
+    .modal-contenido h3 {
+        color: #d41f28;
+        text-align: left;
+        margin-bottom: 15px;
+        font-size: 20px;
+    }
+
+    .modal-contenido p {
+        margin: 8px 0;
+        text-align: left;
+        font-size: 13px;
+    }
+
+    .modal-contenido .campo-gris {
+        background-color: #e9e9f3;
+        padding: 10px;
+        border-radius: 4px;
+        text-align: left;
+        font-size: 13px;
+    }
+
+    textarea {
+        background-color: #e9e9f3;
+        border: none;
+        padding: 12px;
+        width: 100%;
+        height: 120px;
+        border-radius: 4px;
+        resize: none;
+        font-size: 13px;
+    }
+
+    .botones-modal {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .btn-modal {
+        background-color: #d41f28;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 30%;
+    }
+
+    .btn-modal:hover {
+        background-color: #b81820;
+    }
+
+    /* Letras negras en el modal */
+    .modal-contenido,
+    .modal-contenido p,
+    .modal-contenido h3,
+    .modal-contenido .campo-gris,
+    .modal-contenido textarea {
+        color: black !important;
+    }
+</style>
+
+<div class="contenedor-pagina">
+    <div class="contenedor-principal">
+        <div class="tabla-container">
+            <h4 style="color: #d41f28; margin-bottom: 20px;">Solicitudes de Servicio</h4>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th>Autor</th>
+                        <th>Solicitud</th>
+                        <!--<th>Respuesta</th>-->
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for servicio in servicios %}
+                    <tr>
+                        <td>{{ servicio.id_request }}</td>
+                        <td>{{ servicio.tipo }}</td>
+                        <td>{{ servicio.estado }}</td>
+                        <td>{{ servicio.fecha_solicitud }}</td>
+                        <td>{{ servicio.cedula }}</td>
+                        <td><div class="campo-gris">{{ servicio.comentario }}</div></td>
+                        <!--<td><div class="campo-gris" id="respuesta-{{ servicio.id_request }}">{{ servicio.respuesta }}</div></td>-->
+                        <td>
+                            <i class="fas fa-pen-to-square icono-editar"
+                               onclick="abrirModal('{{ servicio.id_request }}','{{ servicio.fecha_solicitud }}', '{{ servicio.tipo }}', '{{ servicio.cedula }}', `{{ servicio.comentario|escapejs }}`, `{{ servicio.respuesta|escapejs }}`)">
+                            </i>
+                        </td>
+                    </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: black; padding: 20px;">Sin registros</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-editar" id="modal-editar">
+    <div class="modal-contenido">
+        <form id="form-editar-respuesta">
+            {% csrf_token %}
+            <h3>CONSULTAR PQR</h3>
+            <input type="hidden" name="id_request" id="input-id">
+            
+            <p><strong>Tipo de cambio:</strong> <span id="modal-tipo"></span></p>
+            <p><strong>Fecha de solicitud:</strong> <span id="modal-fecha"></span></p>
+            <p><strong>Autor:</strong> <span id="modal-autor"></span></p>
+            <p><strong>Texto:</strong></p>
+            <div class="campo-gris" id="modal-texto"></div>
+
+            <p><strong>Respuesta:</strong></p>
+            <textarea name="nueva_respuesta" id="textarea-respuesta" required></textarea>
+
+            <div class="botones-modal">
+                <button type="button" class="btn-modal" onclick="cerrarModal()">Volver</button>
+                <button type="submit" class="btn-modal">Enviar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function abrirModal(id,fecha, tipo, autor, texto, respuesta) {
+        //const fecha = id.slice(6, 8) + '-' + id.slice(4, 6) + '-' + id.slice(0, 4);
+
+        document.getElementById('input-id').value = id;
+        document.getElementById('modal-tipo').innerText = tipo;
+        document.getElementById('modal-fecha').innerText = fecha;
+        document.getElementById('modal-autor').innerText = autor;
+        document.getElementById('modal-texto').innerText = texto;
+        document.getElementById('textarea-respuesta').value = respuesta;
+
+        document.getElementById('modal-editar').style.display = 'flex';
+    }
+
+    function cerrarModal() {
+        document.getElementById('modal-editar').style.display = 'none';
+    }
+
+    // Enviar AJAX al backend y mostrar alerta
+    document.getElementById("form-editar-respuesta").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+
+        fetch("{% url 'editar_respuesta' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Solicitud solucionada',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+                cerrarModal();
+                setTimeout(() => location.reload(), 2100);
+            } else {
+                Swal.fire('Error', data.error || 'Algo salió mal', 'error');
+            }
+        })
+        .catch(error => {
+            Swal.fire('Error', 'No se pudo enviar la solicitud', 'error');
+        });
+    });
+</script>
+
+{% endblock %}

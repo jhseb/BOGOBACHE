@@ -4,11 +4,11 @@
 
 {% block contenido %}
 
-<!-- Choices.js CSS -->
+<!-- FontAwesome y Choices.js -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 
 <style>
-  
   .form-box {
     background-color: white;
     width: 100%;
@@ -30,12 +30,12 @@
     font-size: 16px;
   }
 
-.form-header img {
-  max-width: 180px;
-  width: 100%;
-  margin: 0 auto;
-  display: block;
-}
+  .form-header img {
+    max-width: 180px;
+    width: 100%;
+    margin: 0 auto;
+    display: block;
+  }
 
   .form-title {
     color: #c8102e;
@@ -99,13 +99,33 @@
     background-color: #a10d23;
   }
 
- .card {
-  margin: 0 auto;
-  width: 100%;
-}
+  .card {
+    margin: 0 auto;
+    width: 100%;
+  }
 
   .card-body {
     padding: 15px;
+    position: relative;
+  }
+
+  .btn-back {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: #c8102e;
+    color: white;
+    padding: 6px 12px;
+    font-size: 13px;
+    border: none;
+    border-radius: 16px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    z-index: 10;
+  }
+
+  .btn-back:hover {
+    background-color: #a10d23;
   }
 
   .help-text {
@@ -114,23 +134,9 @@
     margin-top: 3px;
   }
 
-    .btn-back {
-    display: inline-block;
-    background-color: #c8102e;
-    color: white;
-    padding: 6px 12px;  /* Menos alto y menos ancho */
-    font-size: 13px;
-    border: none;
-    border-radius: 16px;
-    text-decoration: none;
-    margin: 20px auto 10px 20px;
-    transition: background-color 0.3s ease;
-  }
-
-  .btn-back:hover {
-    background-color: #a10d23;
-  }
-  input.invalid, select.invalid, textarea.invalid {
+  input.invalid,
+  select.invalid,
+  textarea.invalid {
     border: 2px solid red;
     background-color: #ffe5e5;
   }
@@ -147,29 +153,30 @@
     font-size: 13px;
     min-height: auto;
     color: black;
-}
+  }
 
-  /* Opciones dentro del desplegable */
-.choices__list--dropdown .choices__item,
-.choices__list[role="listbox"] .choices__item {
+  .choices__list--dropdown .choices__item,
+  .choices__list[role="listbox"] .choices__item {
     max-height: 700px;
     overflow-y: auto;
     border-radius: 12px;
     color: black !important;
-}
-
+  }
 
   .choices__list--single {
     padding: 0;
     color: black !important;
   }
 </style>
-<a href="javascript:history.back()" class="btn-back">Retrocede</a>
+
 <div class="card">
   <div class="card-body">
+    <a href="javascript:history.back()" class="btn-back">
+      <i class="fa fa-arrow-left" style="margin-right: 5px;"></i> Retrocede
+    </a>
     <div class="form-box">
       <div class="form-header">
-        <img src="{% static 'centro.jpeg' %}" alt="BOGOBACHE" style="width: 100%; border-top-left-radius: 16px; border-top-right-radius: 16px;">
+        <img src="{% static 'centro.jpeg' %}" alt="BOGOBACHE">
       </div>
       <div class="form-title">CREA UNA CUENTA NUEVA</div>
 
@@ -192,52 +199,52 @@
             <label for="apellido">Apellido</label>
             <input type="text" name="apellido" id="apellido" required>
           </div>
-          {{error}}
+          {{ error }}
         </div>
+
         <div class="form-step">
-            <div class="form-group">
-              <label for="fecha_nacimiento">Fecha de Nacimiento</label>
-              <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" required>
-            </div>
-
-            <div class="form-group">
-              <label for="localidad">Localidad</label>
-                <select name="localidad" id="localidad" required>
-                  <option value="Antonio_narino">Antonio Nariño</option>
-                  <option value="Barrios_unidos">Barrios Unidos</option>
-                  <option value="Bosa">Bosa</option>
-                  <option value="Chapinero">Chapinero</option>
-                  <option value="Ciudad_bolivar">Ciudad Bolívar</option>
-                  <option value="Engativa">Engativá</option>
-                  <option value="Fontibon">Fontibón</option>
-                  <option value="Kennedy">Kennedy</option>
-                  <option value="La_candelaria">La Candelaria</option>
-                  <option value="Martires">Mártires</option>
-                  <option value="Puente_aranda">Puente Aranda</option>
-                  <option value="Rafael_uribe_uribe">Rafael Uribe Uribe</option>
-                  <option value="Santa_fe">Santa Fe</option>
-                  <option value="San_cristobal">San Cristóbal</option>
-                  <option value="Suba">Suba</option>
-                  <option value="Teusaquillo">Teusaquillo</option>
-                  <option value="Tunjuelito">Tunjuelito</option>
-                  <option value="Usaquen">Usaquén</option>
-                  <option value="Usme">Usme</option>
-                </select>
-            </div>
-
-
-            <div class="form-group">
-              <label for="medio_trans">Medio de Transporte</label>
-              <select name="medio_trans" id="medio_trans" required>
-                <option value="">Seleccione una opción</option>
-                <option value="carro">Carro propio</option>
-                <option value="bicicleta">Bicicleta</option>
-                <option value="moto">Moto</option>
-                <option value="Monopatin">Monopatin</option>
-                <option value="A pie">A pie</option>
-              </select>
-            </div>
+          <div class="form-group">
+            <label for="fecha_nacimiento">Fecha de Nacimiento</label>
+            <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" required>
           </div>
+
+          <div class="form-group">
+            <label for="localidad">Localidad</label>
+            <select name="localidad" id="localidad" required>
+              <option value="Antonio_narino">Antonio Nariño</option>
+              <option value="Barrios_unidos">Barrios Unidos</option>
+              <option value="Bosa">Bosa</option>
+              <option value="Chapinero">Chapinero</option>
+              <option value="Ciudad_bolivar">Ciudad Bolívar</option>
+              <option value="Engativa">Engativá</option>
+              <option value="Fontibon">Fontibón</option>
+              <option value="Kennedy">Kennedy</option>
+              <option value="La_candelaria">La Candelaria</option>
+              <option value="Martires">Mártires</option>
+              <option value="Puente_aranda">Puente Aranda</option>
+              <option value="Rafael_uribe_uribe">Rafael Uribe Uribe</option>
+              <option value="Santa_fe">Santa Fe</option>
+              <option value="San_cristobal">San Cristóbal</option>
+              <option value="Suba">Suba</option>
+              <option value="Teusaquillo">Teusaquillo</option>
+              <option value="Tunjuelito">Tunjuelito</option>
+              <option value="Usaquen">Usaquén</option>
+              <option value="Usme">Usme</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="medio_trans">Medio de Transporte</label>
+            <select name="medio_trans" id="medio_trans" required>
+              <option value="">Seleccione una opción</option>
+              <option value="carro">Carro propio</option>
+              <option value="bicicleta">Bicicleta</option>
+              <option value="moto">Moto</option>
+              <option value="Monopatin">Monopatin</option>
+              <option value="A pie">A pie</option>
+            </select>
+          </div>
+        </div>
 
         <div class="form-step">
           <div class="form-group">
@@ -252,13 +259,13 @@
             </label>
           </div>
 
-           <div class="form-group">
-              <label for="rol">Rol</label>
-              <select name="rol" id="rol" required>
-                <option value="2">Administrador</option>
-                <option value="1">Usuario</option>
-              </select>
-            </div>
+          <div class="form-group">
+            <label for="rol">Rol</label>
+            <select name="rol" id="rol" required>
+              <option value="2">Administrador</option>
+              <option value="1">Usuario</option>
+            </select>
+          </div>
 
           <div class="form-group">
             <label for="password1">Contraseña</label>
@@ -282,12 +289,11 @@
   </div>
 </div>
 
-<!-- Choices.js JS -->
+<!-- Choices.js -->
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     showStep(currentStep);
-
     const selectElement = document.getElementById('localidad');
     new Choices(selectElement, {
       searchEnabled: false,
@@ -318,7 +324,6 @@
       const errorId = `${field.id}-error`;
       const errorDiv = document.getElementById(errorId);
 
-      // Validación personalizada para la cédula
       if (field.id === "cedula") {
         const val = field.value.trim();
         const validCedula = /^\d{10}$/.test(val);
@@ -330,10 +335,9 @@
           field.classList.remove('invalid');
           if (errorDiv) errorDiv.style.display = 'none';
         }
-        return; // saltar a la siguiente iteración
+        return;
       }
 
-      // Validación general
       if (field.hasAttribute('required') && !field.value.trim()) {
         field.classList.add('invalid');
         if (errorDiv) errorDiv.style.display = 'block';
@@ -359,4 +363,3 @@
 </script>
 
 {% endblock %}
-

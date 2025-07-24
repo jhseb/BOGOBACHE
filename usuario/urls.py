@@ -27,7 +27,9 @@ urlpatterns = [
     path('usuario/calificacion/', views.usuario_calificacion, name='calificacion'),
     path('usuario//desactivar_cuenta', views.desactivar_cuenta, name='desactivar_cuenta'),
     path('usuario/verificar-codigo/', views.verificar_codigo_correo, name='verificar_codigo_correo'),
-
+    path('editar_respuesta/', views.editar_respuesta, name='editar_respuesta'),
+    path("desactivar-usuario/", views.desactivar_usuario, name="desactivar_usuario"),
+    
     path('signup/',views.signup,name='signup'),
     path('logout/',views.signout,name='logout'),
     path('signin/',views.signin,name='signin'),
@@ -42,8 +44,11 @@ urlpatterns = [
     path('opciones_admin/', views.opciones_admin, name='opciones_admin'),
     path('opciones_bache_usuario/', views.opciones_bache_usuario, name='opciones_bache_usuario'),
     path('crear_usuario_admin/', views.crear_usuario_admin, name='crear_usuario_admin'),
-            
-    
+    path('gestionar_pqr/', views.gestionar_pqr, name='gestionar_pqr'),
+    path('pqr_tramitadas/', views.pqr_tramitadas, name='pqr_tramitadas'),
+    path('usuarios/cambiar_rol/', views.cambiar_rol_usuario, name='cambiar_rol_usuario'),
+
+
     re_path(r'^reset/password_reset/$', auth_views.PasswordResetView.as_view(
         template_name='registration/password_reset_form.html',
         email_template_name='registration/password_reset_email.html'

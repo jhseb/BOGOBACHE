@@ -10,13 +10,16 @@ from django.contrib.auth import login,logout, authenticate
 from django.http import HttpResponse, JsonResponse
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 import random
-from django.contrib import messages
 from django.contrib import messages
 from .models import Servicio
 from usuario.models import Usuario
 from django.core.exceptions import MultipleObjectsReturned
+from django.utils.timezone import localtime
+from django.contrib.auth.models import Group
+from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 def index(request):
     #return HttpResponse("HOLA")
@@ -664,7 +667,7 @@ def PQR(request):
         # Prefijo según tipo
         prefijo = {
             'Queja': 'QJ',
-            'Petición': 'PT',
+            'Peticion': 'PT',
             'Reclamo': 'RC'
         }.get(tipo, 'XX')
 
@@ -677,7 +680,9 @@ def PQR(request):
             tipo=tipo,
             valor=0,
             comentario=comentario,
-            respuesta=''
+            respuesta='',
+            fecha_solicitud=timezone.localtime(),  
+            estado="Por tramitar"
         )
 
         return redirect(f'/usuario/PQR/?enviado={tipo}')
@@ -711,8 +716,10 @@ def usuario_calificacion(request):
             cedula=usuario_obj,
             tipo='calificacion',
             valor=int(puntuacion),
-            respuesta=comentario,
-            comentario=""
+            respuesta="",
+            comentario=comentario,
+            fecha_solicitud=timezone.localtime(), 
+            estado="Calificacion"
         )
 
         messages.success(request, 'Gracias por tu calificación.')
@@ -733,3 +740,125 @@ def desactivar_cuenta(request):
     return render(request, 'usuario/gestion_cuenta/desactivar_cuenta.html', {
         'usuario': usuario,
     })
+
+def gestionar_pqr(request):
+    servicios = Servicio.objects.filter(estado='Por tramitar')
+    return render(request, 'administrador/gestionar_pqr.html', {'servicios': servicios})
+
+
+def editar_respuesta(request):
+    if request.method == 'POST':
+        id_request = request.POST.get('id_request')
+        nueva_respuesta = request.POST.get('nueva_respuesta')
+
+        try:
+            servicio = Servicio.objects.select_related('cedula').get(id_request=id_request)
+
+            # Guardar nueva respuesta
+            servicio.respuesta = nueva_respuesta
+            servicio.estado= "Solucionada"
+            servicio.save()
+
+            # Verificar que el usuario tenga correo
+            destinatario = servicio.cedula.email
+            if not destinatario:
+                return JsonResponse({'success': False, 'error': 'El usuario no tiene correo registrado.'})
+
+            # Preparar mensaje
+            asunto = f"Respuesta a su {servicio.tipo}"
+            mensaje = f"""
+Hola,
+
+Se ha respondido su solicitud con la siguiente información:
+
+ID de solicitud: {servicio.id_request}
+Tipo: {servicio.tipo}
+Fecha: {servicio.fecha_solicitud}
+Autor: {servicio.cedula}
+Texto de la solicitud:
+{servicio.comentario}
+
+Respuesta:
+{servicio.respuesta}
+            """
+
+            # Enviar correo
+            send_mail(
+                asunto,
+                mensaje,
+                'tu_correo@dominio.com',  # CAMBIA esto al correo de tu sistema
+                [destinatario],
+                fail_silently=False,
+            )
+
+            return JsonResponse({'success': True})
+
+        except Servicio.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Solicitud no encontrada.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+
+def pqr_tramitadas(request):
+    filtro = request.GET.get('filtro')
+
+    if filtro == 'pqr':
+        servicios = Servicio.objects.filter(estado='Solucionada')
+    elif filtro == 'calificacion':
+        servicios = Servicio.objects.filter(estado='Calificacion')
+    else:
+        servicios = Servicio.objects.none()  # o puedes mostrar todos si prefieres
+
+    return render(request, 'administrador/pqr_tramitadas.html', {'servicios': servicios})
+
+
+
+@csrf_exempt
+def cambiar_rol_usuario(request):
+    if request.method == 'POST':
+        cedula = request.POST.get('cedula')
+        nuevo_rol = request.POST.get('rol')  # "1", "2", "3"
+
+        try:
+            user = User.objects.get(username=cedula)
+            usuario = Usuario.objects.get(cedula=cedula)
+            usuario.rol = nuevo_rol
+            usuario.save()
+
+            # Solo modificamos grupos si es "1" o "2"
+            if nuevo_rol == "2":
+                user.groups.clear()
+                grupo = Group.objects.get(name="admin")
+                user.groups.add(grupo)
+                user.is_active = True
+                user.save()
+
+            elif nuevo_rol == "1":
+                user.groups.clear()
+                grupo = Group.objects.get(name="usuario")
+                user.groups.add(grupo)
+                user.is_active = True
+                user.save()
+
+            # Si es "3", no se hace nada en el objeto User
+            return JsonResponse({'status': 'success'})
+
+        except User.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Usuario no encontrado'})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Método no permitido'})
+
+
+def desactivar_usuario(request):
+    if request.method == "POST":
+        cedula = request.POST.get("cedula")
+        try:
+            usuario = Usuario.objects.get(cedula=cedula)
+            usuario.rol = "3"  # Cambia solo el rol
+            usuario.save()
+            return JsonResponse({'status': 'success'})
+        except Usuario.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Usuario no encontrado'})
+    return JsonResponse({'status': 'error', 'message': 'Método no permitido'})

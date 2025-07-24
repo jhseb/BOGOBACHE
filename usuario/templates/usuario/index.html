@@ -3,9 +3,10 @@
 {% block titulo %}Usuarios{% endblock %}
 
 {% block contenido %}
-
-<!-- Íconos de Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
     body {
@@ -13,11 +14,12 @@
         background-color: #fff;
     }
 
-    .contenedor-principal {
-        width: 90%;
-        margin: 0 auto;
-        padding: 20px;
-    }
+ .contenedor-principal {
+    width: 90%;
+    margin: 0 auto;
+    padding: 0 20px 20px 20px; /* quitamos el padding top */
+    margin-top: -30px; /* <- ¡Este lo sube! Ajusta según necesites */
+}
 
     .botones-acciones {
         display: flex;
@@ -56,15 +58,15 @@
     .tabla-estilizada {
         width: 100%;
         border-collapse: collapse;
-        font-size: 14px; /* Aumentado de 12px a 14px */
+        font-size: 14px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     .tabla-estilizada thead {
-        background-color: #d41f28;
+        background-color: #d41f28 !important;
         color: white;
         font-weight: bold;
-        font-size: 14px; /* Aumentado el tamaño del encabezado */
+        font-size: 14px;
     }
 
     .tabla-estilizada th,
@@ -75,26 +77,11 @@
     }
 
     .tabla-estilizada td {
-        font-size: 14px; /* Asegurado para el cuerpo */
-        color: black; /* Letras negras en las celdas */
+        color: black;
     }
 
     .tabla-estilizada tr:nth-child(even) {
         background-color: #f9f9f9;
-    }
-
-    .acciones-btn {
-        cursor: pointer;
-        font-size: 18px;
-        margin: 0 4px;
-    }
-
-    .btn-aceptar {
-        color: green;
-    }
-
-    .btn-rechazar {
-        color: red;
     }
 
     .icono-accion {
@@ -107,12 +94,20 @@
     .icono-accion:hover {
         color: #084298;
     }
+
+    .icono-x {
+        color: red;
+    }
+
+    .icono-x:hover {
+        color: darkred;
+    }
 </style>
 
 <div class="contenedor-principal">
     <div class="botones-acciones">
         <a href="{% url 'crear_usuario_admin' %}" class="boton">CREAR USUARIO</a>
-        <!--<button type="button" class="boton" onclick="alert('Abrir modal')">AGREGAR PERMISOS</button>-->
+        <button class="boton" data-bs-toggle="modal" data-bs-target="#modalDesactivar">DESACTIVAR USUARIOS</button>
     </div>
 
     <h4>Usuarios</h4>
@@ -140,13 +135,145 @@
                     <a href="{% url 'editar_usuario' usuario.cedula %}" title="Editar">
                         <i class="fas fa-pen-to-square icono-accion"></i>
                     </a>
-                    |
-                    <!--<span class="acciones-btn btn-rechazar" title="Rechazar">&#10060;</span>-->
+                    <i class="fas fa-times icono-accion icono-x" title="Desactivar usuario"
+                       onclick="confirmarDesactivacion('{{ usuario.cedula }}')"></i>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+<!-- MODAL -->
+<div class="modal fade" id="modalDesactivar" tabindex="-1" aria-labelledby="modalDesactivarLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modalDesactivarLabel">Desactivar o cambiar rol de usuarios</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+            <table class="tabla-estilizada">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Rol Actual</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td>{{ usuario.cedula }}</td>
+                        <td>{{ usuario.nombre }}</td>
+                        <td>{{ usuario.rol }}</td>
+                        <td>
+                            <select class="form-select form-select-sm rol-selector" data-usuario="{{ usuario.cedula }}">
+                                <option value="1" {% if usuario.rol|lower == '1' %}selected{% endif %}>Usuario</option>
+                                <option value="2" {% if usuario.rol|lower == '2' %}selected{% endif %}>Administrador</option>
+                                <option value="3" {% if usuario.rol|lower == '3' %}selected{% endif %}>Desactivar</option>
+                            </select>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    function confirmarDesactivacion(cedula) {
+    Swal.fire({
+        title: '¿Está seguro?',
+        text: "Esto desactivará al usuario.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, desactivar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#d33',  // 🔴 Rojo oscuro para el botón confirmar
+        cancelButtonColor: '#6c757d'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch("{% url 'desactivar_usuario' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: new URLSearchParams({
+                    cedula: cedula
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Usuario desactivado',
+                        text: 'El usuario fue desactivado correctamente',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = "{% url 'usuario' %}";
+                    });
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error', 'No se pudo desactivar el usuario.', 'error');
+                console.error(error);
+            });
+        }
+    });
+}
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const selects = document.querySelectorAll('.rol-selector');
+
+        selects.forEach(select => {
+            select.addEventListener('change', function () {
+                const usuarioId = this.dataset.usuario;
+                const nuevoRol = this.value;
+
+                fetch("{% url 'cambiar_rol_usuario' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: new URLSearchParams({
+                        cedula: usuarioId,
+                        rol: nuevoRol
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Rol actualizado',
+                            text: `El usuario ${usuarioId} tiene ahora el rol: ${select.options[select.selectedIndex].text}`,
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = "{% url 'usuario' %}";
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Error', 'No se pudo actualizar el rol.', 'error');
+                    console.error(error);
+                });
+            });
+        });
+    });
+</script>
 
 {% endblock %}
