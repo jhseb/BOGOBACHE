@@ -20,6 +20,7 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.utils.timezone import localtime
 from django.contrib.auth.models import Group
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import user_passes_test
 # Create your views here.
 def index(request):
     #return HttpResponse("HOLA")
@@ -95,7 +96,8 @@ def crear_usuario(request):
         return redirect('usuario')
     return render(request, 'usuario/crear.html',{'formulario': formulario})
 
-
+#@user_passes_test(is_usuario, login_url='denied_access')
+@user_passes_test(is_admin, login_url='denied_access')  
 def usuario_view(request):
     #cliente0 = obtener_usuario(request)
     usuarios = Usuario.objects.all()
@@ -460,7 +462,7 @@ def verificar_codigo_correo(request):
     })
 
 
-
+@user_passes_test(is_admin, login_url='denied_access') 
 def crear_usuario_admin(request):
     if request.method == 'GET':
         return render(request, 'usuario/crear_usuario_admin.html', {'form': UserCreationForm})
@@ -744,6 +746,20 @@ def desactivar_cuenta(request):
 def gestionar_pqr(request):
     servicios = Servicio.objects.filter(estado='Por tramitar')
     return render(request, 'administrador/gestionar_pqr.html', {'servicios': servicios})
+
+def consultar_pqr(request):
+    filtro = request.GET.get('filtro')
+    cedula_usuario = request.user.username
+
+    if filtro == 'pqr':
+        servicios = Servicio.objects.filter(cedula=cedula_usuario, estado='Solucionada')
+    elif filtro == 'calificacion':
+        servicios = Servicio.objects.filter(cedula=cedula_usuario, estado='Calificacion')
+    else:
+        servicios = Servicio.objects.filter(cedula=cedula_usuario)
+
+    return render(request, 'usuario/consultar_pqr_cal.html', {'servicios': servicios})
+
 
 
 def editar_respuesta(request):

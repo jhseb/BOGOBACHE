@@ -8,7 +8,7 @@ urlpatterns = [
     #path('',views.index,name="inicio"),
     path('somos',views.somos,name="somos"),
     path('sesion',views.sesion,name="sesion"),
-
+    path('accesodenegado/',views.denied_access,name='denied_access'),
 
     #Usuario CRUD
     path('usuario/configuracion',views.configuracion_usuario, name='configuracion_usuario'),
@@ -46,6 +46,7 @@ urlpatterns = [
     path('crear_usuario_admin/', views.crear_usuario_admin, name='crear_usuario_admin'),
     path('gestionar_pqr/', views.gestionar_pqr, name='gestionar_pqr'),
     path('pqr_tramitadas/', views.pqr_tramitadas, name='pqr_tramitadas'),
+    path('pqr_consultar/', views.consultar_pqr, name='pqr_consultar'),
     path('usuarios/cambiar_rol/', views.cambiar_rol_usuario, name='cambiar_rol_usuario'),
 
 
