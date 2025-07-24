@@ -2,10 +2,9 @@
 {% load static %}
 {% block titulo %} Crear Usuario {% endblock %}
 
-{% block contenido %}
+{% block content %}
 
-<!-- FontAwesome y Choices.js -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!-- Choices.js CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 
 <style>
@@ -134,9 +133,7 @@
     margin-top: 3px;
   }
 
-  input.invalid,
-  select.invalid,
-  textarea.invalid {
+  input.invalid, select.invalid, textarea.invalid {
     border: 2px solid red;
     background-color: #ffe5e5;
   }
@@ -174,6 +171,7 @@
     <a href="javascript:history.back()" class="btn-back">
       <i class="fa fa-arrow-left" style="margin-right: 5px;"></i> Retrocede
     </a>
+
     <div class="form-box">
       <div class="form-header">
         <img src="{% static 'centro.jpeg' %}" alt="BOGOBACHE">
@@ -183,6 +181,7 @@
       <form method="post" action="{% url 'crear_usuario_admin' %}">
         {% csrf_token %}
 
+        <!-- Paso 1 -->
         <div class="form-step active">
           <div class="form-group">
             <label for="cedula">Cédula</label>
@@ -202,6 +201,7 @@
           {{ error }}
         </div>
 
+        <!-- Paso 2 -->
         <div class="form-step">
           <div class="form-group">
             <label for="fecha_nacimiento">Fecha de Nacimiento</label>
@@ -211,6 +211,7 @@
           <div class="form-group">
             <label for="localidad">Localidad</label>
             <select name="localidad" id="localidad" required>
+              <option value="">Seleccione una localidad</option>
               <option value="Antonio_narino">Antonio Nariño</option>
               <option value="Barrios_unidos">Barrios Unidos</option>
               <option value="Bosa">Bosa</option>
@@ -246,12 +247,56 @@
           </div>
         </div>
 
+        <!-- Paso 3 -->
         <div class="form-step">
           <div class="form-group">
             <label for="email">Correo Electrónico</label>
             <input type="email" name="email" id="email" required>
           </div>
 
+          <div class="form-group">
+            <label for="ciudad">Ciudad de origen</label>
+            <select name="ciudad" id="ciudad" required>
+              <option value="">Seleccione ciudad</option>
+              <option value="Bogotá">Bogotá</option>
+              <option value="Medellín">Medellín</option>
+              <option value="Cali">Cali</option>
+              <option value="Barranquilla">Barranquilla</option>
+              <option value="Cartagena">Cartagena</option>
+              <option value="Cúcuta">Cúcuta</option>
+              <option value="Bucaramanga">Bucaramanga</option>
+              <option value="Pereira">Pereira</option>
+              <option value="Santa Marta">Santa Marta</option>
+              <option value="Ibagué">Ibagué</option>
+              <option value="Manizales">Manizales</option>
+              <option value="Villavicencio">Villavicencio</option>
+              <option value="Neiva">Neiva</option>
+              <option value="Pasto">Pasto</option>
+              <option value="Montería">Montería</option>
+              <option value="Armenia">Armenia</option>
+              <option value="Popayán">Popayán</option>
+              <option value="Valledupar">Valledupar</option>
+              <option value="Sincelejo">Sincelejo</option>
+              <option value="Riohacha">Riohacha</option>
+              <option value="Tunja">Tunja</option>
+              <option value="Yopal">Yopal</option>
+              <option value="Florencia">Florencia</option>
+              <option value="Quibdó">Quibdó</option>
+              <option value="San Andrés">San Andrés</option>
+              <option value="Leticia">Leticia</option>
+              <option value="Otra">Otra</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="telefono">Teléfono</label>
+            <input type="tel" name="telefono" id="telefono" placeholder="Ej: 3001234567" maxlength="10" pattern="[0-9]{10}" required>
+            <div class="help-text" id="telefono-error" style="display:none;">El teléfono debe tener exactamente 10 dígitos numéricos.</div>
+          </div>
+        </div>
+
+        <!-- Paso 4 (Final) -->
+        <div class="form-step">
           <div class="form-group">
             <label for="notificacion">
               <input type="checkbox" name="notificacion" id="notificacion">
@@ -262,8 +307,9 @@
           <div class="form-group">
             <label for="rol">Rol</label>
             <select name="rol" id="rol" required>
-              <option value="2">Administrador</option>
+              <option value="">Seleccione un rol</option>
               <option value="1">Usuario</option>
+              <option value="2">Administrador</option>
             </select>
           </div>
 
@@ -283,23 +329,78 @@
           <button type="button" class="btn-custom" onclick="nextStep()">Siguiente</button>
           <button type="submit" class="btn-custom" id="submitBtn" style="display: none;">Crear usuario</button>
         </div>
-
       </form>
     </div>
   </div>
 </div>
 
-<!-- Choices.js -->
+<!-- Choices.js JS -->
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     showStep(currentStep);
-    const selectElement = document.getElementById('localidad');
-    new Choices(selectElement, {
+
+    new Choices(document.getElementById('localidad'), {
       searchEnabled: false,
       itemSelectText: '',
       shouldSort: false
     });
+
+    new Choices(document.getElementById('ciudad'), {
+      searchEnabled: true,
+      itemSelectText: '',
+      shouldSort: false
+    });
+
+    // Solo letras en nombre y apellido
+    document.getElementById('nombre').addEventListener('input', function () {
+      this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+    });
+
+    document.getElementById('apellido').addEventListener('input', function () {
+      this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+    });
+
+    // ✅ Validación de contraseña segura
+    const form = document.querySelector("form");
+    const pass1 = document.getElementById("password1");
+    const pass2 = document.getElementById("password2");
+
+    form.addEventListener("submit", function (e) {
+      let valid = true;
+
+      const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+
+      // Eliminar errores anteriores
+      document.querySelectorAll('.help-text-password').forEach(el => el.remove());
+      pass1.classList.remove("invalid");
+      pass2.classList.remove("invalid");
+
+      // Validar requisitos de seguridad
+      if (!passwordRegex.test(pass1.value)) {
+        valid = false;
+        showPassError(pass1, 'La contraseña debe tener mínimo 8 caracteres, un número y un carácter especial.');
+      }
+
+      // Validar coincidencia
+      if (pass1.value !== pass2.value) {
+        valid = false;
+        showPassError(pass2, 'Las contraseñas no coinciden.');
+      }
+
+      if (!valid) {
+        e.preventDefault();
+      }
+    });
+
+    function showPassError(input, message) {
+      input.classList.add("invalid");
+
+      const error = document.createElement("div");
+      error.className = "help-text-password text-danger mt-1";
+      error.innerText = message;
+      input.parentNode.appendChild(error);
+    }
   });
 
   let currentStep = 0;
@@ -307,10 +408,7 @@
   const submitBtn = document.getElementById('submitBtn');
 
   function showStep(index) {
-    steps.forEach((step, i) => {
-      step.classList.toggle('active', i === index);
-    });
-
+    steps.forEach((step, i) => step.classList.toggle('active', i === index));
     document.querySelector('[onclick="prevStep()"]').style.display = index === 0 ? 'none' : 'inline-block';
     document.querySelector('[onclick="nextStep()"]').style.display = index === steps.length - 1 ? 'none' : 'inline-block';
     submitBtn.style.display = index === steps.length - 1 ? 'inline-block' : 'none';
@@ -325,28 +423,53 @@
       const errorDiv = document.getElementById(errorId);
 
       if (field.id === "cedula") {
-        const val = field.value.trim();
-        const validCedula = /^\d{10}$/.test(val);
-        if (!validCedula) {
-          field.classList.add('invalid');
-          if (errorDiv) errorDiv.style.display = 'block';
-          allValid = false;
-        } else {
-          field.classList.remove('invalid');
-          if (errorDiv) errorDiv.style.display = 'none';
-        }
+        const valid = /^\d{10}$/.test(field.value.trim());
+        toggleValidation(field, errorDiv, valid);
+        if (!valid) allValid = false;
+        return;
+      }
+
+      if (field.id === "telefono") {
+        const valid = /^\d{10}$/.test(field.value.trim());
+        toggleValidation(field, errorDiv, valid);
+        if (!valid) allValid = false;
         return;
       }
 
       if (field.hasAttribute('required') && !field.value.trim()) {
-        field.classList.add('invalid');
-        if (errorDiv) errorDiv.style.display = 'block';
+        toggleValidation(field, errorDiv, false);
         allValid = false;
       } else {
-        field.classList.remove('invalid');
-        if (errorDiv) errorDiv.style.display = 'none';
+        toggleValidation(field, errorDiv, true);
       }
     });
+
+    // Validación de fecha de nacimiento
+    const fechaInput = document.getElementById('fecha_nacimiento');
+    if (fechaInput) {
+      const fechaNacimiento = new Date(fechaInput.value);
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      const minFecha = new Date('1900-01-01');
+
+      if (fechaNacimiento >= hoy || fechaNacimiento < minFecha) {
+        allValid = false;
+        fechaInput.classList.add('invalid');
+
+        if (!document.getElementById('fecha_nacimiento-error')) {
+          const error = document.createElement('div');
+          error.id = 'fecha_nacimiento-error';
+          error.className = 'help-text';
+          error.innerText = 'La fecha debe estar entre 1900 y hoy.';
+          fechaInput.parentNode.appendChild(error);
+        }
+        document.getElementById('fecha_nacimiento-error').style.display = 'block';
+      } else {
+        fechaInput.classList.remove('invalid');
+        const errorDiv = document.getElementById('fecha_nacimiento-error');
+        if (errorDiv) errorDiv.style.display = 'none';
+      }
+    }
 
     if (allValid && currentStep < steps.length - 1) {
       currentStep++;
@@ -360,6 +483,19 @@
       showStep(currentStep);
     }
   }
+
+  function toggleValidation(field, errorDiv, isValid) {
+    if (!isValid) {
+      field.classList.add('invalid');
+      if (errorDiv) errorDiv.style.display = 'block';
+    } else {
+      field.classList.remove('invalid');
+      if (errorDiv) errorDiv.style.display = 'none';
+    }
+  }
 </script>
 
+
 {% endblock %}
+
+

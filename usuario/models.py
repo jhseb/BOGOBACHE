@@ -1,5 +1,6 @@
 from django.core.validators import RegexValidator
 from django.db import models
+from datetime import datetime
 
 class Usuario(models.Model):
     cedula = models.CharField(
@@ -17,6 +18,17 @@ class Usuario(models.Model):
     apellido = models.CharField(max_length=100)
     fecha_nacimiento = models.DateField(verbose_name="Fecha de Nacimiento")
     localidad = models.CharField(max_length=100)
+    ciudad_origen = models.CharField(max_length=100, verbose_name="Ciudad de Origen")  # Campo agregado
+    telefono = models.CharField(
+        max_length=10,
+        validators=[
+            RegexValidator(
+                regex=r'^\d{10}$',
+                message='El teléfono debe tener exactamente 10 dígitos numéricos.'
+            )
+        ],
+        verbose_name="Teléfono"  # Campo agregado
+    )
     medio_trans = models.CharField(max_length=100, verbose_name="Medio de Transporte")
     email = models.EmailField()
     notificacion = models.BooleanField(default=False, verbose_name="¿Desea recibir notificaciones?")
@@ -25,9 +37,6 @@ class Usuario(models.Model):
     def __str__(self):
         return f"{self.nombre} {self.apellido} ({self.cedula})"
 
-
-from django.db import models
-from datetime import datetime
 
 class Servicio(models.Model):
     id_request = models.CharField(

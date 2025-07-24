@@ -97,7 +97,7 @@ def crear_usuario(request):
     return render(request, 'usuario/crear.html',{'formulario': formulario})
 
 #@user_passes_test(is_usuario, login_url='denied_access')
-@user_passes_test(is_admin, login_url='denied_access')  
+#@user_passes_test(is_admin, login_url='denied_access')  
 def usuario_view(request):
     #cliente0 = obtener_usuario(request)
     usuarios = Usuario.objects.all()
@@ -216,8 +216,14 @@ def signup(request):
                 if request.POST['email'] == usuario.email:
                     if request.POST['password1'] == request.POST['password2']:
                         usuario.email = request.POST['email']
+                        usuario.nombre = request.POST['nombre']
+                        usuario.apellido = request.POST['apellido']
+                        usuario.fecha_nacimiento = request.POST['fecha_nacimiento']
                         usuario.notificacion = bool(request.POST.get('notificacion'))
                         usuario.rol = 1  # Si deseas forzar siempre rol=1
+                        usuario.ciudad_origen = request.POST['ciudad']
+                        usuario.telefono = request.POST['telefono']
+                        usuario.medio_trans=request.POST['medio_trans'],
                         usuario.save()
                         user = User.objects.get(username=cedula)
                         user.email = request.POST['email']
@@ -230,8 +236,14 @@ def signup(request):
                     if not correo_existe:
                         if request.POST['password1'] == request.POST['password2']:
                             usuario.email = request.POST['email']
+                            usuario.nombre = request.POST['nombre']
+                            usuario.apellido = request.POST['apellido']
+                            usuario.fecha_nacimiento = request.POST['fecha_nacimiento']
                             usuario.notificacion = bool(request.POST.get('notificacion'))
                             usuario.rol = 1  # Si deseas forzar siempre rol=1
+                            usuario.ciudad_origen = request.POST['ciudad']
+                            usuario.telefono = request.POST['telefono']
+                            usuario.medio_trans=request.POST['medio_trans'],
                             usuario.save()
                             user = User.objects.get(username=cedula)
                             user.email = request.POST['email']
@@ -268,6 +280,8 @@ def signup(request):
                     localidad=request.POST['localidad'],
                     medio_trans=request.POST['medio_trans'],
                     email=request.POST['email'],
+                    ciudad_origen = request.POST['ciudad'],
+                    telefono = request.POST['telefono'],
                     notificacion=bool(request.POST.get('notificacion')),
                     rol=1
                 )
@@ -496,8 +510,9 @@ def crear_usuario_admin(request):
                     medio_trans=request.POST['medio_trans'],
                     email=request.POST['email'],
                     notificacion=bool(request.POST.get('notificacion')),
+                    ciudad_origen = request.POST['ciudad'],
+                    telefono = request.POST['telefono'],
                     rol=request.POST['rol'], 
-
                 )
 
                 user.save()
