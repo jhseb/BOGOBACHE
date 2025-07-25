@@ -101,13 +101,16 @@
 
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <p>Por favor, ubique el bache en el mapa</p>
-        <label>Ubicación obtenida:</label>
-        <label>Latitud:</label>
-        <input type="text" id="latitud" name="latitud" readonly required>
-        <label>Longitud:</label>
-        <input type="text" id="longitud" name="longitud" readonly required>
-        <p>Por favor, rellene la siguiente información:</p>
+        <div id="instrucciones-ubicacion">
+          <p><strong>Por favor, ubique el bache en el mapa</strong></p>
+          <label>Ubicación obtenida:</label>
+          <label>Latitud:</label>
+          <input type="text" id="latitud" name="latitud" readonly required>
+          <label>Longitud:</label>
+          <input type="text" id="longitud" name="longitud" readonly required>
+        </div>
+        <div id="campos-formulario" style="display: none;">
+            <p><strong>Por favor, rellene la siguiente información:</strong></p>
         
         {{ form.peligrosidad }}
         {{ form.estado }}
@@ -124,7 +127,7 @@
         <label>Diametro aproximado(cm)</label>
         {{ form.diametro }}
 
-        <div class="campo-formulario">
+        <div class="campo-formulario" style="display: none;">
           <label>Sufrió un accidente por este bache?</label>
           <div>
             <button type="button" class="btn-accidente" onclick="seleccionarAccidente(1)">Si</button>
@@ -154,6 +157,8 @@
         <input type="file" name="foto" accept="image/png, image/jpeg" required>
 
         <button type="submit">Crear</button>
+
+        </div>
       </form>
     </div>
 
@@ -175,14 +180,13 @@
     if (valor === 1) {
       botones[0].classList.add('selected');
       Swal.fire({
-        title: 'Detalles del accidente',
-        html: `<iframe src="{% url 'consultar_reportes' %}" width="100%" height="500px" style="border:none;"></iframe>`,
-        width: '90%',
-        heightAuto: false,
-        showConfirmButton: false,
-        showCloseButton: true,
-        background: '#fff',
-        customClass: {
+          html: `<iframe src="{% url 'reportes:crear_reportes' %}?popup=1" width="100%" height="500px" style="border:none;"></iframe>`,
+          width: '90%',
+          heightAuto: false,
+          showConfirmButton: false,
+          showCloseButton: true,
+          background: '#fff',
+          customClass: {
           popup: 'swal-wide'
         }
       });
@@ -233,7 +237,8 @@
     map.on('click', function (e) {
       const lat = parseFloat(e.latlng.lat.toFixed(6));
       const lng = parseFloat(e.latlng.lng.toFixed(6));
-
+      document.getElementById('instrucciones-ubicacion').style.display = 'none';
+      document.getElementById('campos-formulario').style.display = 'block';
       // Verificar si ya existe un punto muy cerca
       const existe = puntosExistentes.some(p =>
         Math.abs(p.lat - lat) < 0.00001 && Math.abs(p.lng - lng) < 0.00001

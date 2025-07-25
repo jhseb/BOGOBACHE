@@ -11,7 +11,7 @@ urlpatterns = [
     path('', views.ver_filtrado_baches, name='ver_filtrado_baches'),
     path('inicio', views.index, name="inicio"),
     #path('', views.index, name="inicio"),
-    path('crear/', views.crear_bache, name='crear_bache'),  # <- Ya no fallará
+    path('crearB/', views.crear_bache, name='crear_bache'),  # <- Ya no fallará
     #path('somos/', views.somos, name="somos"),
     #path('sesion/', views.sesion, name="sesion"),
     path('mapa/', mapa_baches, name='mapa-baches'),
@@ -39,4 +39,5 @@ urlpatterns = [
     path('eliminar_bache_confirmar/<str:id>/', views.eliminar_bache_confirmar, name='eliminar_bache_confirmar'),
     path('admin_eliminar_bache_directo/<str:id_bache>/', views.admin_eliminar_bache_directo, name='admin_eliminar_bache_directo'),
 
+   # path('reportes/', include('reportes.urls')),  #esta línea no puede servir para mostrar el formulario
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -34,6 +34,7 @@
         font-size: 0.95rem;
         color: #333;
         margin-bottom: 20px;
+        font-weight: bold; /* Texto en negrita */
     }
 
     .estrellas {
@@ -42,10 +43,10 @@
     }
 
     .estrellas .estrella {
-        font-size: 30px;
+        font-size: 50px; /* Estrellas más grandes */
         color: #d20000;
         cursor: pointer;
-        margin: 0 5px;
+        margin: 0 8px; /* Más espacio entre estrellas */
     }
 
     .estrellas .estrella.desactivada {
@@ -135,7 +136,7 @@
                 }
             });
 
-            if (valor === 1) { 
+            if (valor === 1) {
                 textoCalificacion.innerText = 'muy mala';
             } else if (valor === 2) {
                 textoCalificacion.innerText = 'mala';

@@ -193,5 +193,29 @@
         <a class="boton-formulario btn-cancelar" href="{% url 'configuracion_usuario' %}">Cancelar</a>
     </form>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const formulario = document.querySelector('form');
+        formulario.addEventListener('submit', function (e) {
+            e.preventDefault(); // Evita que el formulario se envíe inmediatamente
+
+            Swal.fire({
+                title: '¿Está seguro?',
+                text: 'Se enviarán los datos personales.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#b00000',
+                cancelButtonColor: '#999',
+                confirmButtonText: 'Sí, enviar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    formulario.submit(); // Enviar el formulario después de la confirmación
+                }
+            });
+        });
+    });
+</script>
+
 
 {% endblock %}

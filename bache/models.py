@@ -146,3 +146,6 @@ class Bache(models.Model):
             return super().delete(*args, **kwargs)
         self.deleted_at = timezone.now()
         self.save()
+
+    def __str__(self):
+        return self.id_bache

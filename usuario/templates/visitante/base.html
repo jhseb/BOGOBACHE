@@ -199,6 +199,7 @@ html, body {
         {% if user.is_authenticated %}
           {% if rol == 2 %}
             <a href="{% url 'opciones_usuario' %}" class="{% if request.resolver_match.url_name == 'gestionar_usuarios' %}active{% endif %}">Admin</a>
+            <a href="{% url 'datos' %}" class="{% if request.resolver_match.url_name == 'datos' %}active{% endif %}">Analisis de datos</a>
           {% else %}
             <a href="{% url 'principal_usuario' %}" class="{% if request.path == '/' %}active{% endif %}">Usuario</a>
             <a href="{% url 'configuracion_usuario' %}" class="{% if request.resolver_match.url_name == 'gestionar_usuarios' %}active{% endif %}">Configuracion</a>

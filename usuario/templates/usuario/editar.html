@@ -60,7 +60,7 @@
         border-bottom: 2px solid #b00000;
     }
 
-    /* Estilo Botones (Acorde institucional) */
+    /* Estilo Botones */
     .boton-formulario {
         display: inline-block;
         padding: 10px 20px;
@@ -103,7 +103,6 @@
     }
 </style>
 
-
 <div class="formulario-contenedor">
     <div class="titulo-formulario">GESTIÓN DE USUARIOS</div>
 
@@ -139,13 +138,16 @@
                             {% else %}
                                 value="{{ campo.value|default:'' }}"
                             {% endif %}
+                            {% if campo.name == 'cedula' %}
+                                readonly
+                                style="background-color: #f5f5f5; cursor: not-allowed;"
+                            {% endif %}
                         />
                     {% endif %}
 
                     <div class="help-text">{{ campo.errors }}</div>
                 </div>
             {% endfor %}
-
         </div>
 
         <br>
@@ -153,5 +155,23 @@
         <a href="{% url 'usuario' %}" class="boton-formulario btn-cancelar">Cancelar</a>
     </form>
 </div>
+
+{% if estado %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    const estado = "{{ estado }}";
+
+    Swal.fire({
+        icon: estado === 'exito' ? 'success' : 'error',
+        title: estado === 'exito' ? '¡Usuario actualizado correctamente!' : 'Hubo un error al enviar el formulario',
+        showConfirmButton: false,
+        timer: 2000
+    }).then(() => {
+        if (estado === 'exito') {
+            window.location.href = "{% url 'usuario' %}";
+        }
+    });
+</script>
+{% endif %}
 
 {% endblock %}

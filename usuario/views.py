@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import  Usuario
+from reportes.models import Reporte
 from django.core.mail import send_mail
 from .form import usuarioForm
 from django.contrib.auth.models import User
@@ -97,38 +98,46 @@ def crear_usuario(request):
     return render(request, 'usuario/crear.html',{'formulario': formulario})
 
 #@user_passes_test(is_usuario, login_url='denied_access')
-#@user_passes_test(is_admin, login_url='denied_access')  
+@user_passes_test(is_admin, login_url='denied_access')  
 def usuario_view(request):
     #cliente0 = obtener_usuario(request)
     usuarios = Usuario.objects.all()
     return render(request, 'usuario/index.html',{'usuarios':usuarios})
 
 
-
 def editar_usuario(request, id):
-    usuario1 = Usuario.objects.get(cedula=id)
+    usuario1 = get_object_or_404(Usuario, cedula=id)
     formulario = usuarioForm(request.POST or None, request.FILES or None, instance=usuario1)
-    nombre_grupo = 'admin'
-    nombre_grupo1 = 'usuario'
-    grupo = Group.objects.filter(name=nombre_grupo).first()
-    grupo1 = Group.objects.filter(name=nombre_grupo1).first()
 
-    if formulario.is_valid() and  request.POST:
-        formulario.save()
-        userb = User.objects.get(username=usuario1.cedula)
-        print(userb.cedula)
-        userb.email = formulario.cleaned_data['email']
-        userb.groups.clear()   
-        if formulario.cleaned_data['rol'] == 1:
-            userb.groups.add(grupo1)
+    grupo_admin = Group.objects.filter(name='admin').first()
+    grupo_usuario = Group.objects.filter(name='usuario').first()
+
+    estado = None  # 'exito' o 'error'
+
+    if request.method == 'POST':
+        if formulario.is_valid():
+            formulario.save()
+
+            userb = User.objects.get(username=usuario1.cedula)
+            userb.email = formulario.cleaned_data['email']
+            userb.groups.clear()
+
+            if formulario.cleaned_data['rol'] == 1:
+                userb.groups.add(grupo_usuario)
+            else:
+                userb.groups.add(grupo_admin)
+
+            userb.username = formulario.cleaned_data['cedula']
+            userb.save()
+
+            estado = 'exito'
         else:
-            userb.groups.add(grupo)
+            estado = 'error'
 
-        userb.username = formulario.cleaned_data['cedula']
-        userb.save()
-
-        return redirect('usuario')
-    return render(request,'usuario/editar.html',{'formulario': formulario})
+    return render(request, 'usuario/editar.html', {
+        'formulario': formulario,
+        'estado': estado
+    })
 
 
 
@@ -382,10 +391,7 @@ def consultar_reportes(request):
     title = 'PÁGINA'
     return render(request, 'reportes/consultar_reportes.html', {'title': title})
 
-from django.core.mail import send_mail
-from django.shortcuts import redirect, render
-from django.urls import reverse
-import random
+
 
 def actualizar_correo(request):
     title = 'PÁGINA'
@@ -404,6 +410,14 @@ def actualizar_correo(request):
 
         if nuevo_correo and nuevo_correo2:
             if nuevo_correo == nuevo_correo2:
+                # Validar si ya existe en otro usuario
+                if Usuario.objects.filter(email=nuevo_correo).exclude(cedula=usuario.cedula).exists():
+                    return render(request, 'usuario/actualizar_correo.html', {
+                        'error': 'Este correo ya está registrado por otro usuario.',
+                        'correo_actual': usuario.email,
+                        'title': title
+                    })
+
                 # Generar código de verificación
                 codigo = random.randint(100000, 999999)
 
@@ -440,6 +454,7 @@ def actualizar_correo(request):
     })
 
 
+
 def verificar_codigo_correo(request):
     title = 'PÁGINA'
     usuario = obtener_usuario(request)
@@ -452,11 +467,16 @@ def verificar_codigo_correo(request):
         codigo_enviado = request.session.get('codigo_verificacion')
         nuevo_correo = request.session.get('nuevo_correo')
 
-        if codigo_ingresado == codigo_enviado:
+        if codigo_ingresado == codigo_enviado and nuevo_correo:
+            # Actualiza el correo en el modelo Usuario
             usuario.email = nuevo_correo
             usuario.save()
 
-            # Limpia la sesión
+            user = User.objects.get(username=usuario.cedula)
+            user.email = nuevo_correo
+            user.save()
+
+            # Limpia sesión
             request.session.pop('codigo_verificacion', None)
             request.session.pop('nuevo_correo', None)
 
@@ -474,6 +494,7 @@ def verificar_codigo_correo(request):
     return render(request, 'usuario/verificar_codigo.html', {
         'title': title
     })
+
 
 
 @user_passes_test(is_admin, login_url='denied_access') 
@@ -684,7 +705,7 @@ def PQR(request):
         # Prefijo según tipo
         prefijo = {
             'Queja': 'QJ',
-            'Peticion': 'PT',
+            'Petición': 'PT',
             'Reclamo': 'RC'
         }.get(tipo, 'XX')
 
@@ -767,13 +788,14 @@ def consultar_pqr(request):
     cedula_usuario = request.user.username
 
     if filtro == 'pqr':
-        servicios = Servicio.objects.filter(cedula=cedula_usuario, estado='Solucionada')
+        servicios = Servicio.objects.filter(cedula=cedula_usuario, estado__in=['Solucionada', 'Por tramitar'])
     elif filtro == 'calificacion':
         servicios = Servicio.objects.filter(cedula=cedula_usuario, estado='Calificacion')
     else:
         servicios = Servicio.objects.filter(cedula=cedula_usuario)
 
     return render(request, 'usuario/consultar_pqr_cal.html', {'servicios': servicios})
+
 
 
 
@@ -787,13 +809,16 @@ def editar_respuesta(request):
 
             # Guardar nueva respuesta
             servicio.respuesta = nueva_respuesta
-            servicio.estado= "Solucionada"
+            servicio.estado = "Solucionada"
             servicio.save()
 
             # Verificar que el usuario tenga correo
             destinatario = servicio.cedula.email
             if not destinatario:
                 return JsonResponse({'success': False, 'error': 'El usuario no tiene correo registrado.'})
+
+            # Formatear fecha para mostrar solo día, mes y año
+            fecha_formateada = servicio.fecha_solicitud.strftime('%Y-%m-%d')  # Puedes cambiar el formato si deseas
 
             # Preparar mensaje
             asunto = f"Respuesta a su {servicio.tipo}"
@@ -804,20 +829,20 @@ Se ha respondido su solicitud con la siguiente información:
 
 ID de solicitud: {servicio.id_request}
 Tipo: {servicio.tipo}
-Fecha: {servicio.fecha_solicitud}
-Autor: {servicio.cedula}
-Texto de la solicitud:
+Fecha: {fecha_formateada}
+Que tenga un buen día señor(a): {servicio.cedula}
+Recibimos una solicitud para:
 {servicio.comentario}
 
 Respuesta:
 {servicio.respuesta}
-            """
+"""
 
             # Enviar correo
             send_mail(
                 asunto,
                 mensaje,
-                'tu_correo@dominio.com',  # CAMBIA esto al correo de tu sistema
+                'tu_correo@dominio.com',  # Reemplaza con el correo de tu sistema
                 [destinatario],
                 fail_silently=False,
             )
@@ -830,6 +855,7 @@ Respuesta:
             return JsonResponse({'success': False, 'error': str(e)})
 
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
 
 
 def pqr_tramitadas(request):
@@ -893,3 +919,23 @@ def desactivar_usuario(request):
         except Usuario.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Usuario no encontrado'})
     return JsonResponse({'status': 'error', 'message': 'Método no permitido'})
+
+def opciones_reportes_admin(request):
+    title = 'PÁGINA'
+    return render(request, 'reportes/opciones_reportes_admin.html', {'title': title})
+
+
+def analisis_de_datos(request):
+    title = 'PÁGINA'
+    return render(request, 'analisis_de_datos/datos.html', {'title': title})
+
+
+def datos_tipo_vehiculo(request):
+    data = (
+        Reporte.objects.values('tipo_vehiculo')
+        .annotate(total=Count('tipo_vehiculo'))
+        .order_by('-total')
+    )
+    labels = [d['tipo_vehiculo'] for d in data]
+    valores = [d['total'] for d in data]
+    return JsonResponse({'labels': labels, 'data': valores})

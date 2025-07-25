@@ -1,0 +1,65 @@
+{% extends "usuario/principal_usuario.html" %}
+{% block titulo %}Usuarios{% endblock %}
+{% block contenido %}
+
+<div style="background-color: white; padding: 50px; font-size: 14px; margin: 20px auto; max-width: 1200px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+  <h2 style="text-align: center; color: #c9302c; margin-bottom: 30px;">MIS REPORTES</h2>
+  <p>Total reportes: {{ reportes|length }}</p>
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;">
+      <thead>
+        <tr style="background-color: #c9302c; color: white; text-align: center;">
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">ID Reporte</th>
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">ID Usuario</th>
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">ID Bache</th>
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Fecha del Evento</th>
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Estado del Bache</th>
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Peligrosidad</th>
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for reporte in reportes %}
+        <tr style="border-bottom: 1px solid #eee; text-align: center;">
+          <td style="padding: 12px 15px;">{{ reporte.id_report}}</td>
+          <td style="padding: 12px 15px;">{{ reporte.usuario_id}}</td>
+          <td style="padding: 12px 15px;">{{ reporte.bache_id}}</td>
+          <td style="padding: 12px 15px;">{{ reporte.fecha_evento }}</td>
+          <td style="padding: 12px 15px;">{{ reporte.bache.get_estado_display  }}</td>
+          <td style="padding: 12px 15px;">{{ reporte.bache.get_peligrosidad_display }}</td>
+          <td style="padding: 12px 15px;">
+            <a href="{% url 'reportes:ver_reporte_detalle' reporte.id_report %}">Ver Detalle</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" style="text-align:center; padding: 20px;font-size: 20px;">No se encontraron reportes registrados por usted.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+  table {
+  font-size: 14px; /* o 12px, o el tamaño que prefieras */
+}
+
+  .btn-consultar {
+    background-color: #c9302c;
+    color: white;
+    padding: 6px 12px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+    display: inline-block;
+  }
+
+  .btn-consultar:hover {
+    background-color: #a72822;
+  }
+</style>
+
+
+{% endblock %}

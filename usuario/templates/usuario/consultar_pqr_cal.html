@@ -60,7 +60,6 @@
     th:nth-child(4), td:nth-child(4) { width: 15%; }
     th:nth-child(5), td:nth-child(5) { width: 20%; }
     th:nth-child(6), td:nth-child(6) { width: 22%; }
-    th:nth-child(7), td:nth-child(7) { width: 8%; }
 
     tbody tr {
         background-color: white;
@@ -175,7 +174,7 @@
             <!-- Filtro por tipo -->
             <form method="get" style="margin-bottom: 20px;">
                 <label for="filtro" style="margin-right: 8px; font-weight: bold;">Filtrar por:</label>
-                <select name="filtro" id="filtro" onchange="this.form.submit()" style="padding: 6px; border-radius: 4px;">
+                <select name="filtro" id="filtro" onchange="actualizarColumnasPorFiltro(); this.form.submit()" style="padding: 6px; border-radius: 4px;">
                     <option value="">-- Seleccionar --</option>
                     <option value="pqr" {% if request.GET.filtro == "pqr" %}selected{% endif %}>PQR</option>
                     <option value="calificacion" {% if request.GET.filtro == "calificacion" %}selected{% endif %}>Calificaciones</option>
@@ -187,14 +186,10 @@
                     <tr>
                         <th>ID</th>
                         <th>Tipo</th>
-                        <!--<th>Estado</th>-->
                         <th>Fecha</th>
-                        <!--<th>Autor</th>-->
-                        <th>Calificación</th>
+                        <th class="col-calificacion">Calificación</th>
                         <th>Solicitud</th>
-                        <th>Respuesta</th>
-                        
-                        <!--<th>Acción</th>-->
+                        <th class="col-respuesta">Respuesta</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -202,21 +197,14 @@
                     <tr>
                         <td>{{ servicio.id_request }}</td>
                         <td>{{ servicio.tipo }}</td>
-                        <!--<td>{{ servicio.estado }}</td>-->
                         <td>{{ servicio.fecha_solicitud }}</td>
-                        <td>{{ servicio.valor }}</td>
-                        <!--<td>{{ servicio.cedula }}</td>-->
+                        <td class="col-calificacion">{{ servicio.valor }}</td>
                         <td><div class="campo-gris">{{ servicio.comentario }}</div></td>
-                        <td><div class="campo-gris" id="respuesta-{{ servicio.id_request }}">{{ servicio.respuesta }}</div></td>
-                        <!--<td>
-                            <i class="fas fa-pen-to-square icono-editar"
-                               onclick="abrirModal('{{ servicio.id_request }}', '{{ servicio.tipo }}', '{{ servicio.cedula }}', `{{ servicio.comentario|escapejs }}`, `{{ servicio.respuesta|escapejs }}`)">
-                            </i>
-                        </td>-->
+                        <td class="col-respuesta"><div class="campo-gris" id="respuesta-{{ servicio.id_request }}">{{ servicio.respuesta }}</div></td>
                     </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="7" style="text-align: center; color: black; padding: 20px;">Sin registros</td>
+                            <td colspan="6" style="text-align: center; color: black; padding: 20px;">Sin registros</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -267,6 +255,26 @@
     function cerrarModal() {
         document.getElementById('modal-editar').style.display = 'none';
     }
+
+    // Mostrar u ocultar columnas según filtro
+    function actualizarColumnasPorFiltro() {
+        const filtro = document.getElementById("filtro").value;
+        const columnasCalificacion = document.querySelectorAll(".col-calificacion");
+        const columnasRespuesta = document.querySelectorAll(".col-respuesta");
+
+        if (filtro === "calificacion") {
+            columnasCalificacion.forEach(col => col.style.display = "");
+            columnasRespuesta.forEach(col => col.style.display = "none");
+        } else if (filtro === "pqr") {
+            columnasCalificacion.forEach(col => col.style.display = "none");
+            columnasRespuesta.forEach(col => col.style.display = "");
+        } else {
+            columnasCalificacion.forEach(col => col.style.display = "");
+            columnasRespuesta.forEach(col => col.style.display = "");
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", actualizarColumnasPorFiltro);
 
     document.getElementById("form-editar-respuesta").addEventListener("submit", function(e) {
         e.preventDefault();

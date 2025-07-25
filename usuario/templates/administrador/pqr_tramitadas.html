@@ -54,13 +54,13 @@
         overflow-wrap: break-word;
     }
 
-    th:nth-child(1), td:nth-child(1) { width: 7%; }
-    th:nth-child(2), td:nth-child(2) { width: 10%; }
-    th:nth-child(3), td:nth-child(3) { width: 18%; }
-    th:nth-child(4), td:nth-child(4) { width: 15%; }
-    th:nth-child(5), td:nth-child(5) { width: 20%; }
-    th:nth-child(6), td:nth-child(6) { width: 22%; }
-    th:nth-child(7), td:nth-child(7) { width: 8%; }
+th:nth-child(1), td:nth-child(1) { width: 6%; }   /* ID */
+th:nth-child(2), td:nth-child(2) { width: 8%; }   /* Tipo */
+th:nth-child(3), td:nth-child(3) { width: 11%; }  /* Valor */
+th:nth-child(4), td:nth-child(4) { width: 12%; }  /* Fecha */
+th:nth-child(5), td:nth-child(5) { width: 17%; }  /* Autor */
+th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Solicitud */
+th:nth-child(7), td:nth-child(7) { width: 24%; }  /* Respuesta 
 
     tbody tr {
         background-color: white;
@@ -170,7 +170,7 @@
 <div class="contenedor-pagina">
     <div class="contenedor-principal">
         <div class="tabla-container">
-            <h4 style="color: #d41f28; margin-bottom: 20px;">PQR SOLUCIONADAS Y CALIFICACIONES </h4>
+            <h4 style="color: #d41f28; margin-bottom: 20px;">PQR SOLUCIONADAS Y CALIFICACIONES</h4>
 
             <!-- Filtro por tipo -->
             <form method="get" style="margin-bottom: 20px;">
@@ -187,13 +187,15 @@
                     <tr>
                         <th>ID</th>
                         <th>Tipo</th>
-                        <!--<th>Estado</th>-->
+                        {% if request.GET.filtro == "calificacion" or not request.GET.filtro %}
+                            <th>Valor</th>
+                        {% endif %}
                         <th>Fecha</th>
                         <th>Autor</th>
                         <th>Solicitud</th>
-                        <th>Respuesta</th>
-                        
-                        <!--<th>Acción</th>-->
+                        {% if request.GET.filtro == "pqr" or not request.GET.filtro %}
+                            <th>Respuesta</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -201,24 +203,26 @@
                     <tr>
                         <td>{{ servicio.id_request }}</td>
                         <td>{{ servicio.tipo }}</td>
-                        <!--<td>{{ servicio.estado }}</td>-->
+                        
+                        {% if servicio.tipo == "calificacion" %}
+                            <td>{{ servicio.valor }}</td>
+                        {% elif request.GET.filtro == "calificacion" %}
+                            <td></td>
+                        {% endif %}
+                        
                         <td>{{ servicio.fecha_solicitud }}</td>
                         <td>{{ servicio.cedula }}</td>
                         <td><div class="campo-gris">{{ servicio.comentario }}</div></td>
                         <td><div class="campo-gris" id="respuesta-{{ servicio.id_request }}">{{ servicio.respuesta }}</div></td>
-                        <!--<td>
-                            <i class="fas fa-pen-to-square icono-editar"
-                               onclick="abrirModal('{{ servicio.id_request }}', '{{ servicio.tipo }}', '{{ servicio.cedula }}', `{{ servicio.comentario|escapejs }}`, `{{ servicio.respuesta|escapejs }}`)">
-                            </i>
-                        </td>-->
                     </tr>
                     {% empty %}
-                        <tr>
-                            <td colspan="7" style="text-align: center; color: black; padding: 20px;">Sin registros</td>
-                        </tr>
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: black; padding: 20px;">Sin registros</td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
+
         </div>
     </div>
 </div>

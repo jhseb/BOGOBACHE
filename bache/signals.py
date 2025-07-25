@@ -1,23 +1,26 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.utils import timezone
 from .models import Bache
-#from reportes.models import Reporte# <- Importas desde la otra app
-
+from reportes.models import Reporte  # Asegúrate de importar correctamente
+from bache.models import Bache
 @receiver(post_save, sender=Bache)
-def actualizar_estado_reporte(sender, instance, **kwargs):
-    try:
-        # Buscar el reporte relacionado al bache actualizado
-        reporte = Reporte.objects.get(bache=instance)
+def actualizar_estado_reportes(sender, instance, **kwargs):
+    """
+    Al guardar un bache, actualiza el estado de todos los reportes relacionados.
+    Si no hay reportes, no hace nada.
+    """
+    reportes = Reporte.objects.filter(bache=instance)
 
-        # Actualizar campo estado en Reporte desde Bache
-        reporte.estado = instance.estado
-        reporte.save()
-        
-        # ← Aquí dejas el valor en una variable visible (si es necesario para debug o pruebas)
-        estado_actualizado = instance.estado
-        print("Estado actualizado del bache:", estado_actualizado)
-
-    except Reporte.DoesNotExist:
-        # Si no hay reporte asociado, no hacer nada o registrar un log
-        print(f"No hay reporte asociado al bache {instance.id}")
+    if reportes.exists():
+        for reporte in reportes:
+            reporte.estado = instance.estado
+            reporte.save()
+@receiver(post_save, sender=Reporte)
+def incrementar_accidentes_bache(sender, instance, created, **kwargs):
+    """
+    Cuando se crea un nuevo reporte, incrementa en 1 el contador de accidentes del bache asociado.
+    """
+    if created and instance.bache:
+        bache = instance.bache
+        bache.accidentes += 1
+        bache.save()

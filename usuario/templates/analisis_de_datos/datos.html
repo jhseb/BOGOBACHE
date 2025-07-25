@@ -1,0 +1,38 @@
+{% extends "visitante/base.html" %}
+{% block titulo %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Distribución de Tipos de Vehículo</h2>
+    <canvas id="graficaVehiculos" width="400" height="200"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+fetch("{% url 'datos_tipo_vehiculo' %}")
+  .then(response => response.json())
+  .then(data => {
+    const ctx = document.getElementById('graficaVehiculos').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.labels,
+        datasets: [{
+          label: 'Cantidad de vehículos',
+          data: data.data,
+          backgroundColor: 'rgba(176, 0, 0, 0.6)',
+          borderColor: '#b00000',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

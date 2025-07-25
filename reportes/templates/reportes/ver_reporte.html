@@ -1,0 +1,627 @@
+{% extends "usuario/principal_usuario.html" %}
+{% block titulo %}Usuarios{% endblock %}
+{% block contenido %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #e2e0ec;
+      font-family: Arial, sans-serif;
+    }
+
+    form {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      max-width: 700px;
+      margin: 50px auto;
+    }
+
+    .form-title {
+      background-color: #d20000;
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      padding: 12px;
+      border-radius: 12px 12px 0 0;
+      margin: -20px -20px 20px -20px;
+    }
+
+    .category.fixed-open .category-content {
+      display: block !important;
+    }
+
+    form p {
+      margin-bottom: 15px;
+    }
+
+    form label {
+      font-weight: bold;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    form input,
+    form select,
+    form textarea {
+      width: 100%;
+      padding: 10px;
+      background: #e2e0ec;
+      border: none;
+      border-radius: 25px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+
+    form input[readonly] {
+      background: #e2e0ec;
+      color: #555;
+    }
+
+    form button[type="submit"] {
+      background-color: #d20000;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 25px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 20px;
+      transition: background-color 0.3s ease;
+    }
+
+    form button[type="submit"]:hover {
+      background-color: #a80000;
+    }
+
+    /* Switch booleano */
+    .switch-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .switch-label {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 25px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 25px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 19px;
+      width: 19px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    .switch input:checked + .slider {
+      background-color: #f10000;
+    }
+
+    .switch input:checked + .slider:before {
+      transform: translateX(25px);
+    }
+
+    /* Categorías desplegables */
+    .category {
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      overflow: hidden;
+      background-color: #f7f7f7;
+      transition: background-color 0.3s ease;
+    }
+
+    .category-header {
+      background-color: rgba(210, 0, 0, 0.1); /* rojo claro/transparente por defecto */
+      color: #800000;
+      padding: 12px 20px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .category.open .category-header {
+      background-color: #d20000; /* rojo fuerte cuando está abierta */
+      color: white;
+    }
+
+    .category-content {
+      display: none;
+      padding: 15px 20px;
+      background-color: white;
+    }
+
+    .category.open .category-content {
+      display: block;
+    }
+
+  </style>
+</head>
+<body>
+
+  <form method="post" enctype="multipart/form-data" id="form-reporte">
+    <div class="form-title">Detalles del Reporte</div>
+    {% csrf_token %}
+
+    <!-- Campo bache (solo lectura) -->
+    <p>
+      <label>Bache seleccionado:</label>
+      <input type="text" value="{{ form.instance.bache  }}">
+      <input type="hidden" name="bache" value="{{ form.instance.bache  }}">
+    </p>
+
+    <!-- Campo usuario (solo lectura) -->
+      <label for="usuario">Usuario:</label>
+      <input type="text" value="{{ form.instance.usuario }}">
+    </p>
+
+    <!-- Categoría 1: Datos del reporte -->
+    <div class="category">
+      <div class="category-header">1. Datos generales del reporte y siniestro</div>
+      <div class="category-content">
+        <p>
+        <label>ID del reporte:</label>
+        <input type="text" value="{{ form.instance.id_report }}" readonly class="form-control">
+        </p>
+        <div class="switch-container">
+          <label class="switch-label" for="{{ form.involucrado_reporte.id_for_label }}">Involucrado en el reporte: </label>
+          <label class="switch">
+            {{ form.involucrado_reporte }}
+            <span class="slider"></span>
+          </label>
+        </div>
+        <p>
+        <label>Fecha de creacion del reporte:</label>
+        <input type="text" value="{{ form.instance.created_at }}" readonly class="form-control">
+        </p>
+        <p>
+        <label>Fecha de modificacion del reporte:</label>
+        <input type="text" value="{{ form.instance.updated_at }}" readonly class="form-control">
+        </p>
+        <p>
+          <label for="id_fecha_evento.id_for_label ">Fecha del incidente: (Obligatorio)</label>
+          {{ form.fecha_evento }}
+        </p>
+
+          <label for="{{ form.dia_evento.id_for_label }}">Día del incidente:</label>
+          {{ form.dia_evento }}
+        </p>
+        <p>
+          <label for="{{ form.hora_evento.id_for_label }}">Hora del incidente:</label>
+          {{ form.hora_evento }}
+        </p>
+        
+      </div>
+    </div>
+
+    <!-- Categoría 2: Eventos precedentes al siniestro -->
+    <div class="category">
+      <div class="category-header">2. Eventos precedentes al siniestro</div>
+      <div class="category-content">
+        <div class="switch-container">
+          <label class="switch-label" for="{{ form.senializacion_presente.id_for_label }}">¿Hubo señalización presente antes del incidente?</label>
+          <label class="switch">
+            {{ form.senializacion_presente }}
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="switch-container">
+          <label class="switch-label" for="{{ form.estado_problema_vehiculo.id_for_label }}">¿El vehiculo ya presentaba problemas de funcionamiento antes del incidente?</label>
+          <label class="switch">
+            {{ form.estado_problema_vehiculo }}
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <p>
+          <label for="{{ form.obstaculo_vial.id_for_label }}">¿Hubo obstaculos en la via?</label>
+          {{ form.obstaculo_vial }}
+        </p>
+        <p>
+          <label for="{{ form.maniobra.id_for_label }}">¿Realizo alguna maniobra?</label>
+          {{ form.maniobra }}
+        </p>
+        <p>
+          <label for="{{ form.velocidad_conduccion.id_for_label }}">¿Cual era su velocidad de conduccion en el momento del incidente?</label>
+          {{ form.velocidad_conduccion }}
+        </p>
+        <p>
+          <label for="{{ form.conductor_estado.id_for_label }}">¿Cual era su estado?</label>
+          {{ form.conductor_estado }}
+        </p>
+        <p>
+          <label for="{{ form.antiguedadvehiculo.id_for_label }}">¿Que tan antiguo era el vehiculo que usaba?</label>
+          {{ form.antiguedadvehiculo }}
+        </p>
+        <p>
+          <label for="{{ form.orientacion.id_for_label }}">¿En que orientacion se dirigia?</label>
+          {{ form.orientacion }}
+        </p>
+        <div class="switch-container">
+          <label class="switch-label" for="{{ form.semaforo.id_for_label }}">¿Se paso algun semaforo antes del incidente?</label>
+          <label class="switch">
+            {{ form.semaforo }}
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Categoría 3: Condiciones del entorno -->
+    <div class="category">
+      <div class="category-header">3. Condiciones del entorno del siniestro</div>
+      <div class="category-content">
+        <p>
+          <label for="{{ form.iluminacion.id_for_label }}">Califique el estado de la iluminacion durante el incidente</label>
+          {{ form.iluminacion }}
+        </p>
+
+        <p>
+          <label for="{{ form.condicion_clima.id_for_label }}">¿Cual era la condicion del clima?</label>
+          {{ form.condicion_clima }}
+        </p>
+
+        <p>
+          <label for="{{ form.nivel_trafico.id_for_label }}">¿Cual era el nivel de trafico cuando sucedio?</label>
+          {{ form.nivel_trafico }}
+        </p>
+
+        <p>
+          <label for="{{ form.via_estado.id_for_label }}">¿Como describe el estado de la via en que circulaba?</label>
+          {{ form.via_estado }}
+        </p>
+
+        <p>
+          <label for="{{ form.tipo_superficie.id_for_label }}">¿Cual era el tipo de superficie en el cual transitaba?</label>
+          {{ form.tipo_superficie }}
+        </p>
+
+        <p>
+          <label for="{{ form.geometria_via.id_for_label }}">¿Cual es la geometria vial de la zona?</label>
+          {{ form.geometria_via }}
+        </p>
+
+        <p>
+          <label for="{{ form.pendiente_via.id_for_label }}">¿Existio una pendiente en la via?, cual era en caso de serlo</label>
+          {{ form.pendiente_via }}
+        </p>
+
+      </div>
+    </div>
+
+        <!-- Categoría 4: Datos del vehiculo -->
+    <div class="category">
+      <div class="category-header">4. Datos del vehiculo</div>
+      <div class="category-content">
+        <p>
+
+          <div class="switch-container">
+          <label class="switch-label" for="{{ form.licencia.id_for_label }}">¿Contaba con licencia conduccion activa?</label>
+          <label class="switch">
+            {{ form.licencia }}
+            <span class="slider"></span>
+          </label>
+          </div>
+
+          <label for="{{ form.tipo_vehiculo.id_for_label }}">Describa el tipo de vehiculo usado</label>
+          {{ form.tipo_vehiculo }}
+          </p>
+        
+          <label for="{{ form.uso_vehiculo.id_for_label }}">Cual era su principal uso</label>
+          {{ form.uso_vehiculo }}
+          </p>
+
+          <div class="switch-container">
+          <label class="switch-label" for="{{ form.compania_aseguradora.id_for_label }}">¿Contaba con alguna compañia aseguradora?</label>
+          <label class="switch">
+            {{ form.compania_aseguradora }}
+            <span class="slider"></span>
+          </label>
+          </div>
+
+      </div>
+    </div>
+
+        <!-- Categoría 5: Daños internos -->
+    <div class="category">
+      <div class="category-header">5. Daños internos</div>
+      <div class="category-content">
+        <p>
+          <label for="{{ form.danio_vehicular.id_for_label }}">Describa el daño del vehiculo obtenido</label>
+          {{ form.danio_vehicular }}
+        </p>
+     
+        <p>
+          <label for="{{ form.danio_persona.id_for_label }}">Describa el daño personal obtenido</label>
+          {{ form.danio_persona }}
+        </p>
+
+        <div class="switch-container">
+          <label class="switch-label" for="{{ form.presencia_defuego.id_for_label }}">Hubo precencia de fuego</label>
+          <label class="switch">
+            {{ form.presencia_defuego }}
+            <span class="slider"></span>
+          </label>
+        </div>
+
+      </div>
+    </div>
+
+        <!-- Categoría 6: Detalles del bache -->
+    <div class="category">
+      <div class="category-header">6. Detalles del bache</div>
+      <div class="category-content">
+        
+        <div class="switch-container">
+          <label class="switch-label" for="{{ form.conocimiento_tenia.id_for_label }}">¿Tenía conocimiento del bache antes del suceso?</label>
+          <label class="switch">
+            {{ form.conocimiento_tenia }}
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <p>
+          <label for="{{ form.descripcion_bache.id_for_label }}">Porfavor, describa el bache presentado en el incidente</label>
+          {{ form.descripcion_bache }}
+        </p>
+        
+        <div class="switch-container">
+          <label class="switch-label" for="{{ form.encharcado.id_for_label }}">¿El Bache se encontraba encharcado o enlagunado?</label>
+          <label class="switch">
+            {{ form.encharcado }}
+            <span class="slider"></span>
+          </label>
+        </div>
+
+      </div>
+    </div>
+
+        <!-- Categoría 7: Testigos y Heridos -->
+    <div class="category">
+      <div class="category-header">7. Testigos y heridos</div>
+      <div class="category-content">
+        <p>
+          <label for="{{ form.testigos.id_for_label }}">¿Cuantos testigos estuvieron presentes?</label>
+          {{ form.testigos }}
+        </p>
+        <p>
+          <label for="{{ form.heridos.id_for_label }}">¿Cuantos heridos fueron?</label>
+          {{ form.heridos }}
+        </p>
+        <p>
+          <label for="{{ form.fallecidos.id_for_label }}">¿Cuantos fallecidos fueron?</label>
+          {{ form.fallecidos }}
+        </p>
+        <p>
+          <label for="{{ form.vehiculos_afectados.id_for_label }}">¿Cuantos vehiculos se afectaron?</label>
+          {{ form.vehiculos_afectados }}
+        </p>
+
+        <div class="switch-container">
+          <label class="switch-label" for="{{ form.danios_ambiente.id_for_label }}">¿ Hubieron daños en la vegetacion?</label>
+          <label class="switch">
+            {{ form.danios_ambiente }}
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        
+        <div class="switch-container">
+          <label class="switch-label" for="{{ form.danios_infraestructura.id_for_label }}">¿ Hubieron daños de infraestructura?</label>
+          <label class="switch">
+            {{ form.danios_infraestructura }}
+            <span class="slider"></span>
+          </label>
+        </div>
+
+      </div>
+    </div>
+
+        <!-- Categoría 8: Servicios presentes -->
+    <div class="category">
+      <div class="category-header">8. Servicios presentes</div>
+      <div class="category-content">
+        <p>
+          <label for="{{ form.servicio_policia.id_for_label }}">Califique el servicio policial</label>
+          {{ form.servicio_policia }}
+        </p>
+
+        <p>
+          <label for="{{ form.servicio_grua.id_for_label }}">Califique el servicio de la grua</label>
+          {{ form.servicio_grua }}
+        </p>
+
+        <p>
+          <label for="{{ form.servicio_aseguradora.id_for_label }}">Califique el servicio de la aseguradora</label>
+          {{ form.servicio_aseguradora }}
+        </p>
+
+        <p>
+          <label for="{{ form.servicio_abogados.id_for_label }}">Califique el servicio de los abogados</label>
+          {{ form.servicio_abogados }}
+        </p>
+        
+        <p>
+          <label for="{{ form.servicio_bomberos.id_for_label }}">Califique el servicio de los bomberos</label>
+          {{ form.servicio_bomberos }}
+        </p>
+
+        <p>
+          <label for="{{ form.servicio_medicos.id_for_label }}">Califique el servicio de los medicos</label>
+          {{ form.servicio_medicos }}
+        </p>
+
+        <div class="switch-container">
+          <label class="switch-label" for="{{ form.parte_policial.id_for_label }}">¿Se realizo un parte policial?</label>
+          <label class="switch">
+            {{ form.parte_policial }}
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="switch-container">
+          <label class="switch-label" for="{{ form.reclamo_formal.id_for_label }}">¿Se realizo un reclamo oficial de la situacion?</label>
+          <label class="switch">
+            {{ form.reclamo_formal }}
+            <span class="slider"></span>
+          </label>
+        </div>
+
+      </div>
+    </div>
+
+      <!-- Categoría 9: Experiencia de usuario -->
+    <div class="category">
+      <div class="category-header">9. Calificacion de la expereincia</div>
+      <div class="category-content">
+        <p>
+          <label for="{{ form.satisfaccion.id_for_label }}"> Califique su experiencia personal desde el incidente hasta ahora</label>
+          {{ form.satisfaccion }}
+        </p>
+        
+      </div>
+    </div>
+
+    <!-- Categoría 10: Evidencias del caso -->
+    <div class="category">
+      <div class="category-header">10. Evidencias del caso</div>
+      <div class="category-content">
+          <!-- FOTO 1 -->
+            <div class="mb-3">
+            {% if modo_lectura %}
+                {% if form.instance.foto1 %}
+                <label>Foto 1:</label><br>
+                <img src="{{ form.instance.foto1.url }}" alt="Foto 1" style="max-width: 200px; border: 1px solid #ccc; border-radius: 10px;">
+                {% else %}
+                <p>No hay foto 1 disponible.</p>
+                {% endif %}
+            {% else %}
+                {{ form.foto1 }}
+            {% endif %}
+            </div>
+
+            <!-- FOTO 2 -->
+            <div class="mb-3">
+            {% if modo_lectura %}
+                {% if form.instance.foto2 %}
+                <label>Foto 2:</label><br>
+                <img src="{{ form.instance.foto2.url }}" alt="Foto 2" style="max-width: 200px; border: 1px solid #ccc; border-radius: 10px;">
+                {% else %}
+                <p>No hay foto 2 disponible.</p>
+                {% endif %}
+            {% else %}
+                {{ form.foto2 }}
+            {% endif %}
+            </div>
+
+            <!-- FOTO 3 -->
+            <div class="mb-3">
+            {% if modo_lectura %}
+                {% if form.instance.foto3 %}
+                <label>Foto 3:</label><br>
+                <img src="{{ form.instance.foto3.url }}" alt="Foto 3" style="max-width: 200px; border: 1px solid #ccc; border-radius: 10px;">
+                {% else %}
+                <p>No hay foto 3 disponible.</p>
+                {% endif %}
+            {% else %}
+                {{ form.foto3 }}
+            {% endif %}
+            </div>
+        </div>
+    </div>
+          
+  <!--     <button type="submit">Crear Reporte</button> -->
+  </form>
+
+  {% if guardado and es_popup %}
+    <script>
+      Swal.fire({
+        title: 'Reporte guardado',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500
+      }).then(() => {
+        window.parent.location.reload();
+      });
+    </script>
+  {% endif %}
+{% if errores_formulario %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const errores = JSON.parse('{{ errores_formulario|safe }}');
+
+    let contenido = "";
+    for (let campo in errores) {
+      errores[campo].forEach(err => {
+        contenido += `<p><strong>${campo}:</strong> ${err}</p>`;
+      });
+    }
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Error al guardar el reporte',
+      html: contenido,
+      confirmButtonColor: '#d33',
+    });
+  });
+</script>
+{% endif %}
+  <script>
+    // Comportamiento de desplegable
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.category-header').forEach(header => {
+        header.addEventListener('click', () => {
+          const category = header.parentElement;
+          category.classList.toggle('open');
+        });
+      });
+    });
+  </script>
+</body>
+</html>
+{% endblock %}

@@ -5,10 +5,10 @@
 <div class="main-container">
   <!-- Panel lateral izquierdo -->
   <div class="filter-panel">
-    <h3>REGISTRAR ACCIDENTE</h3>
+    <h3>CREAR REPORTE</h3>
 
     <div id="busqueda-por-id" style="margin-bottom: 20px;">
-      <p style="color: #000000; font-weight: bold; margin-bottom: 8px;">Selecciona un bache o búscalo por ID:</p>
+      <p style="color: #000000; font-weight: bold; margin-bottom: 8px;">Para iniciar el proceso de reporte:<br><br>Selecciona un bache o búscalo por ID:</p>
 
       <input
         type="text"
@@ -33,7 +33,7 @@
       <p><strong>Diámetro aproximado (cm):</strong> <span id="bache-diametro"></span></p>
       <p><strong>Foto:</strong><br><img id="bache-foto" src="" alt="Foto del bache" style="max-width: 100%; margin-top: 5px;"></p>
 
-      <button id="btn-registrar-accidente">Registrar Accidente</button>
+      <button id="btn-registrar-accidente">Registrar Reporte</button>
     </div>
   </div>
 
@@ -149,42 +149,21 @@ document.getElementById("btn-buscar-id").addEventListener("click", () => {
 });
 
 document.getElementById("btn-registrar-accidente").addEventListener("click", () => {
-  const id = document.getElementById("bache-id").textContent;
+      const idBache = document.getElementById("bache-id").textContent;
 
-  Swal.fire({
-    title: '¿Registrar accidente?',
-    text: `Se sumará +1 al total de accidentes del bache ${id}.`,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#d20000',
-    confirmButtonText: 'Sí, registrar',
-    cancelButtonText: 'Cancelar'
-  }).then(result => {
-    if (result.isConfirmed) {
-      fetch(`/api/registrar_accidente/${id}/`, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': getCookie('csrftoken')
-        }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'success') {
-          Swal.fire({
-            title: 'Registrado',
-            text: data.message,
-            icon: 'success',
-            confirmButtonColor: '#d33'
-          });
-          seleccionarBache(id); // recargar datos actualizados
-        } else {
-          Swal.fire('Error', data.message, 'error');
+      // Puedes pasar el ID del bache como parámetro GET si es necesario
+      Swal.fire({
+        html: `<iframe src="/reportes/crear/?popup=1&id_bache=${idBache}" width="100%" height="500px" style="border:none;"></iframe>`,
+        width: '90%',
+        heightAuto: false,
+        showConfirmButton: false,
+        showCloseButton: true,
+        background: '#fff',
+        customClass: {
+          popup: 'swal-wide'
         }
       });
-    }
-  });
-});
+    });
 </script>
 {% endblock %}
 

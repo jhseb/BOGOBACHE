@@ -37,7 +37,7 @@ urlpatterns = [
     #Reporte
 
     path('reportes/opciones_reportes/', views.opciones_reportes, name='opciones_reportes'),
-    path('reportes/consultar_reportes/', views.consultar_reportes, name='consultar_reportes'),
+    #path('reportes/consultar_reportes/', views.consultar_reportes, name='consultar_reportes'),
     #admin_
     path('opciones_usuario/', views.opciones_usuario, name='opciones_usuario'),
     path('opciones_bache/', views.opciones_bache, name='opciones_bache'),
@@ -48,8 +48,13 @@ urlpatterns = [
     path('pqr_tramitadas/', views.pqr_tramitadas, name='pqr_tramitadas'),
     path('pqr_consultar/', views.consultar_pqr, name='pqr_consultar'),
     path('usuarios/cambiar_rol/', views.cambiar_rol_usuario, name='cambiar_rol_usuario'),
+    path('usuarios/opciones_reportes_admin/', views.opciones_reportes_admin, name='opciones_reportes_admin'),
+                
 
-
+    #Datos
+    path('datos/', views.analisis_de_datos, name='datos'),
+    path('graficas/vehiculos/', views.datos_tipo_vehiculo, name='datos_tipo_vehiculo'),
+    
     re_path(r'^reset/password_reset/$', auth_views.PasswordResetView.as_view(
         template_name='registration/password_reset_form.html',
         email_template_name='registration/password_reset_email.html'
