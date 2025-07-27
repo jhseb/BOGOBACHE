@@ -842,7 +842,7 @@ Respuesta:
             send_mail(
                 asunto,
                 mensaje,
-                'tu_correo@dominio.com',  # Reemplaza con el correo de tu sistema
+                'bogabache@dominio.com', 
                 [destinatario],
                 fail_silently=False,
             )
@@ -928,3 +928,4 @@ def opciones_reportes_admin(request):
 def opciones_datos(request):
     title = 'PÁGINA'
     return render(request, 'analisis_de_datos/opciones_datos.html', {'title': title})   
+
