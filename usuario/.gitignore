@@ -1,0 +1,9 @@
+# Ignorar entornos virtuales
+venv/
+.env/
+*.pyc
+__pycache__/
+
+# Configuraciones de editores
+.vscode/
+.idea/
