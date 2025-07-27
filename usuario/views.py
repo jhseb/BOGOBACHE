@@ -925,17 +925,6 @@ def opciones_reportes_admin(request):
     return render(request, 'reportes/opciones_reportes_admin.html', {'title': title})
 
 
-def analisis_de_datos(request):
+def opciones_datos(request):
     title = 'PÁGINA'
-    return render(request, 'analisis_de_datos/datos.html', {'title': title})
-
-
-def datos_tipo_vehiculo(request):
-    data = (
-        Reporte.objects.values('tipo_vehiculo')
-        .annotate(total=Count('tipo_vehiculo'))
-        .order_by('-total')
-    )
-    labels = [d['tipo_vehiculo'] for d in data]
-    valores = [d['total'] for d in data]
-    return JsonResponse({'labels': labels, 'data': valores})
+    return render(request, 'analisis_de_datos/opciones_datos.html', {'title': title})   

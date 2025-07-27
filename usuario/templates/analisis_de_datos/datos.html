@@ -1,38 +1,215 @@
-{% extends "visitante/base.html" %}
-{% block titulo %}{{ title }}{% endblock %}
+{% extends "administrador/base_admin.html" %} 
 
-{% block content %}
-<div class="container mt-5">
-    <h2 class="text-center">Distribución de Tipos de Vehículo</h2>
-    <canvas id="graficaVehiculos" width="400" height="200"></canvas>
+{% block contenido %}
+<div style="margin-left: 0px; padding: 5px;">
+
+<h1 style="text-align:center;">{{ title }}</h1>
+
+<!-- Total de reportes -->
+<p style="text-align:center; font-size: 20px; color: #004d40; margin-top: 10px;">
+    Total de reportes registrados: <strong>{{ total_reportes }}</strong>
+</p>
+
+<!-- Filtros por servicio, día, satisfacción, tipo_evento y clima -->
+<div style="text-align:center; margin-top: 20px;">
+    <form method="get">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; justify-items: center; max-width: 1000px; margin: auto;">
+
+            <!-- Filtro por servicio -->
+            <div style="width: 100%;">
+                <label for="servicio" style="font-weight:bold; font-size: 18px;">Filtrar por servicio:</label><br>
+                <select name="servicio" id="servicio"
+                        style="padding: 8px 14px; width: 100%; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;"
+                        onchange="this.form.submit()">
+                    <option value="">Todos</option>
+                    <option value="aseguradora" {% if servicio_seleccionado == "aseguradora" %}selected{% endif %}>Aseguradora</option>
+                    <option value="abogados" {% if servicio_seleccionado == "abogados" %}selected{% endif %}>Abogados</option>
+                    <option value="bomberos" {% if servicio_seleccionado == "bomberos" %}selected{% endif %}>Bomberos</option>
+                    <option value="medicos" {% if servicio_seleccionado == "medicos" %}selected{% endif %}>Médicos</option>
+                </select>
+            </div>
+
+            <!-- Filtro por día -->
+            <div style="width: 100%;">
+                <label for="dia" style="font-weight:bold; font-size: 18px;">Filtrar por día:</label><br>
+                <select name="dia" id="dia"
+                        style="padding: 8px 14px; width: 100%; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;"
+                        onchange="this.form.submit()">
+                    <option value="">Todos</option>
+                    {% for d in dias_semana %}
+                        <option value="{{ d }}" {% if dia_seleccionado == d %}selected{% endif %}>{{ d|capfirst }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Filtro por satisfacción -->
+            <div style="width: 100%;">
+                <label for="satisfaccion" style="font-weight:bold; font-size: 18px;">Filtrar por satisfacción:</label><br>
+                <select name="satisfaccion" id="satisfaccion"
+                        style="padding: 8px 14px; width: 100%; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;"
+                        onchange="this.form.submit()">
+                    <option value="">Todas</option>
+                    <option value="muy_deficiente" {% if satisfaccion_seleccionada == "muy_deficiente" %}selected{% endif %}>Muy deficiente</option>
+                    <option value="deficiente" {% if satisfaccion_seleccionada == "deficiente" %}selected{% endif %}>Deficiente</option>
+                    <option value="aceptable" {% if satisfaccion_seleccionada == "aceptable" %}selected{% endif %}>Aceptable</option>
+                    <option value="bueno" {% if satisfaccion_seleccionada == "bueno" %}selected{% endif %}>Bueno</option>
+                    <option value="excelente" {% if satisfaccion_seleccionada == "excelente" %}selected{% endif %}>Excelente</option>
+                </select>
+            </div>
+
+            <!-- Filtro por tipo_evento -->
+            <div style="width: 100%;">
+                <label for="tipo_evento" style="font-weight:bold; font-size: 18px;">Filtrar por tipo de evento:</label><br>
+                <select name="tipo_evento" id="tipo_evento"
+                        style="padding: 8px 14px; width: 100%; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;"
+                        onchange="this.form.submit()">
+                    <option value="ambos" {% if tipo_evento_seleccionado == "ambos" %}selected{% endif %}>Ambos</option>
+                    <option value="heridos" {% if tipo_evento_seleccionado == "heridos" %}selected{% endif %}>Heridos</option>
+                    <option value="fallecidos" {% if tipo_evento_seleccionado == "fallecidos" %}selected{% endif %}>Fallecidos</option>
+                </select>
+            </div>
+
+            <!-- Filtro por clima -->
+            <div style="width: 100%;">
+                <label for="clima" style="font-weight:bold; font-size: 18px;">Filtrar por clima:</label><br>
+                <select name="clima" id="clima"
+                        style="padding: 8px 14px; width: 100%; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;"
+                        onchange="this.form.submit()">
+                    <option value="">Todos</option>
+                    <option value="despejado" {% if clima_seleccionado == "despejado" %}selected{% endif %}>Despejado</option>
+                    <option value="parcialmente nublado" {% if clima_seleccionado == "parcialmente nublado" %}selected{% endif %}>Parcialmente nublado</option>
+                    <option value="nublado" {% if clima_seleccionado == "nublado" %}selected{% endif %}>Nublado</option>
+                    <option value="lluvia_suave" {% if clima_seleccionado == "lluvia_suave" %}selected{% endif %}>Lluvia suave</option>
+                    <option value="tormenta" {% if clima_seleccionado == "tormenta" %}selected{% endif %}>Tormenta</option>
+                    <option value="niebla" {% if clima_seleccionado == "niebla" %}selected{% endif %}>Niebla</option>
+                    <option value="viento_fuerte" {% if clima_seleccionado == "viento_fuerte" %}selected{% endif %}>Viento fuerte</option>
+                </select>
+            </div>
+
+        </div>
+    </form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Contenedor de gráficos -->
+<div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 40px; margin-top: 30px; align-items: flex-end;">
+    <div style="text-align: center;">
+        <h2 style="color:#b00000; font-size: 20px;">Distribución Tipo de Vehículo</h2>
+        <img src="data:image/png;base64,{{ grafico_base64 }}" alt="Gráfico tipo de vehículo" class="grafico-estandar" onclick="abrirModal('modal1')" />
+    </div>
+
+    <div style="text-align: center;">
+        <h2 style="color:#b00000; font-size: 20px;">Distribución por Hora del Evento</h2>
+        <img src="data:image/png;base64,{{ grafico_hora_base64 }}" alt="Gráfico hora del evento" class="grafico-estandar" onclick="abrirModal('modal2')" />
+    </div>
+
+    <div style="text-align: center;">
+        <h2 style="color:#b00000; font-size: 20px;">Servicios Mejor Calificados</h2>
+        <img src="data:image/png;base64,{{ grafico_servicios_base64 }}" alt="Gráfico servicios mejor calificados" class="grafico-estandar" onclick="abrirModal('modal3')" />
+    </div>
+
+    <div style="text-align: center;">
+        <h2 style="color:#b00000; font-size: 20px;">Servicios Peor Calificados</h2>
+        <img src="data:image/png;base64,{{ grafico_peor_base64 }}" alt="Gráfico servicios peor calificados" class="grafico-estandar" onclick="abrirModal('modal4')" />
+    </div>
+
+    <div style="text-align: center;">
+        <h2 style="color:#b00000; font-size: 20px;">
+            {% if dia_seleccionado %}
+                Reportes del Día: {{ dia_seleccionado|capfirst }}
+            {% else %}
+                Reportes por Día de la Semana
+            {% endif %}
+        </h2>
+        <img src="data:image/png;base64,{{ grafico_dia_base64 }}" alt="Gráfico días con más reportes" class="grafico-estandar" onclick="abrirModal('modal5')" />
+    </div>
+
+    <div style="text-align: center;">
+        <h2 style="color:#b00000; font-size: 20px;">Promedio de Satisfacción</h2>
+        <img src="data:image/png;base64,{{ grafico_satisf_base64 }}" alt="Gráfico promedio satisfacción" class="grafico-estandar" onclick="abrirModal('modal6')" />
+    </div>
+
+    <div style="text-align: center;">
+        <h2 style="color:#b00000; font-size: 20px;">
+            {% if tipo_evento_seleccionado == "heridos" %}
+                Promedio de Heridos
+            {% elif tipo_evento_seleccionado == "fallecidos" %}
+                Promedio de Fallecidos
+            {% else %}
+                Promedio de Heridos y Fallecidos
+            {% endif %}
+        </h2>
+        <img src="data:image/png;base64,{{ grafico_heridos_muertos_base64 }}" alt="Gráfico promedio de heridos y muertos" class="grafico-estandar" onclick="abrirModal('modal7')" />
+    </div>
+
+    <div style="text-align: center;">
+        <h2 style="color:#b00000; font-size: 20px;">Reportes por Condición Climática</h2>
+        <img src="data:image/png;base64,{{ grafico_clima_base64 }}" alt="Gráfico condición climática" class="grafico-estandar" onclick="abrirModal('modal8')" />
+    </div>
+</div>
+
+<!-- Modales -->
+<div id="modal1" class="modal"><span class="cerrar" onclick="cerrarModal('modal1')">&times;</span><img class="modal-contenido" src="data:image/png;base64,{{ grafico_base64 }}"></div>
+<div id="modal2" class="modal"><span class="cerrar" onclick="cerrarModal('modal2')">&times;</span><img class="modal-contenido" src="data:image/png;base64,{{ grafico_hora_base64 }}"></div>
+<div id="modal3" class="modal"><span class="cerrar" onclick="cerrarModal('modal3')">&times;</span><img class="modal-contenido" src="data:image/png;base64,{{ grafico_servicios_base64 }}"></div>
+<div id="modal4" class="modal"><span class="cerrar" onclick="cerrarModal('modal4')">&times;</span><img class="modal-contenido" src="data:image/png;base64,{{ grafico_peor_base64 }}"></div>
+<div id="modal5" class="modal"><span class="cerrar" onclick="cerrarModal('modal5')">&times;</span><img class="modal-contenido" src="data:image/png;base64,{{ grafico_dia_base64 }}"></div>
+<div id="modal6" class="modal"><span class="cerrar" onclick="cerrarModal('modal6')">&times;</span><img class="modal-contenido" src="data:image/png;base64,{{ grafico_satisf_base64 }}"></div>
+<div id="modal7" class="modal"><span class="cerrar" onclick="cerrarModal('modal7')">&times;</span><img class="modal-contenido" src="data:image/png;base64,{{ grafico_heridos_muertos_base64 }}"></div>
+<div id="modal8" class="modal"><span class="cerrar" onclick="cerrarModal('modal8')">&times;</span><img class="modal-contenido" src="data:image/png;base64,{{ grafico_clima_base64 }}"></div>
+
+<!-- Estilos -->
+<style>
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    padding-top: 60px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.8);
+}
+.modal-contenido {
+    display: block;
+    margin: auto;
+    max-width: 90%;
+    max-height: 80%;
+    border-radius: 10px;
+}
+.cerrar {
+    position: absolute;
+    top: 30px;
+    right: 50px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.grafico-estandar {
+    width: 300px;
+    height: 300px;
+    object-fit: contain;
+    cursor: pointer;
+    margin: auto;
+}
+</style>
+
+<!-- Scripts -->
 <script>
-fetch("{% url 'datos_tipo_vehiculo' %}")
-  .then(response => response.json())
-  .then(data => {
-    const ctx = document.getElementById('graficaVehiculos').getContext('2d');
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: data.labels,
-        datasets: [{
-          label: 'Cantidad de vehículos',
-          data: data.data,
-          backgroundColor: 'rgba(176, 0, 0, 0.6)',
-          borderColor: '#b00000',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
-  });
+function abrirModal(id) {
+    document.getElementById(id).style.display = "block";
+}
+function cerrarModal(id) {
+    document.getElementById(id).style.display = "none";
+}
+window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.style.display = "none";
+    }
+}
 </script>
+
+</div> <!-- CIERRE del div con margen izquierdo -->
 {% endblock %}

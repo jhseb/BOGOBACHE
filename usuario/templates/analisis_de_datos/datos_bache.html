@@ -1,0 +1,187 @@
+{% extends "administrador/base_admin.html" %}
+
+{% block contenido %}
+<div style="margin-left: 0px; padding: 5px;">
+
+<h1 style="text-align:center;">{{ title }}</h1>
+
+<!-- Total de reportes -->
+<p style="text-align:center; font-size: 20px; color: #004d40; margin-top: 10px;">
+    Total de baches en bogota: <strong>{{ total_reportes }}</strong>
+</p>
+
+<!-- Filtros por localidad, tipo de calle y estado -->
+<div style="text-align:center; margin-top: 20px;">
+    <form method="get">
+        <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; max-width: 1000px; margin: auto;">
+            <!-- Filtro localidad -->
+            <div style="width: 300px;">
+                <label for="localidad" style="font-weight:bold; font-size: 18px;">Filtrar por localidad:</label><br>
+                <select name="localidad" id="localidad"
+                        style="padding: 8px 14px; width: 100%; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;"
+                        onchange="this.form.submit()">
+                    <option value="">Todas</option>
+                    {% for loc in localidades %}
+                        <option value="{{ loc.id }}" {% if localidad_seleccionada == loc.id|stringformat:"s" %}selected{% endif %}>{{ loc.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Filtro tipo de calle -->
+            <div style="width: 300px;">
+                <label for="tipo_calle" style="font-weight:bold; font-size: 18px;">Filtrar por tipo de calle:</label><br>
+                <select name="tipo_calle" id="tipo_calle"
+                        style="padding: 8px 14px; width: 100%; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;"
+                        onchange="this.form.submit()">
+                    <option value="">Todos</option>
+                    {% for tipo, nombre in tipos_calle %}
+                        <option value="{{ tipo }}" {% if tipo_calle_seleccionado == tipo %}selected{% endif %}>{{ nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Filtro por estado -->
+            <div style="width: 300px;">
+                <label for="estado" style="font-weight:bold; font-size: 18px;">Filtrar por estado:</label><br>
+                <select name="estado" id="estado"
+                        style="padding: 8px 14px; width: 100%; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;"
+                        onchange="this.form.submit()">
+                    <option value="">Todos</option>
+                    {% for estado in opciones_estado %}
+                        <option value="{{ estado }}" {% if estado_seleccionado == estado %}selected{% endif %}>{{ estado|capfirst }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Gráficos -->
+<div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 40px; margin-top: 30px; align-items: flex-end;">
+
+    <!-- Gráfico de localidades -->
+    <div style="text-align: center;">
+        <h2 style="color:#b00000; font-size:20px;">Top 5 Localidades con más baches sin arreglar</h2>
+        <img src="data:image/png;base64,{{ grafico_localidades_base64 }}" alt="Gráfico de Localidades" class="grafico-estandar" onclick="abrirModal('modal9')" />
+    </div>
+
+    <!-- Gráfico de tipo de calle -->
+    <div style="text-align: center;">
+        <h2 style="color:#b00000; font-size:20px;">Top 5 Tipos de Calle con Más Reportes</h2>
+        <img src="data:image/png;base64,{{ grafico_tipo_calle_base64 }}" alt="Gráfico de Tipos de Calle" class="grafico-estandar" onclick="abrirModal('modal10')" />
+    </div>
+
+    <!-- Gráfico de estado de baches -->
+    <div style="text-align: center;">
+        <h2 style="color:#b00000; font-size:20px;">Porcentaje de Baches Arreglados vs Sin Arreglar</h2>
+        <img src="data:image/png;base64,{{ grafico_estado_base64 }}" alt="Gráfico de Estado" class="grafico-estandar" onclick="abrirModal('modal_estado')" />
+    </div>
+
+    <!-- Gráfico con estado en proceso -->
+    <div style="text-align: center;">
+        <h2 style="color:#b00000; font-size:20px;">Porcentaje de Baches por Estado</h2>
+        <img src="data:image/png;base64,{{ grafico_estado_con_proceso_base64 }}" alt="Gráfico Estado con En Proceso" class="grafico-estandar" onclick="abrirModal('modal_estado_proceso')" />
+    </div>
+
+    <!-- Gráfico de accidentes por localidad -->
+    <div style="text-align: center;">
+        <h2 style="color:#b00000; font-size:20px;">Top 5 Localidades con Mayor Número de Accidentes</h2>
+        <img src="data:image/png;base64,{{ grafico_localidades_accidentes_base64 }}" alt="Gráfico de Accidentes por Localidad" class="grafico-estandar" onclick="abrirModal('modal_accidentes')" />
+    </div>
+
+    <!-- Gráfico de baches por mes y estado -->
+    <div style="text-align: center;">
+        <h2 style="color:#b00000; font-size:20px;">Baches por Estado y Mes</h2>
+        <img src="data:image/png;base64,{{ grafico_barras_estado_mes_base64 }}" alt="Gráfico de Baches por Mes y Estado" class="grafico-estandar" onclick="abrirModal('modal_barras_mes_estado')" />
+    </div>
+
+</div>
+
+<!-- Modales -->
+<div id="modal9" class="modal">
+    <span class="cerrar" onclick="cerrarModal('modal9')">&times;</span>
+    <img class="modal-contenido" src="data:image/png;base64,{{ grafico_localidades_base64 }}">
+</div>
+
+<div id="modal10" class="modal">
+    <span class="cerrar" onclick="cerrarModal('modal10')">&times;</span>
+    <img class="modal-contenido" src="data:image/png;base64,{{ grafico_tipo_calle_base64 }}">
+</div>
+
+<div id="modal_estado" class="modal">
+    <span class="cerrar" onclick="cerrarModal('modal_estado')">&times;</span>
+    <img class="modal-contenido" src="data:image/png;base64,{{ grafico_estado_base64 }}">
+</div>
+
+<div id="modal_estado_proceso" class="modal">
+    <span class="cerrar" onclick="cerrarModal('modal_estado_proceso')">&times;</span>
+    <img class="modal-contenido" src="data:image/png;base64,{{ grafico_estado_con_proceso_base64 }}">
+</div>
+
+<div id="modal_accidentes" class="modal">
+    <span class="cerrar" onclick="cerrarModal('modal_accidentes')">&times;</span>
+    <img class="modal-contenido" src="data:image/png;base64,{{ grafico_localidades_accidentes_base64 }}">
+</div>
+
+<!-- Modal para gráfico de barras por mes y estado -->
+<div id="modal_barras_mes_estado" class="modal">
+    <span class="cerrar" onclick="cerrarModal('modal_barras_mes_estado')">&times;</span>
+    <img class="modal-contenido" src="data:image/png;base64,{{ grafico_barras_estado_mes_base64 }}">
+</div>
+
+<!-- Estilos -->
+<style>
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    padding-top: 60px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.8);
+}
+.modal-contenido {
+    display: block;
+    margin: auto;
+    max-width: 90%;
+    max-height: 80%;
+    border-radius: 10px;
+}
+.cerrar {
+    position: absolute;
+    top: 30px;
+    right: 50px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.grafico-estandar {
+    width: 300px;
+    height: 300px;
+    object-fit: contain;
+    cursor: pointer;
+    margin: auto;
+}
+</style>
+
+<!-- Scripts -->
+<script>
+function abrirModal(id) {
+    document.getElementById(id).style.display = "block";
+}
+function cerrarModal(id) {
+    document.getElementById(id).style.display = "none";
+}
+window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.style.display = "none";
+    }
+}
+</script>
+
+</div>
+{% endblock %}

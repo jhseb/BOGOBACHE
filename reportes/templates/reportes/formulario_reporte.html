@@ -219,18 +219,20 @@
     <div class="category">
       <div class="category-header">2. Eventos precedentes al siniestro</div>
       <div class="category-content">
+
         <div class="switch-container">
           <label class="switch-label" for="{{ form.senializacion_presente.id_for_label }}">¿Hubo señalización presente antes del incidente?</label>
           <label class="switch">
-            {{ form.senializacion_presente }}
+            <input type="checkbox" name="{{ form.senializacion_presente.name }}" id="{{ form.senializacion_presente.id_for_label }}" {% if form.senializacion_presente.value %}checked{% endif %}>
             <span class="slider"></span>
           </label>
         </div>
 
+
         <div class="switch-container">
           <label class="switch-label" for="{{ form.estado_problema_vehiculo.id_for_label }}">¿El vehiculo ya presentaba problemas de funcionamiento antes del incidente?</label>
           <label class="switch">
-            {{ form.estado_problema_vehiculo }}
+            <input type="checkbox" name="{{ form.estado_problema_vehiculo.name }}" id="{{ form.estado_problema_vehiculo.id_for_label }}" {% if  form.estado_problema_vehiculo.value %}checked{% endif %}>
             <span class="slider"></span>
           </label>
         </div>
@@ -262,7 +264,7 @@
         <div class="switch-container">
           <label class="switch-label" for="{{ form.semaforo.id_for_label }}">¿Se paso algun semaforo antes del incidente?</label>
           <label class="switch">
-            {{ form.semaforo }}
+            <input type="checkbox" name="{{ form.semaforo.name }}" id="{{ form.semaforo.id_for_label }}" {% if form.semaforo.value %}checked{% endif %}>
             <span class="slider"></span>
           </label>
         </div>
@@ -318,13 +320,14 @@
       <div class="category-content">
         <p>
 
-          <div class="switch-container">
+           <div class="switch-container">
           <label class="switch-label" for="{{ form.licencia.id_for_label }}">¿Contaba con licencia conduccion activa?</label>
           <label class="switch">
-            {{ form.licencia }}
+            <input type="checkbox" name="{{ form.licencia.name }}" id="{{ form.licencia.id_for_label }}" {% if form.licencia.value %}checked{% endif %}>
             <span class="slider"></span>
           </label>
           </div>
+
 
           <label for="{{ form.tipo_vehiculo.id_for_label }}">Describa el tipo de vehiculo usado</label>
           {{ form.tipo_vehiculo }}
@@ -334,13 +337,15 @@
           {{ form.uso_vehiculo }}
           </p>
 
+
           <div class="switch-container">
           <label class="switch-label" for="{{ form.compania_aseguradora.id_for_label }}">¿Contaba con alguna compañia aseguradora?</label>
           <label class="switch">
-            {{ form.compania_aseguradora }}
+            <input type="checkbox" name="{{ form.compania_aseguradora.name }}" id="{{ form.compania_aseguradora.id_for_label }}" {% if form.compania_aseguradora.value %}checked{% endif %}>
             <span class="slider"></span>
           </label>
           </div>
+
 
       </div>
     </div>
@@ -360,11 +365,11 @@
         </p>
 
         <div class="switch-container">
-          <label class="switch-label" for="{{ form.presencia_defuego.id_for_label }}">Hubo precencia de fuego</label>
-          <label class="switch">
-            {{ form.presencia_defuego }}
-            <span class="slider"></span>
-          </label>
+        <label class="switch-label" for="{{ form.presencia_defuego.id_for_label }}">¿Hubo precencia de fuego?</label>
+        <label class="switch">
+          <input type="checkbox" name="{{ form.presencia_defuego.name }}" id="{{ form.presencia_defuego.id_for_label }}" {% if form.presencia_defuego.value %}checked{% endif %}>
+          <span class="slider"></span>
+        </label>
         </div>
 
       </div>
@@ -375,25 +380,28 @@
       <div class="category-header">6. Detalles del bache</div>
       <div class="category-content">
         
+
         <div class="switch-container">
-          <label class="switch-label" for="{{ form.conocimiento_tenia.id_for_label }}">¿Tenía conocimiento del bache antes del suceso?</label>
-          <label class="switch">
-            {{ form.conocimiento_tenia }}
-            <span class="slider"></span>
-          </label>
+        <label class="switch-label" for="{{ form.conocimeinto_tenia.id_for_label }}">¿Tenía conocimeinto del bache antes del suceso?</label>
+        <label class="switch">
+          <input type="checkbox" name="{{ form.conocimeinto_tenia.name }}" id="{{ form.conocimeinto_tenia.id_for_label }}" {% if form.conocimeinto_tenia.value %}checked{% endif %}>
+          <span class="slider"></span>
+        </label>
         </div>
+
         
         <p>
           <label for="{{ form.descripcion_bache.id_for_label }}">Porfavor, describa el bache presentado en el incidente</label>
           {{ form.descripcion_bache }}
         </p>
         
+
         <div class="switch-container">
-          <label class="switch-label" for="{{ form.encharcado.id_for_label }}">¿El Bache se encontraba encharcado o enlagunado?</label>
-          <label class="switch">
-            {{ form.encharcado }}
-            <span class="slider"></span>
-          </label>
+        <label class="switch-label" for="{{ form.encharcado.id_for_label }}">¿El Bache se encontraba encharcado o enlagunado?</label>
+        <label class="switch">
+          <input type="checkbox" name="{{ form.encharcado.name }}" id="{{ form.encharcado.id_for_label }}" {% if form.encharcado.value %}checked{% endif %}>
+          <span class="slider"></span>
+        </label>
         </div>
 
       </div>
@@ -420,21 +428,23 @@
           {{ form.vehiculos_afectados }}
         </p>
 
-        <div class="switch-container">
-          <label class="switch-label" for="{{ form.danios_ambiente.id_for_label }}">¿ Hubieron daños en la vegetacion?</label>
-          <label class="switch">
-            {{ form.danios_ambiente }}
-            <span class="slider"></span>
-          </label>
-        </div>
 
         
         <div class="switch-container">
-          <label class="switch-label" for="{{ form.danios_infraestructura.id_for_label }}">¿ Hubieron daños de infraestructura?</label>
-          <label class="switch">
-            {{ form.danios_infraestructura }}
-            <span class="slider"></span>
-          </label>
+        <label class="switch-label" for="{{ form.danios_ambiente.id_for_label }}">¿ Hubieron daños en la vegetacion?</label>
+        <label class="switch">
+          <input type="checkbox" name="{{ form.danios_ambiente.name }}" id="{{ form.danios_ambiente.id_for_label }}" {% if form.danios_ambiente.value %}checked{% endif %}>
+          <span class="slider"></span>
+        </label>
+        </div>
+
+
+        <div class="switch-container">
+        <label class="switch-label" for="{{ form.danios_infraestructura.id_for_label }}">¿ Hubieron daños de infraestructura?</label>
+        <label class="switch">
+          <input type="checkbox" name="{{ form.danios_infraestructura.name }}" id="{{ form.danios_infraestructura.id_for_label }}" {% if form.danios_infraestructura.value %}checked{% endif %}>
+          <span class="slider"></span>
+        </label>
         </div>
 
       </div>
@@ -474,20 +484,22 @@
           {{ form.servicio_medicos }}
         </p>
 
-        <div class="switch-container">
-          <label class="switch-label" for="{{ form.parte_policial.id_for_label }}">¿Se realizo un parte policial?</label>
-          <label class="switch">
-            {{ form.parte_policial }}
-            <span class="slider"></span>
-          </label>
-        </div>
 
         <div class="switch-container">
-          <label class="switch-label" for="{{ form.reclamo_formal.id_for_label }}">¿Se realizo un reclamo oficial de la situacion?</label>
-          <label class="switch">
-            {{ form.reclamo_formal }}
-            <span class="slider"></span>
-          </label>
+        <label class="switch-label" for="{{ form.parte_policial.id_for_label }}">¿Se realizo un parte policial?</label>
+        <label class="switch">
+          <input type="checkbox" name="{{ form.parte_policial.name }}" id="{{ form.parte_policial.id_for_label }}" {% if form.parte_policial.value %}checked{% endif %}>
+          <span class="slider"></span>
+        </label>
+        </div>
+
+        
+          <div class="switch-container">
+        <label class="switch-label" for="{{ form.reclamo_formal.id_for_label }}">¿Se realizo un reclamo oficial de la situacion?</label>
+        <label class="switch">
+          <input type="checkbox" name="{{ form.reclamo_formal.name }}" id="{{ form.reclamo_formal.id_for_label }}" {% if form.reclamo_formal.value %}checked{% endif %}>
+          <span class="slider"></span>
+        </label>
         </div>
 
       </div>

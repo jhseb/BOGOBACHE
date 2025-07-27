@@ -77,6 +77,11 @@
           REPORTES
         </button>
       </a>
+        <a href="{% url 'opciones_datos' %}">
+        <button class="{% if request.resolver_match.url_name == 'opciones_datos' %}btn-inicio-activo{% endif %}">
+          ANALISIS
+        </button>
+      </a>
   </div>
 
   <div class="contenido">

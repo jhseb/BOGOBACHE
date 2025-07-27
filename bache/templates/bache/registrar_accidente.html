@@ -149,21 +149,21 @@ document.getElementById("btn-buscar-id").addEventListener("click", () => {
 });
 
 document.getElementById("btn-registrar-accidente").addEventListener("click", () => {
-      const idBache = document.getElementById("bache-id").textContent;
+  const idBache = document.getElementById("bache-id").textContent;
 
-      // Puedes pasar el ID del bache como parámetro GET si es necesario
-      Swal.fire({
-        html: `<iframe src="/reportes/crear/?popup=1&id_bache=${idBache}" width="100%" height="500px" style="border:none;"></iframe>`,
-        width: '90%',
-        heightAuto: false,
-        showConfirmButton: false,
-        showCloseButton: true,
-        background: '#fff',
-        customClass: {
-          popup: 'swal-wide'
-        }
-      });
-    });
+  Swal.fire({
+    html: `<iframe src="/crear/?popup=1&id_bache=${idBache}" width="100%" height="500px" style="border:none;"></iframe>`,
+    width: '90%',
+    heightAuto: false,
+    showConfirmButton: false,
+    showCloseButton: true,
+    background: '#fff',
+    customClass: {
+      popup: 'swal-wide'
+    }
+  });
+});
+
 </script>
 {% endblock %}
 

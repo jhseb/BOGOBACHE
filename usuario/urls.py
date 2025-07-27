@@ -3,6 +3,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from . import views  
+from . import views_datos  
 urlpatterns = [
 
     #path('',views.index,name="inicio"),
@@ -52,9 +53,11 @@ urlpatterns = [
                 
 
     #Datos
-    path('datos/', views.analisis_de_datos, name='datos'),
-    path('graficas/vehiculos/', views.datos_tipo_vehiculo, name='datos_tipo_vehiculo'),
-    
+    #path('datos/', views.analisis_de_datos, name='datos'),
+    path('analisis/', views_datos.analisis_de_datos, name='analisis_de_datos'),
+    path('analisisbache/', views_datos.analisis_baches, name='analisis_de_baches'),
+    path('opciones_datos/', views.opciones_datos, name='opciones_datos'),
+
     re_path(r'^reset/password_reset/$', auth_views.PasswordResetView.as_view(
         template_name='registration/password_reset_form.html',
         email_template_name='registration/password_reset_email.html'

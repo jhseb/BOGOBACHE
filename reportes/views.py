@@ -8,7 +8,7 @@ from bache.models import Bache
 from .models import Reporte
 import json
 
-@login_required
+#@login_required
 @xframe_options_exempt
 def crear_reportes(request):
     es_popup = request.GET.get('popup') == '1'
