@@ -286,7 +286,7 @@ def grafico_condicion_climatica(clima=''):
 
 
 def analisis_de_datos(request):
-    title = 'PÁGINA DE ANÁLISIS'
+    title = 'Analisis de reportes'
 
     servicio_filtro = request.GET.get('servicio', '')
     dia_filtro = request.GET.get('dia', '')
@@ -641,7 +641,7 @@ def grafico_barras_por_mes_estado(filtro_estado=''):
     return grafico_base64
 
 def analisis_baches(request):
-    title = 'PÁGINA DE ANÁLISIS'
+    title = 'Analisis de da baches'
 
     localidad_filtro = request.GET.get('localidad', '')
     tipo_calle_filtro = request.GET.get('tipo_calle', '')

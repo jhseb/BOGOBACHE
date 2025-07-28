@@ -22,6 +22,7 @@ from django.utils.timezone import localtime
 from django.contrib.auth.models import Group
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.views import PasswordResetView
 # Create your views here.
 def index(request):
     #return HttpResponse("HOLA")
@@ -39,7 +40,14 @@ def sesion(request):
     title = 'PAGINA'
     return render(request,'visitante/sesion.html',{ 'title':title})
 
-
+class CustomPasswordResetView(PasswordResetView):
+    def post(self, request, *args, **kwargs):
+        email = request.POST.get("email")
+        if not User.objects.filter(email=email).exists():
+            messages.error(request, "El correo no está registrado.")
+            return redirect("password_reset")  # vuelve al formulario
+        return super().post(request, *args, **kwargs)
+    
 def restringir(request, username):
     nombre_grupo = 'admin'
     nombre_grupo1 = 'usuario'
@@ -842,7 +850,7 @@ Respuesta:
             send_mail(
                 asunto,
                 mensaje,
-                'bogabache@dominio.com', 
+                'bogabache@gmail.com', 
                 [destinatario],
                 fail_silently=False,
             )

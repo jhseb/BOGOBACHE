@@ -15,81 +15,73 @@
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
         text-align: center;
     }
-
-    .contenedor-actualizar h2 {
-        color: #b00000;
-        font-weight: bold;
-        margin-bottom: 20px;
-        font-size: 18px;
-    }
-
-    .input-correo {
-        width: 100%;
-        margin: 15px 0;
-        border: none;
-        border-bottom: 2px solid #ccc;
-        padding: 8px;
-        font-size: 16px;
-        outline: none;
-        transition: border-color 0.3s ease;
-        background-color: transparent;
-    }
-
-    .input-correo:focus {
-        border-bottom: 2px solid #b00000;
-    }
-
-    .btn-actualizar {
-        background-color: #b00000;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        font-size: 16px;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-top: 20px;
-    }
-
-    .btn-actualizar:hover {
-        background-color: #8a0000;
-    }
+    .contenedor-actualizar h2 { color: #b00000; font-weight: bold; margin-bottom: 20px; font-size: 18px; }
+    .input-correo { width: 100%; margin: 15px 0; border: none; border-bottom: 2px solid #ccc;
+        padding: 8px; font-size: 16px; outline: none; transition: border-color 0.3s ease; background-color: transparent; }
+    .input-correo:focus { border-bottom: 2px solid #b00000; }
+    .btn-actualizar { background-color: #b00000; color: white; border: none; padding: 10px 20px;
+        font-size: 16px; border-radius: 4px; cursor: pointer; margin-top: 20px; }
+    .btn-actualizar:hover { background-color: #8a0000; }
 </style>
 
 <div class="contenedor-actualizar">
     <h2>ESTABLECER NUEVA CONTRASEÑA</h2>
-    <form method="POST" action="{% url 'establecer_nueva_contrasena' %}">
+    <form id="formContrasena" method="POST" action="{% url 'establecer_nueva_contrasena' %}">
         {% csrf_token %}
-        <input type="password" name="nueva_contrasena" placeholder="Nueva contraseña"
+        <input type="password" id="nueva_contrasena" name="nueva_contrasena" placeholder="Nueva contraseña"
                required class="input-correo">
 
-        <input type="password" name="confirmar_contrasena" placeholder="Confirmar contraseña"
+        <input type="password" id="confirmar_contrasena" name="confirmar_contrasena" placeholder="Confirmar contraseña"
                required class="input-correo">
 
         <button type="submit" class="btn-actualizar">Actualizar contraseña</button>
     </form>
 </div>
 
+<script>
+document.getElementById("formContrasena").addEventListener("submit", function(event) {
+    const pass = document.getElementById("nueva_contrasena").value;
+    const confirm = document.getElementById("confirmar_contrasena").value;
+
+    // Expresión regular: mínimo 8 caracteres, un número y un caracter especial
+    const regex = /^(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,}$/;
+
+    if (!regex.test(pass)) {
+        event.preventDefault();
+        Swal.fire({
+            icon: "error",
+            title: "Contraseña inválida",
+            text: "Debe tener mínimo 8 caracteres, incluir un número y un caracter especial.",
+            confirmButtonColor: "#b00000"
+        });
+        return;
+    }
+
+    if (pass !== confirm) {
+        event.preventDefault();
+        Swal.fire({
+            icon: "error",
+            title: "Las contraseñas no coinciden",
+            text: "Verifica que ambas contraseñas sean iguales.",
+            confirmButtonColor: "#b00000"
+        });
+    }
+});
+</script>
+
 {% if error %}
 <script>
-    Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: '{{ error }}',
-        confirmButtonColor: '#b00000'
-    });
+Swal.fire({ icon: 'error', title: 'Error', text: '{{ error }}', confirmButtonColor: '#b00000' });
 </script>
 {% endif %}
 
 {% if success %}
 <script>
-    Swal.fire({
-        icon: 'success',
-        title: '¡Contraseña actualizada!',
-        text: 'Ahora puedes iniciar sesión con tu nueva contraseña.',
-        confirmButtonColor: '#b00000'
-    }).then(() => {
-        window.location.href = "{% url 'signin' %}";
-    });
+Swal.fire({
+    icon: 'success', title: '¡Contraseña actualizada!',
+    text: 'Ahora puedes iniciar sesión con tu nueva contraseña.',
+    confirmButtonColor: '#b00000'
+}).then(() => { window.location.href = "{% url 'signin' %}"; });
 </script>
 {% endif %}
 

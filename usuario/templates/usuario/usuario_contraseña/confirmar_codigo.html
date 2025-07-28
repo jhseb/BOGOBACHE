@@ -23,6 +23,12 @@
         font-size: 18px;
     }
 
+    .mensaje-correo {
+        margin-bottom: 15px;
+        font-size: 15px;
+        color: #333;
+    }
+
     .input-correo {
         width: 100%;
         margin: 15px 0;
@@ -56,7 +62,13 @@
 </style>
 
 <div class="contenedor-actualizar">
+    <p class="mensaje-correo">
+        Hemos enviado un código a su <strong>correo registrado</strong>. 
+        Por favor, revise su bandeja de entrada.
+    </p>
+
     <h2>INGRESE EL CÓDIGO</h2>
+
     <form method="POST" action="{% url 'confirmar_codigo' %}">
         {% csrf_token %}
         <input type="text" name="codigo" placeholder="Código recibido en el correo"

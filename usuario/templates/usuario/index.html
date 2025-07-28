@@ -4,7 +4,8 @@
 
 {% block contenido %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<!-- Solo JS de Bootstrap para que funcione el modal -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -14,12 +15,12 @@
         background-color: #fff;
     }
 
- .contenedor-principal {
-    width: 90%;
-    margin: 0 auto;
-    padding: 0 20px 20px 20px; /* quitamos el padding top */
-    margin-top: -30px; /* <- ¡Este lo sube! Ajusta según necesites */
-}
+    .contenedor-principal {
+        width: 90%;
+        margin: 0 auto;
+        padding: 0 20px 20px 20px;
+        margin-top: -30px;
+    }
 
     .botones-acciones {
         display: flex;
@@ -44,6 +45,33 @@
 
     .boton:hover {
         background-color: #b81820;
+    }
+
+    .btn-modal {
+        background-color: #d20000;
+        color: white;
+        padding: 10px 16px;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-modal:hover {
+        background-color: #a90000;
+        transform: scale(1.05);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-modal:active {
+        transform: scale(0.97);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-modal:focus {
+        outline: none;
+        box-shadow: 0 0 0 0.25rem rgba(210, 0, 0, 0.5);
     }
 
     h4 {
@@ -102,12 +130,119 @@
     .icono-x:hover {
         color: darkred;
     }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1050;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal.show {
+        display: block;
+    }
+
+    .modal-dialog {
+        position: relative;
+        margin: 10% auto;
+        width: 80%;
+        max-width: 800px;
+        animation: fadeInModal 0.3s ease;
+    }
+
+    @keyframes fadeInModal {
+        from {
+            transform: scale(0.9);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+    }
+
+    .modal-header,
+    .modal-body {
+        margin-bottom: 15px;
+    }
+
+    .modal-title {
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+.btn-close {
+    float: right;
+    cursor: pointer;
+    font-size: 32px;
+    font-weight: bold;
+    color: #d41f28;
+    line-height: 1;
+    background: none;
+    border: none;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.btn-close:hover {
+    transform: scale(1.2);
+    color: darkred;
+}
+
+    .form-select-sm {
+        padding: 4px;
+        font-size: 14px;
+    }
+
+    .rol-selector {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        padding: 8px 32px 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        background-color: #fff;
+        font-size: 14px;
+        background-image: url('data:image/svg+xml;utf8,<svg fill="gray" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+        width: 100%;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .rol-selector:focus {
+        border-color: #d41f28;
+        box-shadow: 0 0 0 0.2rem rgba(212, 31, 40, 0.25);
+        outline: none;
+    }
+
+    .form-label {
+        font-weight: bold;
+        margin-bottom: 6px;
+        display: block;
+        color: #333;
+    }
 </style>
+
 
 <div class="contenedor-principal">
     <div class="botones-acciones">
         <a href="{% url 'crear_usuario_admin' %}" class="boton">CREAR USUARIO</a>
-        <button class="boton" data-bs-toggle="modal" data-bs-target="#modalDesactivar">GESTIÓN DE USUARIOS</button>
+        <button class="boton" onclick="abrirModal()">GESTIÓN DE USUARIOS</button>
     </div>
 
     <h4>Usuarios</h4>
@@ -145,12 +280,12 @@
 </div>
 
 <!-- MODAL -->
-<div class="modal fade" id="modalDesactivar" tabindex="-1" aria-labelledby="modalDesactivarLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+<div class="modal" id="modalDesactivar">
+  <div class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title" id="modalDesactivarLabel">Desactivar o cambiar rol de usuarios</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            <span class="modal-title">Desactivar o cambiar rol de usuarios</span>
+            <span class="btn-close" onclick="cerrarModal()">&times;</span>
         </div>
         <div class="modal-body">
             <table class="tabla-estilizada">
@@ -169,7 +304,7 @@
                         <td>{{ usuario.nombre }}</td>
                         <td>{{ usuario.rol }}</td>
                         <td>
-                            <select class="form-select form-select-sm rol-selector" data-usuario="{{ usuario.cedula }}">
+                            <select class="form-select-sm rol-selector" data-usuario="{{ usuario.cedula }}">
                                 <option value="1" {% if usuario.rol|lower == '1' %}selected{% endif %}>Usuario</option>
                                 <option value="2" {% if usuario.rol|lower == '2' %}selected{% endif %}>Administrador</option>
                                 <option value="3" {% if usuario.rol|lower == '3' %}selected{% endif %}>Desactivar</option>
@@ -185,7 +320,23 @@
 </div>
 
 <script>
-    function confirmarDesactivacion(cedula) {
+function abrirModal() {
+    document.getElementById("modalDesactivar").classList.add("show");
+}
+
+function cerrarModal() {
+    document.getElementById("modalDesactivar").classList.remove("show");
+}
+document.addEventListener('click', function (e) {
+    const modal = document.getElementById('modalDesactivar');
+    const dialog = modal.querySelector('.modal-dialog');
+    
+    if (modal.classList.contains('show') && e.target === modal) {
+        cerrarModal();
+    }
+});
+
+function confirmarDesactivacion(cedula) {
     Swal.fire({
         title: '¿Está seguro?',
         text: "Esto desactivará al usuario.",
@@ -193,7 +344,7 @@
         showCancelButton: true,
         confirmButtonText: 'Sí, desactivar',
         cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#d33',  // 🔴 Rojo oscuro para el botón confirmar
+        confirmButtonColor: '#d33',
         cancelButtonColor: '#6c757d'
     }).then((result) => {
         if (result.isConfirmed) {
@@ -203,9 +354,7 @@
                     "Content-Type": "application/x-www-form-urlencoded",
                     "X-CSRFToken": "{{ csrf_token }}"
                 },
-                body: new URLSearchParams({
-                    cedula: cedula
-                })
+                body: new URLSearchParams({ cedula: cedula })
             })
             .then(response => response.json())
             .then(data => {
@@ -231,49 +380,47 @@
     });
 }
 
+document.addEventListener('DOMContentLoaded', function () {
+    const selects = document.querySelectorAll('.rol-selector');
+    selects.forEach(select => {
+        select.addEventListener('change', function () {
+            const usuarioId = this.dataset.usuario;
+            const nuevoRol = this.value;
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const selects = document.querySelectorAll('.rol-selector');
-
-        selects.forEach(select => {
-            select.addEventListener('change', function () {
-                const usuarioId = this.dataset.usuario;
-                const nuevoRol = this.value;
-
-                fetch("{% url 'cambiar_rol_usuario' %}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
-                        "X-CSRFToken": "{{ csrf_token }}"
-                    },
-                    body: new URLSearchParams({
-                        cedula: usuarioId,
-                        rol: nuevoRol
-                    })
+            fetch("{% url 'cambiar_rol_usuario' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: new URLSearchParams({
+                    cedula: usuarioId,
+                    rol: nuevoRol
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Rol actualizado',
-                            text: `El usuario ${usuarioId} tiene ahora el rol: ${select.options[select.selectedIndex].text}`,
-                            timer: 1500,
-                            showConfirmButton: false
-                        }).then(() => {
-                            window.location.href = "{% url 'usuario' %}";
-                        });
-                    } else {
-                        Swal.fire('Error', data.message, 'error');
-                    }
-                })
-                .catch(error => {
-                    Swal.fire('Error', 'No se pudo actualizar el rol.', 'error');
-                    console.error(error);
-                });
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Rol actualizado',
+                        text: `El usuario ${usuarioId} tiene ahora el rol: ${select.options[select.selectedIndex].text}`,
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = "{% url 'usuario' %}";
+                    });
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error', 'No se pudo actualizar el rol.', 'error');
+                console.error(error);
             });
         });
     });
+});
 </script>
 
 {% endblock %}

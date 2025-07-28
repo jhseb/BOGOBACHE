@@ -24,6 +24,12 @@
         font-size: 18px;
     }
 
+    .mensaje-correo {
+        margin-bottom: 15px;
+        font-size: 15px;
+        color: #333;
+    }
+
     .input-codigo {
         width: 100%;
         margin: 15px 0;
@@ -59,6 +65,11 @@
 </style>
 
 <div class="contenedor-verificacion">
+    <p class="mensaje-correo">
+        Hemos enviado un código a su <strong>nuevo correo</strong>. 
+        Por favor, revise su bandeja de entrada.
+    </p>
+
     <h2>INGRESE CÓDIGO DE VERIFICACIÓN</h2>
     <form method="POST">
         {% csrf_token %}
@@ -80,7 +91,7 @@
         timerProgressBar: true,
         showConfirmButton: false
     }).then(() => {
-        window.location.href = "{% url 'actualizar_correo' %}";  // Asegúrate que esta URL esté bien
+        window.location.href = "{% url 'actualizar_correo' %}";
     });
 </script>
 {% endif %}
