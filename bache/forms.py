@@ -38,6 +38,23 @@ class BacheForm(forms.ModelForm):
         self.fields['accidentes'].initial = 0
         self.fields['peligrosidad'].initial = 'Alto'
 
+        self.fields['upz'].queryset = UPZ.objects.none()
+        self.fields['barrio'].queryset = Barrio.objects.none()
+
+        if 'localidad' in self.data:
+            try:
+                localidad_id = int(self.data.get('localidad'))
+                self.fields['upz'].queryset = UPZ.objects.filter(localidad_id=localidad_id)
+            except (ValueError, TypeError):
+                pass
+
+        if 'upz' in self.data:
+            try:
+                upz_id = int(self.data.get('upz'))
+                self.fields['barrio'].queryset = Barrio.objects.filter(upz_id=upz_id)
+            except (ValueError, TypeError):
+                pass
+
     def clean(self):
         cleaned_data = super().clean()
         latitud = cleaned_data.get('latitud')

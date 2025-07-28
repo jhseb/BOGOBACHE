@@ -53,7 +53,10 @@ class ReporteForm(forms.ModelForm):
             }),
             'reclamo_formal': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
-            })
+            }),
+            'asesoria_gratis': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
     
         }
         # Hacer explícito que no son requeridos

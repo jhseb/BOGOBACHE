@@ -90,6 +90,46 @@
     background-color: #560101;
   }
 
+  @media (max-width: 768px) {
+  .contenido {
+    flex-direction: column;
+  }
+
+  .formulario {
+    order: 1;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid #ccc;
+  }
+
+  #map {
+    order: 2;
+    width: 100%;
+    height: 50vh; /* o ajusta según tu gusto */
+  }
+
+  .detalle-bache {
+    order: 3;
+    width: 100%;
+    padding: 10px;
+    background-color: #f5f5f5;
+    height: auto;
+  }
+
+  /* Opcional: mejora visual para inputs y botones en móvil */
+  .formulario input,
+  .formulario select,
+  .formulario button {
+    font-size: 16px;
+  }
+
+  .btn-accidente {
+    width: 48%;
+    margin-bottom: 10px;
+  }
+}
+
 </style>
 {% endblock %}
 
@@ -122,7 +162,7 @@
         {{ form.tipo_calle }}
 
         <label>Dirección</label>
-        <input type="text" name="direccion" required>
+        {{ form.direccion }}
 
         <label>Diametro aproximado(cm)</label>
         {{ form.diametro }}
@@ -136,25 +176,30 @@
           </div>
         </div>
 
-        <label>Localidad</label>
-        <select name="localidad" id="id_localidad">
-          {% for loc in localidades %}
-            <option value="{{ loc.id }}">{{ loc.nombre }}</option>
-          {% endfor %}
-        </select>
+        <label for="localidad">Localidad</label>
+        {{ form.localidad }}
+        {% if form.localidad.errors %}
+          <div style="color: red;">{{ form.localidad.errors.0 }}</div>
+        {% endif %}
 
-        <label>UPZ</label>
-        <select name="upz"  id="id_upz">
-            <option value="">Seleccione una UPZ</option>
-        </select>
+        <label for="upz">UPZ</label>
+        {{ form.upz }}
+        {% if form.upz.errors %}
+          <div style="color: red;">{{ form.upz.errors.0 }}</div>
+        {% endif %}
 
-        <label>Barrio</label>
-        <select name="barrio"  id="id_barrio">
-            <option value="">Seleccione un barrio</option>
-        </select>
+        <label for="barrio">Barrio</label>
+        {{ form.barrio }}
+        {% if form.barrio.errors %}
+          <div style="color: red;" >{{ form.barrio.errors.0 }}</div>
+        {% endif %}
 
         <label>Fotografía</label>
-        <input type="file" name="foto" accept="image/png, image/jpeg" required>
+        {{ form.foto }}
+        {% if form.foto.errors %}
+          <div style="color: red; font-size: 13px;">{{ form.foto.errors.0 }}</div>
+          <small style="color: darkorange;">Por favor, vuelve a seleccionar la imagen.</small>
+        {% endif %}
 
         <button type="submit">Crear</button>
 
@@ -198,12 +243,131 @@
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('form');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();  // Prevenir envío inmediato
+
+      Swal.fire({
+        title: '¿Está seguro de continuar?',
+        html: `
+          <p>Verifique cuidadosamente la <strong>Localidad</strong>, <strong>UPZ</strong> y <strong>Barrio</strong>.</p>
+          <p><strong>Una vez creado el bache, no podrá modificar estos campos.</strong></p>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d20000',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, continuar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          document.getElementById('id_accidentes').value = accidenteSeleccionado;  // Asegura valor de accidente
+          form.submit();  // Envía el formulario manualmente
+        }
+      });
+    });
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('form');
     form.addEventListener('submit', function () {
       document.getElementById('id_accidentes').value = accidenteSeleccionado;
     });
   });
 </script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+  const upzSeleccionada = "{{ form.data.upz|default_if_none:''|default:'' }}";
+  const barrioSeleccionado = "{{ form.data.barrio|default_if_none:''|default:'' }}";
+  const localidadSeleccionada = "{{ form.data.localidad|default_if_none:''|default:'' }}";
+</script>
+<script>
+   document.addEventListener('DOMContentLoaded', () => {
+    const localidadSelect = document.getElementById('id_localidad');
+    const upzSelect = document.getElementById('id_upz');
+    const barrioSelect = document.getElementById('id_barrio');
+
+    const populateSelect = (selectElement, items, placeholder, selectedId = null) => {
+      selectElement.innerHTML = '';
+      const fragment = document.createDocumentFragment();
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = placeholder;
+      fragment.appendChild(defaultOption);
+
+      items.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.textContent = item.nombre;
+        if (selectedId && selectedId == item.id) {
+          option.selected = true;
+        }
+        fragment.appendChild(option);
+      });
+
+      selectElement.appendChild(fragment);
+      selectElement.disabled = items.length === 0;
+    };
+
+    // Precargar si hay valores previos
+    if (localidadSeleccionada) {
+      localidadSelect.value = localidadSeleccionada;
+
+      fetch(`/ajax/upzs/?localidad_id=${localidadSeleccionada}`)
+        .then(response => response.json())
+        .then(data => {
+          populateSelect(upzSelect, data, 'Seleccione una UPZ', upzSeleccionada);
+
+          if (upzSeleccionada) {
+            fetch(`/ajax/barrios/?upz_id=${upzSeleccionada}`)
+              .then(response => response.json())
+              .then(data => {
+                populateSelect(barrioSelect, data, 'Seleccione un barrio', barrioSeleccionado);
+              });
+          }
+        });
+    }
+
+    // Evento: Cambio en Localidad
+    localidadSelect.addEventListener('change', async () => {
+      const localidadId = localidadSelect.value;
+      if (!localidadId) {
+        populateSelect(upzSelect, [], 'Seleccione una UPZ');
+        populateSelect(barrioSelect, [], 'Seleccione un barrio');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/ajax/upzs/?localidad_id=${localidadId}`);
+        const data = await response.json();
+        populateSelect(upzSelect, data, 'Seleccione una UPZ');
+        populateSelect(barrioSelect, [], 'Seleccione un barrio');
+      } catch (error) {
+        console.error('Error al cargar UPZs:', error);
+      }
+    });
+
+    // Evento: Cambio en UPZ
+    upzSelect.addEventListener('change', async () => {
+      const upzId = upzSelect.value;
+      if (!upzId) {
+        populateSelect(barrioSelect, [], 'Seleccione un barrio');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/ajax/barrios/?upz_id=${upzId}`);
+        const data = await response.json();
+        populateSelect(barrioSelect, data, 'Seleccione un barrio');
+      } catch (error) {
+        console.error('Error al cargar barrios:', error);
+      }
+    });
+  });
+
+</script>
 <script>
   let map;
   let marcador;
@@ -268,46 +432,10 @@
       }).addTo(map).bindPopup("Ubicación seleccionada").openPopup();
     });
 
-    // Selects anidados
-    const localidadSelect = document.getElementById('id_localidad');
-    const upzSelect = document.getElementById('id_upz');
-    const barrioSelect = document.getElementById('id_barrio');
-
-    localidadSelect.addEventListener('change', function () {
-      const localidadId = this.value;
-
-      fetch(`/ajax/upzs/?localidad_id=${localidadId}`)
-        .then(response => response.json())
-        .then(data => {
-          upzSelect.innerHTML = '<option value="">Seleccione una UPZ</option>';
-          data.forEach(upz => {
-            const option = document.createElement('option');
-            option.value = upz.id;
-            option.textContent = upz.nombre;
-            upzSelect.appendChild(option);
-          });
-
-          barrioSelect.innerHTML = '<option value="">Seleccione un barrio</option>';
-        });
-    });
-
-    upzSelect.addEventListener('change', function () {
-      const upzId = this.value;
-
-      fetch(`/ajax/barrios/?upz_id=${upzId}`)
-        .then(response => response.json())
-        .then(data => {
-          barrioSelect.innerHTML = '<option value="">Seleccione un barrio</option>';
-          data.forEach(barrio => {
-            const option = document.createElement('option');
-            option.value = barrio.id;
-            option.textContent = barrio.nombre;
-            barrioSelect.appendChild(option);
-          });
-        });
-    });
+    
   });
 </script>
+
 {% if bache_creado %}
 <script>
   document.addEventListener('DOMContentLoaded', function () {
@@ -345,5 +473,7 @@
     });
   });
 </script>
+
+
 {% endif %}
 {% endblock %}

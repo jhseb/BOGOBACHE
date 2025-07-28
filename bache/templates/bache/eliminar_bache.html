@@ -27,7 +27,7 @@
       <p><strong>Diámetro aproximado (cm):</strong> <span id="bache-diametro"></span></p>
       <p><strong>Foto:</strong><br><img id="bache-foto" src="" alt="Foto del bache" style="max-width: 100%; margin-top: 5px;"></p>
       {% if rol == 1 %}
-      <button id="btn-eliminar">Confirmar Eliminación Bache (Usuario)</button>
+      <button id="btn-eliminar">Confirmar Eliminación Bache</button>
       {% endif %}
       {% if rol == 2 %}
         <button id="btn-eliminar-admin" style="background-color: #444444; margin-top: 10px;">
@@ -122,41 +122,64 @@ function mostrarDetalle(bache) {
 
   map.setView([bache.latitud, bache.longitud], 17);
 }
-
-// Botón usuario
+//como ususario
 const botonEliminar = document.getElementById("btn-eliminar");
 if (botonEliminar) {
-  const id = document.getElementById("bache-id").textContent;
+  botonEliminar.addEventListener("click", () => {
+    const id = document.getElementById("bache-id").textContent;
 
-  Swal.fire({
-    title: '¿Eliminar bache?',
-    text: `¿Seguro que deseas eliminar el bache con ID ${id}? Esta acción no se puede deshacer.`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#d20000',
-    confirmButtonText: 'Sí, eliminar',
-    cancelButtonText: 'Cancelar'
-  }).then(result => {
-    if (result.isConfirmed) {
-      fetch(`/eliminar_bache_confirmar/${id}/`, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': getCookie('csrftoken')
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          Swal.fire('Eliminado', 'El bache fue marcado para eliminación.', 'success');
-          document.getElementById("info-bache").classList.add("hidden");
-          document.getElementById("busqueda-por-id").style.display = "block";
-          cargarBaches();
-        } else {
-          Swal.fire('Error', data.error || 'No se pudo eliminar el bache.', 'error');
-        }
-      });
+    if (!id) {
+      Swal.fire('Error', 'Debes seleccionar un bache antes de eliminar.', 'warning');
+      return;
     }
+
+    Swal.fire({
+      title: '¿Eliminar bache?',
+      text: `¿Seguro que deseas eliminar el bache con ID ${id}? Esta acción no se puede deshacer.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#d20000',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then(result => {
+      if (result.isConfirmed) {
+        fetch(`/eliminar_bache_confirmar/${id}/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire({
+              title: 'Eliminado',
+              text: 'El bache fue eliminado.',
+              icon: 'success',
+              confirmButtonColor: '#28a745', // rojo
+            }).then((result) => {
+              if (result.isConfirmed) {
+                // Mostrar buscador y ocultar detalles
+                document.getElementById("info-bache").classList.add("hidden");
+                document.getElementById("busqueda-por-id").style.display = "block";
+
+                // Limpia el input del ID si quieres
+                document.getElementById("input-id-buscar").value = "";
+
+                // Refresca marcadores del mapa
+                cargarBaches();
+              }
+            });
+            document.getElementById("info-bache").classList.add("hidden");
+            document.getElementById("busqueda-por-id").style.display = "block";
+            cargarBaches();
+          } else {
+            Swal.fire('Error', data.error || 'No se pudo eliminar el bache.', 'error');
+          }
+        });
+      }
+    });
   });
 }
 
@@ -165,14 +188,20 @@ const botonEliminarAdmin = document.getElementById("btn-eliminar-admin");
 if (botonEliminarAdmin) {
   botonEliminarAdmin.addEventListener("click", () => {
     const id = document.getElementById("bache-id").textContent;
+
+    if (!id) {
+      Swal.fire('Error', 'Debes seleccionar un bache antes de eliminar.', 'warning');
+      return;
+    }
+
     Swal.fire({
-      title: '¿Eliminar como administrador?',
-      text: `El bache con ID ${id} será eliminado permanentemente.`,
+      title: '¿Eliminar definitivamente?',
+      text: `Esta acción eliminará el bache con ID ${id} de forma permanente.`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#444',
-      cancelButtonColor: '#d20000',
-      confirmButtonText: 'Eliminar ya',
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#999',
+      confirmButtonText: 'Sí, eliminar definitivamente',
       cancelButtonText: 'Cancelar'
     }).then(result => {
       if (result.isConfirmed) {
@@ -185,12 +214,29 @@ if (botonEliminarAdmin) {
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-            Swal.fire('Eliminado como Admin', 'El bache ha sido eliminado definitivamente.', 'success');
+            Swal.fire({
+              title: 'Eliminado',
+              text: 'El bache fue eliminado permanentemente.',
+              icon: 'success',
+              confirmButtonColor: '#d33', // rojo
+            }).then((result) => {
+              if (result.isConfirmed) {
+                // Mostrar buscador y ocultar detalles
+                document.getElementById("info-bache").classList.add("hidden");
+                document.getElementById("busqueda-por-id").style.display = "block";
+
+                // Limpia el input del ID si quieres
+                document.getElementById("input-id-buscar").value = "";
+
+                // Refresca marcadores del mapa
+                cargarBaches();
+              }
+            });
             document.getElementById("info-bache").classList.add("hidden");
             document.getElementById("busqueda-por-id").style.display = "block";
             cargarBaches();
           } else {
-            Swal.fire('Error', data.error || 'No se pudo eliminar como admin.', 'error');
+            Swal.fire('Error', data.error || 'No se pudo eliminar el bache.', 'error');
           }
         });
       }

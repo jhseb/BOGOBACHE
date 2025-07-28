@@ -46,10 +46,10 @@
 <div class="panel-admin">
   <h2>Opciones de Reporte</h2>
   <ul>
-    <li><a href="{% url 'reportes:consultar_reportes' %}">CONSULTAR REPORTE</a></li>
-    <li><a href="{% url 'mostrar_registrar_accidente' %}">CREAR REPORTE</a></li>
-    <li><a href="{% url 'reportes:crear_reportes' %}">CONECTARSE</a></li>
-    <li><a href="{% url 'reportes:crear_reportes' %}">DESCONECTARSE</a></li>
+    <li><a href="{% url 'reportes:consultar_reportes' %}">Consultar reportes y conexiones</a></li>
+    <li><a href="{% url 'mostrar_registrar_accidente' %}">Crear reportes</a></li>
+    <li><a href="{% url 'conectar' %}">Crear conexiones</a></li>
+    <li><a href="{% url 'reportes:consultar_reportes_filtrados' %}">Eliminar reportes y conexiones</a></li>
   </ul>
 </div>
 {% endblock %}

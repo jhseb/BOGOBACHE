@@ -1,0 +1,286 @@
+{% extends "administrador/base_admin.html" %}
+{% block titulo %}Eliminar Baches{% endblock %}
+{% block contenido %}
+<div style="background-color: white; padding: 50px; font-size: 14px; margin: 20px auto; max-width: 1200px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+  <h2 style="text-align: center; color: #c9302c; margin-bottom: 30px;">
+    ADMINISTRACIÓN DE BACHES
+  </h2>
+
+  <form id="filtrosForm" method="get" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="estado" id="inputEstado">
+    <input type="hidden" name="profundidad" id="inputProfundidad">
+    <input type="hidden" name="tipo_calle" id="inputTipoCalle">
+    <input type="hidden" name="id_bache" id="inputIdBache">
+    <input type="hidden" name="diametro" id="inputDiametro">
+    <input type="hidden" name="accidentes" id="inputAccidentes">
+    <input type="hidden" name="eliminado" id="inputEliminado">
+    <input type="hidden" name="fecha_creacion" id="inputFechaCreacion">
+    <input type="hidden" name="localidad" id="inputLocalidad">
+    <input type="hidden" name="upz" id="inputUpz">
+    <input type="hidden" name="barrio" id="inputBarrio">
+  </form>
+
+  <div style="text-align: left; margin-bottom: 30px; margin-top: 10px;">
+     <button id="abrirFiltros"  class="btn-consultar" style="
+    padding: 10px 24px;
+    border-radius: 10px;
+    background-color: #ffffff;
+    color: rgb(146, 15, 15);
+    border: 2px solid  #a81b1b;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: background-color 0.3s ease;">
+    Filtros Avanzados
+  </button>
+  </div>
+   
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;">
+      <thead>
+        <tr style="background-color: #c9302c; color: white; text-align: center;">
+          <th style="padding: 14px 25px;">ID Bache</th>
+          <th style="padding: 14px 25px;">Estado</th>
+          <th style="padding: 14px 25px;">Tipo Calle</th>
+          <th style="padding: 14px 25px;">Profundidad</th>
+          <th style="padding: 14px 25px;">Diámetro</th>
+          <th style="padding: 14px 25px;">Accidentes</th>
+          <th style="padding: 14px 25px;">Localidad</th>
+          <th style="padding: 14px 25px;">UPZ</th>
+          <th style="padding: 14px 25px;">Barrio</th>
+          <th style="padding: 14px 25px;">Fecha Creación</th>
+          <th style="padding: 14px 25px;">Bache</th>
+          <th style="padding: 14px 25px;">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for bache in baches %}
+        <tr style="text-align: center; border-bottom: 1px solid #eee;">
+          <td>{{ bache.id_bache }}</td>
+          <td>{{ bache.get_estado_display }}</td>
+          <td>{{ bache.tipo_calle}}</td>
+          <td>{{ bache.profundidad }}</td>
+          <td>{{ bache.diametro }}</td>
+          <td>{{ bache.accidentes }}</td>
+          <td>{{ bache.localidad.nombre }}</td>
+          <td>{{ bache.upz.nombre }}</td>
+          <td>{{ bache.barrio.nombre }}</td>
+          <td>{{ bache.created_at|date:"Y-m-d" }}</td>
+          <td style="padding: 12px 15px;">
+            <a href="{% url 'ver_filtrado_baches' %}?id_bache={{ bache.id_bache }}"
+              style="display: inline-block; padding: 6px 16px; border: 2px solid #d20000; color: #d20000; background-color: white; border-radius: 8px; text-decoration: none; font-weight: bold;">
+              Ver Bache
+            </a>
+          </td>
+          <td>
+            <a href="#" onclick="confirmarEliminacion('{{ bache.id_bache }}')" class="btn-eliminar">Eliminar</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="11" style="text-align:center; padding: 20px; font-size: 18px;">No se encontraron baches.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.getElementById('abrirFiltros').addEventListener('click', () => {
+    Swal.fire({
+      title: '<span style="color: #bb1616;">Filtros de Baches</span>',
+      html: `
+<div style="
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 12px 30px;
+  font-size: 14px;
+  align-items: center;
+  width: 100%;
+">
+  <label for="swal-id-bache" style="text-align: left;">ID Bache:</label>
+  <input id="swal-id-bache" class="swal2-input" placeholder="Ej: BH123" style="width: 90%;" />
+
+  <label for="swal-diametro" style="text-align: left;">Diámetro mínimo:</label>
+  <input type="number" id="swal-diametro" class="swal2-input" style="width: 90%;" />
+
+  <label for="swal-accidentes" style="text-align: left;">Accidentes mínimos:</label>
+  <input type="number" id="swal-accidentes" class="swal2-input" style="width: 90%;" />
+
+ <label for="swal-fecha-creacion" style="text-align: left;">Fecha de creación:</label>
+ <input type="date" id="swal-fecha-creacion" class="swal2-input" style="width: 90%;" />
+
+  
+    <label for="swal-profundidad" style="text-align: left;">Profundidad:</label>
+    <select id="swal-profundidad" class="swal2-input" style="width: 100%;">
+    <option value="">Todos</option>
+    {% for profundidad in profundidad %}
+        <option value="{{ profundidad.0 }}">{{ profundidad.1 }}</option>
+    {% endfor %}
+    </select>
+
+  <label for="swal-estado" style="text-align: left;">Estado:</label>
+    <select id="swal-estado" class="swal2-input" style="width: 100%;">
+    <option value="">Todos</option>
+    {% for estado in estados %}
+        <option value="{{ estado.0 }}">{{ estado.1 }}</option>
+    {% endfor %}
+    </select>
+
+  <label for="swal-tipo-calle" style="text-align: left;">Tipo de calle:</label>
+  <select id="swal-tipo-calle" class="swal2-input" style="width: 100%;">
+    <option value="">Todos</option>
+   {% for valor, nombre in tipos_calle %}
+    <option value="{{ valor }}">{{ nombre }}</option>
+    {% endfor %}
+  </select>
+
+  <label for="swal-eliminado" style="text-align: left;">Campo eliminado:</label>
+  <select id="swal-eliminado" class="swal2-input" style="width: 100%;">
+    <option value="">Todos</option>
+    <option value="false">Activos</option>
+    <option value="true">Eliminados</option>
+  </select>
+
+
+  <label for="swal-localidad" style="text-align: left;">Localidad:</label>
+  <select id="swal-localidad" class="swal2-input" style="width: 100%;">
+    <option value="">Todas</option>
+    {% for loc in localidades %}
+      <option value="{{ loc.id }}">{{ loc.nombre }}</option>
+    {% endfor %}
+  </select>
+
+  <label for="swal-upz" style="text-align: left;">UPZ:</label>
+  <select id="swal-upz" class="swal2-input" style="width: 100%;">
+    <option value="">Todas</option>
+    {% for upz in upzs %}
+      <option value="{{ upz.id }}">{{ upz.nombre }}</option>
+    {% endfor %}
+  </select>
+
+  <label for="swal-barrio" style="text-align: left;">Barrio:</label>
+  <select id="swal-barrio" class="swal2-input" style="width: 100%;">
+    <option value="">Todos</option>
+    {% for barrio in barrios %}
+      <option value="{{ barrio.id }}">{{ barrio.nombre }}</option>
+    {% endfor %}
+  </select>
+<style>
+  select, option {
+    color: black !important;
+    background-color: white !important;
+  }
+</style>
+      `,
+      confirmButtonText: 'Filtrar',
+      confirmButtonColor: '#d33',
+      showCancelButton: true,
+      cancelButtonText: 'Cancelar',
+      preConfirm: () => {
+        const fechaCreacion = document.getElementById('swal-fecha-creacion').value;
+        document.getElementById('inputEstado').value = document.getElementById('swal-estado').value;
+        document.getElementById('inputProfundidad').value = document.getElementById('swal-profundidad').value;
+        document.getElementById('inputTipoCalle').value = document.getElementById('swal-tipo-calle').value;
+        document.getElementById('inputIdBache').value = document.getElementById('swal-id-bache').value;
+        document.getElementById('inputDiametro').value = document.getElementById('swal-diametro').value;
+        document.getElementById('inputAccidentes').value = document.getElementById('swal-accidentes').value;
+        document.getElementById('inputEliminado').value = document.getElementById('swal-eliminado').value;
+        document.getElementById('inputFechaCreacion').value = fechaCreacion;
+        document.getElementById('inputLocalidad').value = document.getElementById('swal-localidad').value;
+        document.getElementById('inputUpz').value = document.getElementById('swal-upz').value;
+        document.getElementById('inputBarrio').value = document.getElementById('swal-barrio').value;
+        return true;
+      }
+    }).then(result => {
+      if (result.isConfirmed) {
+        document.getElementById('filtrosForm').submit();
+      }
+    });
+  });
+  function getCSRFToken() {
+  return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+  function confirmarEliminacion(idBache) {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "Este bache será eliminado permanentemente.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#aaa',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+    if (result.isConfirmed) {
+       const csrfToken = getCSRFToken();
+      fetch(`/reportes/eliminar_bache_admin/${idBache}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Error al eliminar');
+        }
+        return response.json();
+      })
+      .then(data => {
+        Swal.fire('Eliminado', data.mensaje, 'success').then(() => {
+          location.reload();  // ✅ Recarga al confirmar eliminación
+        });
+      })
+      .catch(error => {
+        console.error('Error en la solicitud:', error);
+        Swal.fire({
+        title: 'Error',
+        text: 'No se pudo eliminar el bache, el bache está conectado a un reporte/conexión.',
+        icon: 'error',
+        confirmButtonColor: '#d33'
+        });
+      });
+    }
+  });
+}
+</script>
+
+<style>
+    tbody tr {
+    height: 55px; /* Aumenta la altura de las filas */
+    }
+
+    tbody td {
+    padding: 10px 8px; /* Espaciado interno de cada celda */
+    }
+  .btn-consultar {
+    background-color: #c9302c;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .btn-consultar:hover {
+    background-color: #a72822;
+  }
+  .btn-eliminar {
+    background-color: white;
+    color: #900;
+    border: 2px solid #900;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+  }
+  .btn-eliminar:hover {
+    background-color: #fdd;
+  }
+</style>
+{% endblock %}

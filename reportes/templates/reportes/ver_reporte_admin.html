@@ -1,4 +1,4 @@
-{% extends "usuario/principal_usuario.html" %}
+{% extends "administrador/base_admin.html" %}
 {% block titulo %}Usuarios{% endblock %}
 {% block contenido %}
 {% load static %}
@@ -512,7 +512,7 @@
           </label>
         </div>
 
-         <div class="switch-container">
+        <div class="switch-container">
         <label class="switch-label" for="{{ form.asesoria_gratis.id_for_label }}">¿Tuvo algun asesoramiento gratuito juridico de la situacion?</label>
         <label class="switch">
          {{ form.asesoria_gratis }}

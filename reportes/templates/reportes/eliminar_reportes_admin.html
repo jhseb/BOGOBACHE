@@ -1,0 +1,231 @@
+{% extends "administrador/base_admin.html" %}
+{% block titulo %}Usuarios{% endblock %}
+{% block contenido %}
+
+<div style="background-color: white; padding: 50px; font-size: 14px; margin: 20px auto; max-width: 1200px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+  <h2 style="text-align: center; color: #c9302c; margin-bottom: 30px;">
+  {% if involucrado == '1' %}
+   ELIMINAR REPORTES
+  {% elif involucrado == '0' %}
+    ELIMINAR CONEXIONES
+  {% else %}
+    ELIMINAR  REPORTES Y CONEXIONES
+  {% endif %}
+</h2>
+<form id="filtrosForm" method="get" style="display: none;">
+  {% csrf_token %}
+  <input type="hidden" name="involucrado" id="inputInvolucrado">
+  <input type="hidden" name="usuario" id="inputUsuario">
+  <input type="hidden" name="eliminado" id="inputEliminado">
+  <input type="hidden" name="involucrado_reporte" id="inputInvolucradoReporte">
+  <input type="hidden" name="created_at" id="inputFecha">
+<input type="hidden" name="id_report" id="inputIdReporte">
+</form>
+<div style="text-align: left; margin-bottom: 30px; margin-top: 10px;">
+  <button id="abrirFiltros" style="
+    padding: 10px 24px;
+    border-radius: 10px;
+    background-color: #ffffff;
+    color: rgb(146, 15, 15);
+    border: 2px solid  #a81b1b;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: background-color 0.3s ease;">
+    Filtros Avanzados
+  </button>
+</div>
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;">
+      <thead>
+        <tr style="background-color: #c9302c; color: white; text-align: center;">
+
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">ID Reporte</th>
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Cedula</th>
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Involucrado</th>
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">ID Bache</th>
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Fecha de creacion reporte</th>
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Peligrosidad actual</th>
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Estado del Bache actual</th>
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Bache</th>
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for reporte in reportes %}
+        <tr style="border-bottom: 1px solid #eee; text-align: center;">
+          <td style="padding: 12px 15px;">{{ reporte.id_report}}</td>
+          <td style="padding: 12px 15px;">{{ reporte.usuario_id}}</td>
+          <td style="padding: 12px 15px;">{{ reporte.involucrado_reporte}}</td>
+          <td style="padding: 12px 15px;">{{ reporte.bache_id}}</td>
+          <td style="padding: 12px 15px;">{{ reporte.created_at }}</td>
+          <td style="padding: 12px 15px;">{{ reporte.bache.get_peligrosidad_display }}</td>
+          <td style="padding: 12px 15px;">{{ reporte.bache.get_estado_display  }}</td>
+          
+          <td style="padding: 12px 15px;">
+            <a href="{% url 'ver_filtrado_baches' %}?id_bache={{ reporte.bache_id }}"
+              style="display: inline-block; padding: 6px 16px; border: 2px solid #d20000; color: #d20000; background-color: white; border-radius: 8px; text-decoration: none; font-weight: bold;">
+              Ver Bache
+            </a>
+          </td>
+
+          <td style="padding: 12px 15px;">
+            <a href="#" onclick="confirmarEliminacion('{{ reporte.id_report }}')" 
+              style="display: inline-block; padding: 6px 16px; border: 2px solid #900; color: #900; background-color: white; border-radius: 8px; text-decoration: none; font-weight: bold; margin-left: 8px;">
+              Eliminar
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" style="text-align:center; padding: 20px;font-size: 20px;">No se encontraron reportes registrados por usted.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.getElementById('abrirFiltros').addEventListener('click', () => {
+Swal.fire({
+  title: '<span style="color: #bb1616;">Filtros de Reportes</span>',
+  html: `
+
+<div style="display: flex; flex-direction: column; gap: 12px; font-size: 14px;">
+
+<!-- Campo para buscar por ID de reporte -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1px;">
+  <label for="swal-id-reporte" style="width: 45%; text-align: left;">ID Reporte:</label>
+  <input type="text" id="swal-id-reporte" class="swal2-input" placeholder="Ej: RPT123XYZ"
+         style="width: 70%; font-size: 14px; margin-left: 100px;" />
+</div>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <label style="width: 40%; text-align: left;">Mostrar Reportes/Conexiones:</label>
+    <select id="swal-involucrado" class="swal2-input" style="width: 50%; font-size: 14px;">
+      <option value="">Todos</option>
+      <option value="1">Mostrar solo REPORTES</option>
+      <option value="0">Mostrar solo CONEXIONES</option>
+    </select>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <label style="width: 45%; text-align: left;">Usuario:</label>
+    <select id="swal-usuario" class="swal2-input" style="width: 50%; font-size: 14px;">
+      <option value="">Todos</option>
+      {% for user in usuarios %}
+        <option value="{{ user }}">{{ user.nombre }} ({{ user.cedula }})</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <label style="width: 45%; text-align: left;">campo de eliminado:</label>
+    <select id="swal-eliminado" class="swal2-input" style="width: 50%; font-size: 14px;">
+      <option value="">Todos</option>
+      <option value="false">Registros ACTIVOS</option>
+      <option value="true">Registros OCULTOS</option>
+    </select>
+  </div>
+
+  <div id="filtro-involucrado" style="display: none; justify-content: space-between; align-items: center;">
+    <label style="width: 45%; text-align: left;">Involucrado en Reporte:</label>
+    <select id="swal-involucrado-reporte" class="swal2-input" style="width: 50%; font-size: 14px;">
+      <option value="">Todos</option>
+      <option value="true">Sí</option>
+      <option value="false">No</option>
+    </select>
+  </div>
+<!-- Campo de fecha -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1px;">
+  <label style="width: 40%; text-align: left;">Fecha de creación del reporte:</label>
+  <input type="date" id="swal-fecha" class="swal2-input"
+         style="width: 50%; font-size: 14px; margin-left: 70px;" />
+</div>
+
+
+
+{% if messages %}
+  <ul style="list-style: none; padding: 0;">
+    {% for message in messages %}
+      <li style="margin: 10px 0; padding: 10px; border-radius: 6px;
+                 background-color: {% if message.tags == 'success' %}#d4edda{% else %}#f8d7da{% endif %};
+                 color: {% if message.tags == 'success' %}#155724{% else %}#721c24{% endif %};">
+        {{ message }}
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+
+      
+  `,
+  showCancelButton: true,
+  confirmButtonText: 'Filtrar',
+  confirmButtonColor: '#d33',
+  preConfirm: () => {
+    document.getElementById('inputInvolucrado').value = document.getElementById('swal-involucrado').value;
+    document.getElementById('inputUsuario').value = document.getElementById('swal-usuario').value;
+    document.getElementById('inputEliminado').value = document.getElementById('swal-eliminado').value;
+    document.getElementById('inputInvolucradoReporte').value = document.getElementById('swal-involucrado-reporte').value;
+    document.getElementById('inputFecha').value = document.getElementById('swal-fecha').value;
+    document.getElementById('inputIdReporte').value = document.getElementById('swal-id-reporte').value;
+    return true;
+  }
+}).then((result) => {
+  if (result.isConfirmed) {
+    document.getElementById('filtrosForm').submit();
+  }
+});});
+</script>
+<script>
+  function confirmarEliminacion(idReporte) {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "Este reporte será eliminado completamente de la base de datos.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#aaa',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Mostrar mensaje de éxito antes de redireccionar
+        Swal.fire({
+          icon: 'success',
+          title: 'Registro eliminado',
+          showConfirmButton: false,
+          timer: 1500
+        }).then(() => {
+          // Redirige a la vista de eliminación con el ID
+          window.location.href = `/reportes/eliminar_reporte_definitivo/${idReporte}/`;
+        });
+      }
+    });
+  }
+</script>
+<style>
+  table {
+  font-size: 14px; /* o 12px, o el tamaño que prefieras */
+}
+
+  .btn-consultar {
+    background-color: #c9302c;
+    color: white;
+    padding: 6px 12px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+    display: inline-block;
+  }
+
+  .btn-consultar:hover {
+    background-color: #a72822;
+  }
+</style>
+
+{% endblock %}
+
+

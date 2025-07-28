@@ -44,24 +44,6 @@
       <label for="direccion">Dirección:</label>
       <input type="text" id="direccion" name="direccion" required>
 
-      <label for="localidad">Localidad:</label>
-      <select id="localidad" name="localidad" required>
-        <option value="">Seleccione una localidad</option>
-        {% for loc in localidades %}
-          <option value="{{ loc.id }}">{{ loc.nombre }}</option>
-        {% endfor %}
-      </select>
-
-      <label for="upz">UPZ:</label>
-      <select id="upz" name="upz" required>
-        <option value="">Seleccione una UPZ</option>
-      </select>
-
-      <label for="barrio">Barrio:</label>
-      <select id="barrio" name="barrio" required>
-        <option value="">Seleccione un barrio</option>
-      </select>
-
       <label for="tipo_calle">Tipo de calle:</label>
       <select id="tipo_calle" name="tipo_calle" required>
         {% for valor, nombre in tipos_calle %}
@@ -91,7 +73,7 @@
       </select>
 
       <label for="diametro">Diámetro aproximado (cm):</label>
-      <input type="number" id="diametro" name="diametro" step="0.1" required>
+      <input type="number" id="diametro" name="diametro" step="0.1"  min="5" required>
 
       <label for="accidentes">Accidentes:</label>
       <input type="number" id="accidentes" name="accidentes" required>
@@ -235,13 +217,33 @@ document.getElementById("form-modificar").addEventListener("submit", function (e
     .then(res => res.json())
     .then(data => {
       if (data.success) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Bache actualizado',
-          confirmButtonColor: '#28a745',
-          confirmButtonText: 'OK'
+  Swal.fire({
+    icon: 'success',
+    title: 'Bache actualizado',
+    confirmButtonColor: '#28a745',
+    confirmButtonText: 'OK'
+  }).then(() => {
+    // Oculta el formulario
+    document.getElementById("form-modificar").classList.add("hidden");
+
+    // Muestra el panel de búsqueda
+    document.getElementById("busqueda-por-id").style.display = "block";
+
+    // Limpia el input de búsqueda
+    document.getElementById("input-id-buscar").value = "";
+
+    // Opcional: recarga los baches en el mapa
+    fetch("/api/baches/")
+      .then(res => res.json())
+      .then(baches => {
+        markersLayer.clearLayers();
+        baches.forEach(b => {
+          const marker = L.marker([b.latitud, b.longitud], { icon: iconoRojo }).addTo(markersLayer);
+          marker.on("click", () => seleccionarBache(b.id_bache));
         });
-      } else {
+      });
+  });
+} else {
         throw new Error(data.error || 'Error desconocido');
       }
     })

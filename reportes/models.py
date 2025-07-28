@@ -231,6 +231,40 @@ class DescripcionBache(models.TextChoices):
     PARCHE_DETETERIORADO = 'parche_deteriorado', 'Parche deteriorado'
     MULTIPLES = 'multiples', 'Varios baches en la misma zona'
     CUBIERTO = 'cubierto', 'bache cubierto con material no adecuado'
+    TAPA = 'tapa_alcantarilla', 'hueco por tapa de alcantarilla extraida'
+    BLOQUE = 'bloque_concreto','hueco por bloque de concreto extraido'
+
+class Aseguradora(models.TextChoices):
+    OP1 = 'allianz_seguros_sa', 'Allianz Seguros S.A.'
+    OP2 = 'axa_colpatria_seguros_sa', 'AXA Colpatria Seguros S.A.'
+    OP3 = 'qbe_seguros_sa', 'QBE Seguros S.A.'
+    OP4 = 'compañia_mundial_seguros', 'Compañía Mundial de Seguros S.A.'
+    OP5 = 'seguros_generales_suramericana', 'Seguros Generales Suramericana S.A.'
+    OP6 = 'la_previsora_sa', 'La Previsora S.A. Compañía de Seguros'
+    OP7 = 'mapfre_seguros_generales_colombia_sa', 'Mapfre Seguros Generales de Colombia S.A.'
+    OP8 = 'seguros_comerciales_bolivar_sa', 'Seguros Comerciales Bolívar S.A.'
+    OP9 = 'seguros_del_estado_sa', 'Seguros del Estado S.A.'
+    OP10 = 'liberty_seguros_sa', 'Liberty Seguros S.A.'
+    OP11 = 'cardif_colombia_seguros_generales_sa', 'Cardif Colombia Seguros Generales S.A.'
+    OP12 = 'la_equidad_seguros_generales', 'La Equidad Seguros Generales Organismo Cooperativo'
+    OP13 = 'aseguradora_solidaria_de_colombia', 'Aseguradora Solidaria de Colombia Ltda.'
+    OP14 = 'sura_seguros', 'Sura Seguros (Seguros de Riesgos Laborales S.A.)'
+    OP15 = 'chubb_seguros_colombia_sa', 'Chubb Seguros Colombia S.A.'
+    OP16 = 'hdi_seguros_sa', 'HDI Seguros S.A.'
+    OP17 = 'seguros_alfa_sa', 'Seguros Alfa S.A.'
+    OP18 = 'seguros_confianza_sa', 'Seguros Confianza S.A.'
+    OP19 = 'rsa_seguros_colombia_sa', 'RSA Seguros Colombia S.A.'
+    OP20 = 'seguros_atlas_sa', 'Seguros Atlas S.A.'
+    OP21 = 'positiva_seguros_sa', 'Positiva Compañía de Seguros S.A.'
+    OP22 = 'aig_seguros_colombia_sa', 'AIG Seguros Colombia S.A.'
+    OP23 = 'seguros_helm_sa', 'Seguros Helm S.A.'
+    OP24 = 'seguros_del_hogar_sa', 'Seguros del Hogar S.A.'
+    OP25 = 'seguros_colmena_sa', 'Seguros Colmena S.A.'
+    OP26 = 'seguros_aurora_sa', 'Seguros Aurora S.A.'
+    OP27 = 'bcR_seguros', 'BCR Seguros (Bancoldex)'
+    OP28 = 'mundial_de_vida_sa', 'Mundial de Vida S.A.'
+    op29 ='otro','otro'
+    op30 ='N/A','No Aplica'
 
 
 def generar_id_reporte():
@@ -283,6 +317,7 @@ class Reporte(models.Model):
     tipo_vehiculo = models.CharField(max_length=100, choices=Tipo_vehiculo.choices, default=Tipo_vehiculo.CARRO, blank=True, null=True)
     uso_vehiculo =  models.CharField(max_length=100, choices= UsoVehiculo.choices, default= UsoVehiculo.PARTICULAR, blank=True, null=True)
     compania_aseguradora = models.BooleanField(default=False, blank=True, null=True)
+    nombre_aseguradora = models.CharField(max_length=100, choices= Aseguradora.choices, default= Aseguradora.op30, blank=True, null=True)
 
 
     #Daños internos
@@ -316,7 +351,7 @@ class Reporte(models.Model):
     servicio_medicos = models.CharField(max_length=100, choices=ServicioAtencionMedicos.choices, default=ServicioAtencionMedicos.NO_APLICA, blank=True, null=True)
     parte_policial = models.BooleanField(default=False, blank=True, null=True)
     reclamo_formal = models.BooleanField(default=False, blank=True, null=True)
-    
+    asesoria_gratis = models.BooleanField(default=False, blank=True, null=True)
 
     # encuesta de satisfaccion
     satisfaccion = models.CharField(max_length=100, choices=SatisfacionExperienciaUsuario.choices, default=SatisfacionExperienciaUsuario.NO_APLICA, blank=True, null=True)

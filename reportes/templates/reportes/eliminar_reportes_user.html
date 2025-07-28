@@ -1,0 +1,140 @@
+{% extends "usuario/principal_usuario.html" %}
+{% block titulo %}Usuarios{% endblock %}
+{% block contenido %}
+
+<div style="background-color: white; padding: 50px; font-size: 14px; margin: 20px auto; max-width: 1200px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+  <h2 style="text-align: center; color: #c9302c; margin-bottom: 30px;">
+   {% if involucrado_param == '1' %}
+    ELIMINAR MIS REPORTES
+  {% elif involucrado_param == '0' %}
+   ELIMINAR MIS CONEXIONES
+  {% else %}
+    ELIMINAR MIS REPORTES Y CONEXIONES
+  {% endif %}
+
+  </h2>
+
+  <form method="get" style="display: flex; justify-content: start; align-items: center; gap: 10px; margin-bottom: 20px;">
+    <label for="involucrado"><strong>FILTROS</strong></label>
+    <select name="involucrado" id="involucrado" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #ccc; background-color: #f9f9f9; font-weight: bold;">
+      <option value="" {% if involucrado == None %}selected{% endif %}>Todos</option>
+      <option value="1" {% if involucrado == '1' %}selected{% endif %}>MIS REPORTES</option>
+      <option value="0" {% if involucrado == '0' %}selected{% endif %}>MIS CONEXIONES</option>
+    </select>
+
+    <button type="submit" style="padding: 8px 20px; border-radius: 8px; background-color: #d20000; color: white; border: none; font-weight: bold; cursor: pointer;">
+      Filtrar
+    </button>
+  </form>
+
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;">
+      <thead>
+        <tr style="background-color: #c9302c; color: white; text-align: center;">
+          <th style="padding: 14px 25px;">ID Reporte</th>
+          <th style="padding: 14px 25px;">ID Bache</th>
+          <th style="padding: 14px 25px;">Fecha del Evento</th>
+          <th style="padding: 14px 25px;">Peligrosidad actual</th>
+          <th style="padding: 14px 25px;">Estado del Bache actual</th>
+          <th style="padding: 14px 25px;">Bache</th>
+          <th style="padding: 14px 25px;">Accion</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for reporte in reportes %}
+        <tr style="border-bottom: 1px solid #eee; text-align: center;">
+          <td style="padding: 12px 15px;">{{ reporte.id_report }}</td>
+          <td style="padding: 12px 15px;">{{ reporte.bache_id }}</td>
+          <td style="padding: 12px 15px;">{{ reporte.fecha_evento }}</td>
+          <td style="padding: 12px 15px;">{{ reporte.bache.get_peligrosidad_display }}</td>
+          <td style="padding: 12px 15px;">{{ reporte.bache.get_estado_display }}</td>
+          <td style="padding: 12px 15px;">
+            <a href="{% url 'ver_filtrado_baches' %}?id_bache={{ reporte.bache_id }}"
+              style="display: inline-block; padding: 6px 16px; border: 2px solid #d20000; color: #d20000; background-color: white; border-radius: 8px; text-decoration: none; font-weight: bold;">
+              Ver Bache
+            </a>
+          </td>
+          <td style="padding: 12px 15px;">
+            <form id="form-eliminar-{{ reporte.id_report }}" action="{% url 'reportes:eliminar_reporte' reporte.id_report %}?involucrado={{ reporte.involucrado_reporte|yesno:"1,0" }}" method="post" style="display:inline;">
+                {% csrf_token %}
+                 <button type="button" class="btn btn-danger"
+                onclick="confirmarEliminacion('{{ reporte.id_report }}')"
+                style="display: inline-block; padding: 6px 16px; border: 2px solid #d20000; color: #d20000; background-color: white; border-radius: 8px; text-decoration: none; font-weight: bold;">
+                Eliminar
+                  </button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" style="text-align: center; padding: 20px; font-size: 18px;">No se encontraron reportes registrados por usted.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Busca el csrf token
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function confirmarEliminacion(reporteId) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Una vez eliminado, no podrás conocer el estado actual del bache asociado.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/reportes/eliminar/${reporteId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire({
+            title: '¡Eliminado!',
+            text: 'El reporte fue eliminado correctamente',
+            icon: 'success',
+            confirmButtonText: 'OK',
+           confirmButtonColor: '#28a745'// Verde
+            }).then(() => {
+                    location.reload();
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error', 'Ocurrió un problema al eliminar el reporte.', 'error');
+            });
+        }
+    });
+}
+</script>
+<style>
+  table {
+    font-size: 14px;
+  }
+</style>
+
+{% endblock %}

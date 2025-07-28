@@ -4,81 +4,89 @@
 {% block content %}
 <div class="main-container">
   <!-- Panel izquierdo de filtros -->
+ 
   <div class="filter-panel">
+
     <h3>CONSULTAR BACHES POR ID</h3>
     
     <div style="display: flex; flex-direction: column; gap: 8px;">
       <label>Buscador de baches por ID:</label>
       <input type="text" id="buscar-id" placeholder="Ej. B1023" style="border-radius: 20px; padding: 6px 12px; border: 1px solid #ccc;">
-      <button id="btn-buscar-id" style="padding: 6px 12px; border-radius: 20px; background-color: #d20000; color: white; border: none; font-weight: bold;">Buscar</button>
+      <br>
+      <button id="btn-buscar-id" style="padding: 12px 12px; border-radius: 20px; background-color: #d20000; color: white; border: none; font-weight: bold;">Buscar</button>
     </div>
     <br>
-     <h3>CONSULTAR BACHES POR FILTROS</h3>
-    <label for="localidad">Localidad</label>
-    <select id="localidad">
-      <option value="">Todas</option>
-      {% for loc in localidades %}
-        <option value="{{ loc.id }}">{{ loc.nombre }}</option>
-      {% endfor %}
-    </select>
-
-    <label for="upz">UPZ</label>
-    <select id="upz"><option value="">Todas</option></select>
-
-    <label for="barrio">Barrio</label>
-    <select id="barrio"><option value="">Todos</option></select>
-
-        <!-- Filtro de Estado -->
-    <div class="filtro">
-      <label for="estado">Estado:</label>
-      <select name="estado" id="estado" class="form-control">
-      <option value="">Todos</option>
-      {% for valor, nombre in estados %}
-        <option value="{{ valor }}">{{ nombre }}</option>
-      {% endfor %}
-    </select>
-    </div>
-
-    <!-- Filtro de Peligrosidad -->
-    <div class="filtro">
-      <label for="peligrosidad">Peligrosidad:</label>
-      <select name="peligrosidad" id="peligrosidad" class="form-control">
+    <button id="toggle-filtros"class ="boton-toggle-filtros" >
+    Mostrar filtros avanzados ▼
+    </button>
+    <div id="filtros-avanzados" class="hidden">
+      <label for="localidad">Localidad</label>
+      <select id="localidad">
         <option value="">Todas</option>
-        {% for valor, nombre in peligrosidades %}
-          <option value="{{ valor }}">{{ nombre }}</option>
-        {% endfor %}
-      </select>
-    </div>
-
-      <!-- Filtro de Profundidad -->
-    <div class="filtro">
-      <label for="profundidad">Profundidad:</label>
-      <select name="profundidad" id="profundidad" class="form-control">
-        <option value="">Todas</option>
-        {% for valor, nombre in profundidad %}
-          <option value="{{ valor }}">{{ nombre }}</option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <!-- Filtro de Tipo de Calle -->
-    <div class="filtro">
-      <label for="tipo_calle">Tipo de calle:</label>
-      <select name="tipo_calle" id="tipo_calle" class="form-control">
-        <option value="">Todas</option>
-        {% for valor, nombre in tipos_calle %}
-          <option value="{{ valor }}">{{ nombre }}</option>
+        {% for loc in localidades %}
+          <option value="{{ loc.id }}">{{ loc.nombre }}</option>
         {% endfor %}
       </select>
 
+      <label for="upz">UPZ</label>
+      <select id="upz"><option value="">Todas</option></select>
+
+      <label for="barrio">Barrio</label>
+      <select id="barrio"><option value="">Todos</option></select>
+
+          <!-- Filtro de Estado -->
+      <div class="filtro">
+        <label for="estado">Estado:</label>
+        <select name="estado" id="estado" class="form-control">
+        <option value="">Todos</option>
+        {% for valor, nombre in estados %}
+          <option value="{{ valor }}">{{ nombre }}</option>
+        {% endfor %}
+      </select>
+      </div>
+
+      <!-- Filtro de Peligrosidad -->
+      <div class="filtro">
+        <label for="peligrosidad">Peligrosidad:</label>
+        <select name="peligrosidad" id="peligrosidad" class="form-control">
+          <option value="">Todas</option>
+          {% for valor, nombre in peligrosidades %}
+            <option value="{{ valor }}">{{ nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+        <!-- Filtro de Profundidad -->
+      <div class="filtro">
+        <label for="profundidad">Profundidad:</label>
+        <select name="profundidad" id="profundidad" class="form-control">
+          <option value="">Todas</option>
+          {% for valor, nombre in profundidad %}
+            <option value="{{ valor }}">{{ nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Filtro de Tipo de Calle -->
+      <div class="filtro">
+        <label for="tipo_calle">Tipo de calle:</label>
+        <select name="tipo_calle" id="tipo_calle" class="form-control">
+          <option value="">Todas</option>
+          {% for valor, nombre in tipos_calle %}
+            <option value="{{ valor }}">{{ nombre }}</option>
+          {% endfor %}
+        </select>
+
+      </div>
+      <label for="accidentes">Accidentes: <span id="accidentes-value">0</span></label>
+      <input type="range" id="accidentes" min="0" max="100" value="0">
+
+      <label for="diametro">Diámetro aproximado (cm): <span id="diametro-value">0</span></label>
+      <input type="range" id="diametro" min="0" max="200" value="0">
+
+      <button id="aplicar-filtros" style="  background-color: #d20000;  color: white;  padding: 12px 160px;  border: none;  border-radius: 25px;  font-weight: bold;  display: block; margin: 30px auto 0 auto; transition: background 0.3s ease;">Filtrar</button>
     </div>
-    <label for="accidentes">Accidentes: <span id="accidentes-value">0</span></label>
-    <input type="range" id="accidentes" min="0" max="100" value="0">
-
-    <label for="diametro">Diámetro aproximado (cm): <span id="diametro-value">0</span></label>
-    <input type="range" id="diametro" min="0" max="200" value="0">
-
-    <button id="aplicar-filtros">Filtrar</button>
+     
   </div>
 
   <!-- Mapa -->
@@ -275,6 +283,37 @@ document.getElementById("btn-buscar-id").addEventListener("click", async () => {
   }
 });
 </script>
+<script>
+  document.getElementById("toggle-filtros").addEventListener("click", () => {
+    const filtros = document.getElementById("filtros-avanzados");
+    const toggleBtn = document.getElementById("toggle-filtros");
+
+    if (filtros.classList.contains("hidden")) {
+      filtros.classList.remove("hidden");
+      toggleBtn.classList.add("activo");
+      toggleBtn.innerHTML = "Ocultar filtros avanzados ▲";
+    } else {
+      filtros.classList.add("hidden");
+      toggleBtn.classList.remove("activo");
+      toggleBtn.innerHTML = "Mostrar filtros avanzados ▼";
+    }
+  });
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Si viene un parámetro id_bache en la URL, autocompleta y lanza búsqueda
+  const params = new URLSearchParams(window.location.search);
+  const bacheId = params.get('id_bache');
+
+  if (bacheId) {
+    document.getElementById("buscar-id").value = bacheId;
+
+    // Simula clic al botón buscar
+    document.getElementById("btn-buscar-id").click();
+  }
+});
+</script>
+
 {% endblock %}
 
 {% block extra_css %}
@@ -314,7 +353,9 @@ document.getElementById("btn-buscar-id").addEventListener("click", async () => {
     width: 100%;
     height: 100vh;
   }
-
+  #btn-buscar-id {
+  cursor: pointer;
+  }
   .detalle-panel {
     position: fixed;
     top: 160px;
@@ -378,17 +419,7 @@ document.getElementById("btn-buscar-id").addEventListener("click", async () => {
     margin-top: 5px;
   }
 
-  .filter-panel button {
-    margin-top: 20px;
-    background: #d20000;
-    color: white;
-    padding: 10px;
-    width: 100%;
-    border-radius: 25px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-  }
+
 
   .filter-panel button:hover {
     background: #a80000;
@@ -402,5 +433,66 @@ document.getElementById("btn-buscar-id").addEventListener("click", async () => {
   color: #d20000;
   font-weight: bold;
   }
+
+  .boton-toggle-filtros {
+  background: rgba(210, 0, 0, 0.1);  /* rojo muy suave/transparente */
+  color: #d20000;
+  padding: 10px;
+  width: 100%;
+  border-radius: 25px;
+  border: 2px solid #d20000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.boton-toggle-filtros.activo {
+  background: #d20000;  /* rojo fuerte */
+  color: white;
+}
+
+
+@media (max-width: 768px) {
+  .main-container {
+    flex-direction: column;
+  }
+
+  .filter-panel {
+    width: 100%;
+    border-right: none;
+    border-bottom: 2px solid #eee;
+    height: auto;
+    max-height: none;
+  }
+
+  .map-section {
+    width: 100%;
+    height: 50vh; /* Medio alto para mapa en móvil */
+    order: 2;
+  }
+
+  #map {
+    height: 100%;
+  }
+
+  .detalle-panel {
+    position: relative;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    top: 0;
+    right: 0;
+    border-left: none;
+    border-top: 2px solid #eee;
+    box-shadow: none;
+    z-index: auto;
+    order: 3;
+  }
+
+  .cerrar-panel {
+    top: 10px;
+    right: 10px;
+  }
+}
 </style>
 {% endblock %}

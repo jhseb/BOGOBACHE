@@ -346,6 +346,10 @@
           </label>
           </div>
 
+         
+          <label for="{{ form.nombre_aseguradora.id_for_label }}">Seleccione la aseguradora que uso</label>
+          {{ form.nombre_aseguradora }}
+          </p>
 
       </div>
     </div>
@@ -502,6 +506,15 @@
         </label>
         </div>
 
+
+         <div class="switch-container">
+        <label class="switch-label" for="{{ form.asesoria_gratis.id_for_label }}">¿Tuvo algun asesoramiento juridico gratuito de la situacion?</label>
+        <label class="switch">
+          <input type="checkbox" name="{{ form.asesoria_gratis.name }}" id="{{ form.asesoria_gratis.id_for_label }}" {% if form.asesoria_gratis.value %}checked{% endif %}>
+          <span class="slider"></span>
+        </label>
+        </div>
+
       </div>
     </div>
 
@@ -540,7 +553,43 @@
           
     <button type="submit">Crear Reporte</button>
   </form>
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("form-reporte");
 
+    form.addEventListener("submit", function (e) {
+      e.preventDefault(); // Evita que se envíe el formulario de inmediato
+
+      const fechaEvento = document.getElementById("id_fecha_evento").value;
+      const foto1 = document.getElementById("id_foto1").value;
+
+      let advertencia = "Este formulario será enviado y no podrá ser modificado.\n\n";
+
+      if (!fechaEvento || !foto1) {
+        advertencia += "⚠️ Todo formulario SIN fecha del incidente y SIN foto 1 será descartado.\n";
+      }
+
+      Swal.fire({
+        title: '¿Deseas continuar?',
+        icon: 'warning',
+        html: `
+          <p><strong>Atención:</strong></p>
+          <p>Este formulario será enviado y no podrá ser modificado.</p>
+          <p><strong>Advertencia:</strong> Todo formulario <u>sin fecha de creación</u> y <u>sin foto adjunta</u> no será tomado en cuenta.</p>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Sí, enviar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#d20000',
+        cancelButtonColor: '#aaa'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          form.submit(); // Ahora sí se envía el formulario
+        }
+      });
+    });
+  });
+</script>
   {% if guardado and es_popup %}
     <script>
       Swal.fire({
@@ -552,6 +601,18 @@
         window.parent.location.reload();
       });
     </script>
+  {% endif %}
+  {% if ya_conectado and es_popup %}
+  <script>
+    Swal.fire({
+      title: 'Ya estás conectado al bache!', 
+      text: 'BORRA LA CONEXION DEL BACHE ({{ form.bache.value|default:id_bache }})  PARA CREAR ESTE REPORTE',
+      icon: 'warning',
+      confirmButtonColor: '#d33'  // Rojo
+    }).then(() => {
+      window.close();
+    });
+  </script>
   {% endif %}
 {% if errores_formulario %}
 <script>

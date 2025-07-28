@@ -44,12 +44,12 @@
 </style>
 
 <div class="panel-admin">
-  <h2>Opciones de Reporte</h2>
+  <h2>GESTION DE REPORTES</h2>
   <ul>
-    <li><a href="{% url 'reportes:consultar_reportes' %}">CONSULTAR REPORTE</a></li>
-    <li><a href="{% url 'mostrar_registrar_accidente' %}">CREAR REPORTE</a></li>
-    <li><a href="{% url 'reportes:crear_reportes' %}">CONECTARSE</a></li>
-    <li><a href="{% url 'reportes:crear_reportes' %}">DESCONECTARSE</a></li>
+    <li><a href="{% url 'reportes:consultar_reportes_admin' %}">Consultar reportes y conexiones</a></li>
+    <li><a href="{% url 'conectar_admin' %}">Crear conexiones</a></li>
+    <li><a href="{% url 'reportes:eliminar_reportes_admin' %}">Eliminar reportes y conexiones</a></li>
+    <li><a href="{% url 'reportes:gestion_baches_admin' %}">Administracion de baches</a></li>
   </ul>
 </div>
 {% endblock %}

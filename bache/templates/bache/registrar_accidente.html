@@ -91,7 +91,10 @@ cargarBaches();
 function seleccionarBache(id) {
   fetch(`/api/baches/${id}/`)
     .then(res => res.json())
-    .then(bache => mostrarDetalle(bache));
+    .then(bache => mostrarDetalle(bache)
+    
+  );
+    
 }
 
 function mostrarDetalle(bache) {
@@ -117,7 +120,7 @@ function mostrarDetalle(bache) {
   } else {
     foto.style.display = "none";
   }
-
+  const marker = L.marker([b.latitud, b.longitud], { icon: iconoRojo }).addTo(markersLayer);
   map.setView([bache.latitud, bache.longitud], 17);
 }
 
@@ -149,21 +152,21 @@ document.getElementById("btn-buscar-id").addEventListener("click", () => {
 });
 
 document.getElementById("btn-registrar-accidente").addEventListener("click", () => {
-  const idBache = document.getElementById("bache-id").textContent;
+      const idBache = document.getElementById("bache-id").textContent;
 
-  Swal.fire({
-    html: `<iframe src="/crear/?popup=1&id_bache=${idBache}" width="100%" height="500px" style="border:none;"></iframe>`,
-    width: '90%',
-    heightAuto: false,
-    showConfirmButton: false,
-    showCloseButton: true,
-    background: '#fff',
-    customClass: {
-      popup: 'swal-wide'
-    }
-  });
-});
-
+      // Puedes pasar el ID del bache como parámetro GET si es necesario
+      Swal.fire({
+        html: `<iframe src="/reportes/crear/?popup=1&id_bache=${idBache}" width="100%" height="500px" style="border:none;"></iframe>`,
+        width: '90%',
+        heightAuto: false,
+        showConfirmButton: false,
+        showCloseButton: true,
+        background: '#fff',
+        customClass: {
+          popup: 'swal-wide'
+        }
+      });
+    });
 </script>
 {% endblock %}
 

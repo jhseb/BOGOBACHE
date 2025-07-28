@@ -3,32 +3,64 @@
 {% block contenido %}
 
 <div style="background-color: white; padding: 50px; font-size: 14px; margin: 20px auto; max-width: 1200px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-  <h2 style="text-align: center; color: #c9302c; margin-bottom: 30px;">MIS REPORTES</h2>
-  <p>Total reportes: {{ reportes|length }}</p>
+  <h2 style="text-align: center; color: #c9302c; margin-bottom: 30px;">
+  {% if involucrado == '1' %}
+    MIS REPORTES
+  {% elif involucrado == '0' %}
+    MIS CONEXIONES
+  {% else %}
+    TODOS MIS REPORTES Y CONEXIONES
+  {% endif %}
+</h2>
+ <form method="get" style="display: flex; justify-content: start; align-items: center; gap: 10px; margin-bottom: 20px;">
+  <label for="involucrado" ><strong>FILTROS</strong></label>
+  
+  <select name="involucrado" id="involucrado" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #ccc; background-color: #f9f9f9; font-weight: bold;">
+    <option value="" {% if involucrado == None %}selected{% endif %}>Todos</option>
+    <option value="1" {% if involucrado == '1' %}selected{% endif %}>MIS REPORTES</option>
+    <option value="0" {% if involucrado == '0' %}selected{% endif %}>MIS CONEXIONES</option>
+  </select>
+
+  <button type="submit" style="padding: 8px 20px; border-radius: 8px; background-color: #d20000; color: white; border: none; font-weight: bold; cursor: pointer;">
+    Filtrar
+  </button>
+</form>
   <div style="overflow-x: auto;">
     <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;">
       <thead>
         <tr style="background-color: #c9302c; color: white; text-align: center;">
+
           <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">ID Reporte</th>
-          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">ID Usuario</th>
+         
           <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">ID Bache</th>
           <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Fecha del Evento</th>
-          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Estado del Bache</th>
-          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Peligrosidad</th>
-          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Acción</th>
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Peligrosidad actual</th>
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Estado del Bache actual</th>
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Detalle</th>
+          <th style="padding: 14px 25px; border-bottom: 2px solid #b92c27;">Bache</th>
         </tr>
       </thead>
       <tbody>
         {% for reporte in reportes %}
         <tr style="border-bottom: 1px solid #eee; text-align: center;">
           <td style="padding: 12px 15px;">{{ reporte.id_report}}</td>
-          <td style="padding: 12px 15px;">{{ reporte.usuario_id}}</td>
+         
           <td style="padding: 12px 15px;">{{ reporte.bache_id}}</td>
           <td style="padding: 12px 15px;">{{ reporte.fecha_evento }}</td>
-          <td style="padding: 12px 15px;">{{ reporte.bache.get_estado_display  }}</td>
           <td style="padding: 12px 15px;">{{ reporte.bache.get_peligrosidad_display }}</td>
+          <td style="padding: 12px 15px;">{{ reporte.bache.get_estado_display  }}</td>
+          
           <td style="padding: 12px 15px;">
-            <a href="{% url 'reportes:ver_reporte_detalle' reporte.id_report %}">Ver Detalle</a>
+            <a href="{% url 'reportes:ver_reporte_detalle' reporte.id_report %}"
+              style="display: inline-block; padding: 6px 16px; border: 2px solid #d20000; color: #d20000; background-color: white; border-radius: 8px; text-decoration: none; font-weight: bold;">
+              Ver Detalle
+            </a>
+          </td>
+          <td style="padding: 12px 15px;">
+            <a href="{% url 'ver_filtrado_baches' %}?id_bache={{ reporte.bache_id }}"
+              style="display: inline-block; padding: 6px 16px; border: 2px solid #d20000; color: #d20000; background-color: white; border-radius: 8px; text-decoration: none; font-weight: bold;">
+              Ver Bache
+            </a>
           </td>
         </tr>
         {% empty %}

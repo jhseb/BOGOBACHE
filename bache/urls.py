@@ -2,7 +2,7 @@
 
 from django.urls import path, include
 from . import views
-from .views import mapa_baches, upzs_por_localidad, barrios_por_upz
+from .views import mapa_baches, upzs_por_localidad, barrios_por_upz, admin_eliminar_bache_directo
 from .routers import router
 from django.contrib import admin
 from django.conf import settings
@@ -11,7 +11,7 @@ urlpatterns = [
     path('', views.ver_filtrado_baches, name='ver_filtrado_baches'),
     path('inicio', views.index, name="inicio"),
     #path('', views.index, name="inicio"),
-    path('crearB/', views.crear_bache, name='crear_bache'),  # <- Ya no fallará
+    path('crear/', views.crear_bache, name='crear_bache'),  # <- Ya no fallará
     #path('somos/', views.somos, name="somos"),
     #path('sesion/', views.sesion, name="sesion"),
     path('mapa/', mapa_baches, name='mapa-baches'),
@@ -37,7 +37,9 @@ urlpatterns = [
     path('eliminar_bache/', views.mostrar_eliminar_bache, name='mostrar_eliminar_bache'),
     path('ajax/buscar_bache_eliminar/', views.buscar_bache_eliminar, name='buscar_bache_eliminar'),
     path('eliminar_bache_confirmar/<str:id>/', views.eliminar_bache_confirmar, name='eliminar_bache_confirmar'),
-    path('admin_eliminar_bache_directo/<str:id_bache>/', views.admin_eliminar_bache_directo, name='admin_eliminar_bache_directo'),
+    path('admin_eliminar_bache_directo/<str:id_bache>/', admin_eliminar_bache_directo, name='admin_eliminar_bache_directo'),
 
+    path('conectar/', views.mostrar_conectar_bache, name='conectar'),
+    path('conectar_admin/', views.mostrar_conectar_bache_admin, name='conectar_admin'),
    # path('reportes/', include('reportes.urls')),  #esta línea no puede servir para mostrar el formulario
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

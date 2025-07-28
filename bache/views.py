@@ -14,6 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Bache, UPZ, Barrio, Localidad, Tipo_calle, Peligrosidad, Estado, Profundidad
 from .serializers import BacheSerializer, BacheUpdateSerializer, UPZSerializer, BarrioSerializer
 from .forms import BacheForm
+from usuario.models import Usuario 
 from django.core.serializers import serialize
 import json
 from django.views.decorators.http import require_POST
@@ -23,25 +24,25 @@ logger = logging.getLogger(__name__)
 # AJAX: carga de UPZs
 def cargar_upzs(request):
     localidad_id = request.GET.get('localidad_id')
-    upzs = UPZ.objects.filter(localidad_id=localidad_id).values('id', 'nombre')
+    upzs = UPZ.objects.filter(localidad_id=localidad_id).order_by('nombre').values('id', 'nombre')
     return JsonResponse(list(upzs), safe=False)
 
 # AJAX: carga de Barrios
 def cargar_barrios(request):
     upz_id = request.GET.get('upz_id')
-    barrios = Barrio.objects.filter(upz_id=upz_id).values('id', 'nombre')
+    barrios = Barrio.objects.filter(upz_id=upz_id).order_by('nombre').values('id', 'nombre')
     return JsonResponse(list(barrios), safe=False)
 
-# API
+# API: para uso REST
 @api_view(['GET'])
 def upzs_por_localidad(request, localidad_id):
-    upzs = UPZ.objects.filter(localidad_id=localidad_id)
+    upzs = UPZ.objects.filter(localidad_id=localidad_id).order_by('nombre')
     serializer = UPZSerializer(upzs, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
 def barrios_por_upz(request, upz_id):
-    barrios = Barrio.objects.filter(upz_id=upz_id)
+    barrios = Barrio.objects.filter(upz_id=upz_id).order_by('nombre')
     serializer = BarrioSerializer(barrios, many=True)
     return Response(serializer.data)
 
@@ -494,3 +495,12 @@ def obtener_bache_por_id(request, id):
         })
     except Bache.DoesNotExist:
         raise Http404("Bache no encontrado")
+    
+def mostrar_conectar_bache(request):
+    return render(request, 'bache/conectar_bache.html')
+
+def mostrar_conectar_bache_admin(request):
+    usuarios = Usuario.objects.exclude(rol=2)
+    return render(request, 'bache/conectar_bache_admin.html', {
+        'usuarios': usuarios  # lista completa
+    })

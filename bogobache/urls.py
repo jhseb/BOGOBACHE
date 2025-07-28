@@ -21,5 +21,5 @@ urlpatterns = [
      path('admin/', admin.site.urls),
     path('', include('usuario.urls')),
     path('', include('bache.urls')),
-    path('', include('reportes.urls')),  # <-- corrige también el nombre del módulo
+    path('reportes/', include('reportes.urls', namespace='reportes')),  # <-- importante  # <-- corrige también el nombre del módulo
 ]
