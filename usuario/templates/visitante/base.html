@@ -70,7 +70,7 @@
 
     .main-content {
       flex: 1;
-      margin-top: 0; /* Espacio eliminado */
+      margin-top: 0;
       display: flex;
       flex-direction: column;
     }
@@ -89,72 +89,72 @@
       margin-bottom: 15px;
     }
 
-html, body {
-  height: 100%;
-  margin: 0;
-}
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
 
-.contenedor {
-  display: flex;
-  flex: 1;
-  height: 100vh;
-  overflow: hidden;
-}
+    .contenedor {
+      display: flex;
+      flex: 1;
+      height: 100vh;
+      overflow: hidden;
+    }
 
-.menu-lateral {
-  width: 200px;
-  background: #fff;
-  border-right: 1px solid #ccc;
-  display: flex;
-  flex-direction: column;
-  transition: all 0.3s ease;
-}
+    .menu-lateral {
+      width: 200px;
+      background: #fff;
+      border-right: 1px solid #ccc;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s ease;
+    }
 
-.menu-lateral a {
-  display: block;
-  text-decoration: none;
-}
+    .menu-lateral a {
+      display: block;
+      text-decoration: none;
+    }
 
-.menu-lateral button {
-  width: 100%;
-  display: block;
-  padding: 15px;
-  border: none;
-  background: none;
-  color: #d20000;
-  font-weight: bold;
-  cursor: pointer;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
+    .menu-lateral button {
+      width: 100%;
+      display: block;
+      padding: 15px;
+      border: none;
+      background: none;
+      color: #d20000;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
 
-.menu-lateral button:hover {
-  background-color: #f5f5f5;
-}
+    .menu-lateral button:hover {
+      background-color: #f5f5f5;
+    }
 
-.btn-inicio-activo {
-  background-color: #d20000 !important;
-  color: white !important;
-}
+    .btn-inicio-activo {
+      background-color: #d20000 !important;
+      color: white !important;
+    }
 
-.contenido {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  color: #888;
-}
+    .contenido {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #888;
+    }
 
-.footer {
-  background-color: #b10000;
-  color: white;
-  text-align: center;
-  padding: 12px;
-  position: fixed;
-  width: 100%;
-  bottom: 0;
-}
+    .footer {
+      background-color: #b10000;
+      color: white;
+      text-align: center;
+      padding: 12px;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+    }
 
     .content p {
       font-size: 15px;
@@ -186,6 +186,91 @@ html, body {
       margin: 20px 0;
       border-radius: 6px;
     }
+
+    /* ✅ Ajuste del popup en móviles */
+    .leaflet-popup-content {
+      max-width: 90vw !important;
+      white-space: normal !important;
+      font-size: 14px;
+    }
+
+    .leaflet-popup-content-wrapper {
+      overflow-x: auto;
+      max-height: 80vh;
+    }
+
+    /* 🔹 Ajustes responsive */
+    @media (max-width: 768px) {
+      nav {
+        flex-wrap: wrap;
+        height: auto;
+        justify-content: center;
+      }
+
+      nav a {
+        flex: 1 1 45%;
+        padding: 10px 5px;
+        font-size: 14px;
+      }
+
+      .content {
+        width: 95%;
+        padding: 20px;
+        margin: 10px auto;
+      }
+
+      .content h2 {
+        font-size: 16px;
+      }
+
+      .content p {
+        font-size: 14px;
+      }
+
+      .contenedor {
+        flex-direction: column;
+        height: auto;
+        overflow: visible;
+      }
+
+      #map {
+        min-height: 300px;
+        height: auto;
+      }
+
+      .menu-lateral {
+        width: 150px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      nav a {
+        flex: 1 1 100%;
+        font-size: 16px;
+      }
+
+      .logo-img-container img {
+        max-width: 90%;
+      }
+
+      .bottom-banner {
+        font-size: 12px;
+        padding: 10px;
+      }
+
+      .content {
+        width: 90%;
+        padding: 15px;
+      }
+
+      .content h2 {
+        font-size: 15px;
+      }
+
+      .content p {
+        font-size: 13px;
+      }
+    }
   </style>
 
   {% block extra_css %}{% endblock %}
@@ -193,14 +278,13 @@ html, body {
 <body>
   <div class="wrapper">
 
-    <!-- Encabezado fijo (imagen + navegación) -->
+    <!-- Encabezado fijo -->
     <header class="sticky-header">
       <img class="header-image" src="{% static 'encabezado.jpg' %}" alt="Encabezado BOGOBACHE">
       <nav>
         {% if user.is_authenticated %}
           {% if rol == 2 %}
             <a href="{% url 'opciones_usuario' %}" class="{% if request.resolver_match.url_name == 'gestionar_usuarios' %}active{% endif %}">Admin</a>
-            <!--<a href="{% url 'analisis_de_datos' %}" class="{% if request.resolver_match.url_name == 'analisis_de_datos' %}active{% endif %}">Analisis de datos</a>-->
           {% else %}
             <a href="{% url 'principal_usuario' %}" class="{% if request.path == '/' %}active{% endif %}">Usuario</a>
             <a href="{% url 'configuracion_usuario' %}" class="{% if request.resolver_match.url_name == 'gestionar_usuarios' %}active{% endif %}">Configuracion</a>
@@ -224,6 +308,19 @@ html, body {
       © 2025 Bogobache - Todos los derechos reservados
     </div>
   </div>
+
+  <!-- ✅ Script para asegurar que los popups se adapten -->
+  <script>
+    function createCustomPopup(html) {
+      return L.popup({
+        maxWidth: 'auto',
+        maxHeight: 'auto',
+        closeButton: true,
+        autoPan: true,
+        className: 'custom-popup'
+      }).setContent(html);
+    }
+  </script>
 
   {% block extra_js %}{% endblock %}
 </body>
