@@ -4,7 +4,7 @@
 <div style="background-color: #ffffff; min-height: 100vh; padding: 30px;">
     <h2 style="text-align:center; color:#b00000; font-size: 26px;">{{ title }}</h2>
 
-    <p style="text-align:center; font-size: 18px; color:#b00000; margin-top: 10px;">
+    <p style="text-align:center; font-size: 18px; color:black; margin-top: 10px;">
         Total de reportes registrados: <strong>{{ total_reportes }}</strong>
     </p>
 
@@ -15,8 +15,16 @@
     </div>
 
     <!-- CONTENEDOR DE GRÁFICOS -->
-    <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 40px; margin-top: 40px;">
+    <div style="
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 40px;
+        margin-top: 40px;
+        background-color: #ffffff;
+        padding-bottom: 20px;
+    ">
 
+        <!-- TODOS LOS GRÁFICOS -->
         <!-- Gráfico 1 -->
         <div class="grafico-contenedor">
             <h2 class="titulo-grafico">Distribución Tipo de Vehículo</h2>
@@ -187,9 +195,8 @@
 
 <!-- ====== ESTILOS ====== -->
 <style>
-body {
-    background-color: #f5f7fa;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+html, body, main, .container, .content, .wrapper {
+    background-color: #ffffff !important;
 }
 
 .titulo-grafico {
@@ -282,6 +289,7 @@ body {
 }
 .form-grid select {
     width: 100%;
+    background-color: #ffffff !important;
     padding: 8px;
     border-radius: 6px;
     border: 1px solid #ccc;
@@ -291,7 +299,6 @@ body {
 .form-grid label { font-weight: bold; display: block; margin-bottom: 5px; }
 </style>
 
-<!-- ====== SCRIPTS ====== -->
 <script>
 function abrirModal(id) { document.getElementById(id).style.display = "block"; }
 function cerrarModal(id) { document.getElementById(id).style.display = "none"; }

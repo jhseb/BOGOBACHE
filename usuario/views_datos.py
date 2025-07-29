@@ -641,7 +641,7 @@ def grafico_barras_por_mes_estado(filtro_estado=''):
     return grafico_base64
 
 def analisis_baches(request):
-    title = 'Analisis de da baches'
+    title = 'Analisis de baches'
 
     localidad_filtro = request.GET.get('localidad', '')
     tipo_calle_filtro = request.GET.get('tipo_calle', '')
