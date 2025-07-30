@@ -44,13 +44,15 @@ def servicios_mas_y_menos(servicio_filtro=''):
         'medicos': ('Médicos', 'servicio_medicos')
     }
 
+    # 🔹 Filtramos la tabla solo con registros involucrados
+    base_qs = Reporte.objects.filter(involucrado_reporte=1)
+
     nombres = []
     conteos = []
 
     for clave, (nombre, campo) in servicios.items():
         if not servicio_filtro or servicio_filtro == clave:
-            filtro = {f"{campo}__in": ['bueno', 'excelente']}
-            count = Reporte.objects.filter(**filtro).count()
+            count = base_qs.filter(**{f"{campo}__in": ['bueno', 'excelente']}).count()
             nombres.append(nombre)
             conteos.append(count)
 
@@ -87,13 +89,16 @@ def servicios_peor_calificados(servicio_filtro=''):
         'medicos': ('Médicos', 'servicio_medicos')
     }
 
+    # 🔹 Filtramos la tabla base solo con registros involucrados
+    base_qs = Reporte.objects.filter(involucrado_reporte=1)
+
     nombres = []
     conteos = []
 
     for clave, (nombre, campo) in servicios.items():
         if not servicio_filtro or servicio_filtro == clave:
-            filtro = {f"{campo}__in": ['muy deficiente', 'deficiente']}
-            count = Reporte.objects.filter(**filtro).count()
+            # 🔹 Solo contamos los que tienen calificación muy deficiente o deficiente
+            count = base_qs.filter(**{f"{campo}__in": ['muy deficiente', 'deficiente']}).count()
             nombres.append(nombre)
             conteos.append(count)
 
@@ -124,11 +129,14 @@ def servicios_peor_calificados(servicio_filtro=''):
 
 
 def contar_reportes():
-    return Reporte.objects.count()
+    return Reporte.objects.filter(involucrado_reporte=1).count()
 
 
 def grafico_dias_con_mas_reportes(dia=None):
-    reportes = Reporte.objects.all()
+    # 🔹 Filtrar solo los registros involucrados
+    reportes = Reporte.objects.filter(involucrado_reporte=1)
+
+    # 🔹 Si se pasa un día específico, filtrarlo también
     if dia:
         reportes = reportes.filter(dia_evento__iexact=dia.lower())
 
@@ -158,9 +166,10 @@ def grafico_dias_con_mas_reportes(dia=None):
     plt.close()
     return grafico_dias_base64
 
-
+"""
 def grafico_promedio_satisfaccion():
-    satisfacciones = Reporte.objects.values_list('satisfaccion', flat=True)
+    # 🔹 Filtrar solo los registros involucrados
+    satisfacciones = Reporte.objects.filter(involucrado_reporte=1).values_list('satisfaccion', flat=True)
     conteo_satisfaccion = Counter(satisfacciones)
 
     etiquetas_legibles = {
@@ -175,7 +184,7 @@ def grafico_promedio_satisfaccion():
     etiquetas_satisf = [etiquetas_legibles.get(cat, cat) for cat in orden_categorias if cat in conteo_satisfaccion]
     valores_satisf = [conteo_satisfaccion[cat] for cat in orden_categorias if cat in conteo_satisfaccion]
 
-    # Generar gráfico
+    # 🔹 Generar gráfico
     plt.figure(figsize=(6, 6))
     plt.pie(valores_satisf, labels=etiquetas_satisf, autopct='%1.1f%%', startangle=90)
     plt.axis('equal')
@@ -188,14 +197,14 @@ def grafico_promedio_satisfaccion():
     plt.close()
 
     return imagen_base64
-
+"""
 
 def grafico_promedio_satisfaccion(filtro=None):
-
+    # 🔹 Filtrar siempre por involucrado_reporte = 1
     if filtro:
-        reportes = Reporte.objects.filter(satisfaccion=filtro)
+        reportes = Reporte.objects.filter(involucrado_reporte=1, satisfaccion=filtro)
     else:
-        reportes = Reporte.objects.all()
+        reportes = Reporte.objects.filter(involucrado_reporte=1)
 
     categorias = ['muy_deficiente', 'deficiente', 'aceptable', 'bueno', 'excelente']
     conteo = Counter([r.satisfaccion for r in reportes if r.satisfaccion in categorias])
@@ -216,19 +225,21 @@ def grafico_promedio_satisfaccion(filtro=None):
 
     return imagen_base64
 
-
 def grafico_promedio_heridos_muertos(tipo=''):
+    # 🔹 Filtrar base con solo registros involucrados
+    qs = Reporte.objects.filter(involucrado_reporte=1)
+
     if tipo == 'heridos':
-        promedio = Reporte.objects.aggregate(prom=Avg('heridos'))['prom'] or 0
+        promedio = qs.aggregate(prom=Avg('heridos'))['prom'] or 0
         etiquetas = ['Heridos']
         valores = [promedio]
     elif tipo == 'fallecidos':
-        promedio = Reporte.objects.aggregate(prom=Avg('fallecidos'))['prom'] or 0
+        promedio = qs.aggregate(prom=Avg('fallecidos'))['prom'] or 0
         etiquetas = ['Muertos']
         valores = [promedio]
     else:
-        promedio_heridos = Reporte.objects.aggregate(prom=Avg('heridos'))['prom'] or 0
-        promedio_muertos = Reporte.objects.aggregate(prom=Avg('fallecidos'))['prom'] or 0
+        promedio_heridos = qs.aggregate(prom=Avg('heridos'))['prom'] or 0
+        promedio_muertos = qs.aggregate(prom=Avg('fallecidos'))['prom'] or 0
         etiquetas = ['Heridos', 'Muertos']
         valores = [promedio_heridos, promedio_muertos]
 
@@ -248,10 +259,11 @@ def grafico_promedio_heridos_muertos(tipo=''):
 
 
 def grafico_condicion_climatica(clima=''):
+    # 🔹 Filtrar base con solo registros involucrados
     if clima:
-        queryset = Reporte.objects.filter(condicion_clima=clima)
+        queryset = Reporte.objects.filter(involucrado_reporte=1, condicion_clima=clima)
     else:
-        queryset = Reporte.objects.all()
+        queryset = Reporte.objects.filter(involucrado_reporte=1)
 
     clima_labels = {
         'despejado': 'Despejado',
@@ -268,7 +280,7 @@ def grafico_condicion_climatica(clima=''):
         count = queryset.filter(condicion_clima=key).count()
         clima_counts[clima_labels[key]] = count
 
-    # Gráfico
+    # 🔹 Generar gráfico
     plt.figure(figsize=(10, 6))
     plt.bar(clima_counts.keys(), clima_counts.values(), color='#26a69a')
     plt.xticks(rotation=45, ha='right')
@@ -284,80 +296,120 @@ def grafico_condicion_climatica(clima=''):
 
     return base64.b64encode(image_png).decode('utf-8')
 
+import io, base64
+import matplotlib.pyplot as plt
+from collections import Counter
+from django.shortcuts import render
+
+
+def grafico_top_aseguradoras(qs):
+    aseguradoras = qs.values_list("nombre_aseguradora", flat=True)
+    conteo = Counter(a for a in aseguradoras if a)
+
+    top5 = conteo.most_common(5)
+    if not top5:
+        return "", []
+
+    etiquetas, valores = zip(*top5)
+
+    plt.figure(figsize=(6, 6))
+    plt.bar(etiquetas, valores, color="skyblue")
+    plt.title("Top 5 Aseguradoras Más Mencionadas", fontsize=14)
+    plt.xticks(rotation=30, ha="right")
+    plt.tight_layout()
+
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+    grafico_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    buffer.close()
+    plt.close()
+
+    return grafico_base64, [a for a, _ in top5]
+
 
 def analisis_de_datos(request):
-    title = 'Analisis de reportes'
+    title = "Analisis de reportes"
 
-    servicio_filtro = request.GET.get('servicio', '')
-    dia_filtro = request.GET.get('dia', '')
-    satisfaccion_filtro = request.GET.get('satisfaccion', '')
-    tipo_evento_filtro = request.GET.get('tipo_evento', 'ambos')  # 👈 NUEVO FILTRO
+    servicio_filtro = request.GET.get("servicio", "")
+    dia_filtro = request.GET.get("dia", "")
+    satisfaccion_filtro = request.GET.get("satisfaccion", "")
+    tipo_evento_filtro = request.GET.get("tipo_evento", "ambos")
+    aseguradora_filtro = request.GET.get("aseguradora", "")
+    clima_filtro = request.GET.get("clima", "")
 
-    dias_semana = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
+    dias_semana = ["lunes","martes","miercoles","jueves","viernes","sabado","domingo"]
 
-    # Gráfico tipo_vehiculo
-    tipos = Reporte.objects.values_list('tipo_vehiculo', flat=True)
+    qs = Reporte.objects.filter(involucrado_reporte=1)
+
+    if aseguradora_filtro:
+        qs = qs.filter(nombre_aseguradora=aseguradora_filtro)
+
+    # === Gráfico tipo_vehiculo ===
+    tipos = qs.values_list("tipo_vehiculo", flat=True)
     conteo_tipos = Counter(tipos)
     etiquetas_tipos = list(conteo_tipos.keys())
     valores_tipos = list(conteo_tipos.values())
 
     plt.figure(figsize=(6, 6))
-    plt.pie(valores_tipos, labels=etiquetas_tipos, autopct='%1.1f%%', startangle=90)
-    plt.axis('equal')
-    buffer1 = io.BytesIO()
-    plt.savefig(buffer1, format='png')
-    buffer1.seek(0)
-    grafico_base64 = base64.b64encode(buffer1.getvalue()).decode('utf-8')
-    buffer1.close()
+    plt.pie(valores_tipos, labels=etiquetas_tipos, autopct="%1.1f%%", startangle=90)
+    plt.axis("equal")
+    buf1 = io.BytesIO()
+    plt.savefig(buf1, format="png")
+    buf1.seek(0)
+    grafico_base64 = base64.b64encode(buf1.getvalue()).decode("utf-8")
+    buf1.close()
     plt.close()
 
-    # Gráfico hora_evento
-    horas = Reporte.objects.values_list('hora_evento', flat=True)
+    # === Gráfico hora_evento ===
+    horas = qs.values_list("hora_evento", flat=True)
     conteo_horas = Counter(horas)
     etiquetas_horas = list(conteo_horas.keys())
     valores_horas = list(conteo_horas.values())
 
     plt.figure(figsize=(6, 6))
-    plt.pie(valores_horas, labels=etiquetas_horas, autopct='%1.1f%%', startangle=90)
-    plt.axis('equal')
-    buffer2 = io.BytesIO()
-    plt.savefig(buffer2, format='png')
-    buffer2.seek(0)
-    grafico_hora_base64 = base64.b64encode(buffer2.getvalue()).decode('utf-8')
-    buffer2.close()
+    plt.pie(valores_horas, labels=etiquetas_horas, autopct="%1.1f%%", startangle=90)
+    plt.axis("equal")
+    buf2 = io.BytesIO()
+    plt.savefig(buf2, format="png")
+    buf2.seek(0)
+    grafico_hora_base64 = base64.b64encode(buf2.getvalue()).decode("utf-8")
+    buf2.close()
     plt.close()
 
-    # Gráficos externos
+    # === Otros gráficos ===
     grafico_servicios_base64 = servicios_mas_y_menos(servicio_filtro)
     grafico_peor_base64 = servicios_peor_calificados(servicio_filtro)
     grafico_dia_base64 = grafico_dias_con_mas_reportes(dia_filtro)
     grafico_satisf_base64 = grafico_promedio_satisfaccion(satisfaccion_filtro)
-    grafico_heridos_muertos_base64 = grafico_promedio_heridos_muertos(tipo_evento_filtro)  # 👈 APLICA FILTRO
-
-    clima_filtro = request.GET.get('clima', '')  # '' = todos
+    grafico_heridos_muertos_base64 = grafico_promedio_heridos_muertos(tipo_evento_filtro)
     grafico_clima_base64 = grafico_condicion_climatica(clima_filtro)
 
+    # === NUEVO: Top aseguradoras ===
+    grafico_top_aseguradoras_base64, lista_aseguradoras = grafico_top_aseguradoras(qs)
 
-    total_reportes = contar_reportes()
+    total_reportes = qs.count()
 
-    return render(request, 'analisis_de_datos/datos.html', {
-        'title': title,
-        'grafico_base64': grafico_base64,
-        'grafico_hora_base64': grafico_hora_base64,
-        'grafico_servicios_base64': grafico_servicios_base64,
-        'grafico_peor_base64': grafico_peor_base64,
-        'grafico_dia_base64': grafico_dia_base64,
-        'grafico_satisf_base64': grafico_satisf_base64,
-        'servicio_seleccionado': servicio_filtro,
-        'dia_seleccionado': dia_filtro,
-        'satisfaccion_seleccionada': satisfaccion_filtro,
-        'tipo_evento_seleccionado': tipo_evento_filtro,  # 👈 MANTÉN EL VALOR PARA EL HTML
-        'total_reportes': total_reportes,
-        'dias_semana': dias_semana,
-        'grafico_heridos_muertos_base64': grafico_heridos_muertos_base64,
-        'clima_seleccionado': clima_filtro,
-        'grafico_clima_base64': grafico_clima_base64,
-
+    return render(request, "analisis_de_datos/datos.html", {
+        "title": title,
+        "grafico_base64": grafico_base64,
+        "grafico_hora_base64": grafico_hora_base64,
+        "grafico_servicios_base64": grafico_servicios_base64,
+        "grafico_peor_base64": grafico_peor_base64,
+        "grafico_dia_base64": grafico_dia_base64,
+        "grafico_satisf_base64": grafico_satisf_base64,
+        "servicio_seleccionado": servicio_filtro,
+        "dia_seleccionado": dia_filtro,
+        "satisfaccion_seleccionada": satisfaccion_filtro,
+        "tipo_evento_seleccionado": tipo_evento_filtro,
+        "clima_seleccionado": clima_filtro,
+        "grafico_heridos_muertos_base64": grafico_heridos_muertos_base64,
+        "grafico_clima_base64": grafico_clima_base64,
+        "grafico_top_aseguradoras_base64": grafico_top_aseguradoras_base64,
+        "aseguradora_seleccionada": aseguradora_filtro,
+        "lista_aseguradoras": lista_aseguradoras,
+        "total_reportes": total_reportes,
+        "dias_semana": dias_semana,
     })
 
 

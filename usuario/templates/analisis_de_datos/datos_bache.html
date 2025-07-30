@@ -13,15 +13,20 @@
         background-color: #b00000;
         color: white;
         border: none;
-        padding: 10px 25px;
+        padding: 12px 28px;
         font-size: 16px;
-        border-radius: 8px;
+        border-radius: 10px;
         margin-top: 15px;
-        transition: background-color 0.3s ease;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        cursor: pointer;
     }
-
     .btn-filtro:hover {
         background-color: #8d0000;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(0,0,0,0.3);
     }
 
     .dashboard-title {
@@ -58,18 +63,15 @@
         transition: transform 0.3s ease;
         cursor: pointer;
     }
-
     .grafico-box:hover {
         transform: scale(1.03);
     }
-
     .grafico-box h2 {
         color: #b00000;
         font-size: 18px;
         text-align: center;
         margin-bottom: 15px;
     }
-
     .grafico-box img {
         width: 100%;
         height: auto;
@@ -88,6 +90,29 @@
         overflow: auto;
         padding-top: 60px;
         background-color: rgba(0,0,0,0.8);
+    }
+
+    .modal-content {
+        background-color: white;
+        margin: auto;
+        padding: 35px 30px;
+        border-radius: 16px;
+        max-width: 650px;
+        position: relative;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        animation: aparecer 0.3s ease-out;
+    }
+    @keyframes aparecer {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-content h3 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #b00000;
+        text-align: center;
+        margin-bottom: 20px;
     }
 
     .modal-contenido {
@@ -109,24 +134,39 @@
         cursor: pointer;
     }
 
-    .modal-content {
-        background-color: white;
-        margin: auto;
-        padding: 30px;
-        border-radius: 10px;
-        max-width: 650px;
-        position: relative;
-        box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    /* 🎨 SOLO ESTILO PARA FILTROS */
+    .modal-content label {
+        font-weight: 600;
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 6px;
+        display: block;
+        letter-spacing: 0.3px;
     }
 
     .input-select {
         width: 100%;
-        padding: 10px;
+        padding: 10px 12px;
         border-radius: 8px;
         border: 1px solid #ccc;
         font-family: 'Segoe UI', sans-serif;
+        font-size: 14px;
+        color: #333;
+        transition: all 0.2s ease;
+        background: #fafafa;
+    }
+    .input-select:hover {
+        border-color: #b00000;
+        background: #fff;
+    }
+    .input-select:focus {
+        border-color: #b00000;
+        box-shadow: 0 0 5px rgba(176,0,0,0.4);
+        outline: none;
     }
 </style>
+
+
 
 <div style="margin-left: 0px; padding: 5px; background-color: white;">
     <h2 class="dashboard-title">{{ title }}</h2>
