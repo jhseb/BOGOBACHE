@@ -1,6 +1,10 @@
 from django.core.validators import RegexValidator
 from django.db import models
 from datetime import datetime
+from django.contrib.auth.models import User
+from django.utils.timezone import now
+from django.contrib import admin
+
 
 class Usuario(models.Model):
     cedula = models.CharField(
@@ -65,3 +69,23 @@ class Servicio(models.Model):
     def __str__(self):
         return f"Servicio {self.id_request} - Usuario: {self.cedula}"
 
+
+
+class Documento(models.Model):
+    titulo = models.CharField(max_length=100)
+    archivo = models.FileField(upload_to='pdfs/')
+    fecha_subida = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.titulo
+    
+
+
+class RegistroSesion(models.Model):
+    username = models.CharField(max_length=150)
+    fecha_login = models.DateTimeField(default=now)
+    fecha_logout = models.DateTimeField(null=True, blank=True)
+    duracion = models.CharField(max_length=20, null=True, blank=True)  # Guardar como texto HH:MM:SS
+
+    def __str__(self):
+        return f"{self.username} - {self.fecha_login.strftime('%Y-%m-%d %H:%M')}"

@@ -3,7 +3,7 @@ from .models import Usuario
 
 from django import forms
 from .models import Usuario
-
+from .models import Documento
 class usuarioForm(forms.ModelForm):
     class Meta:
         model = Usuario
@@ -23,5 +23,10 @@ class usuarioForm(forms.ModelForm):
 
         return cedula
 
-    
+
+
+class DocumentoForm(forms.ModelForm):
+    class Meta:
+        model = Documento
+        fields = ['titulo', 'archivo']
 

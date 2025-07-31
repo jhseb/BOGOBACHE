@@ -10,8 +10,7 @@
   <!-- Leaflet CSS y JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <style>
+<style>
     html, body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -271,7 +270,31 @@
         font-size: 13px;
       }
     }
-  </style>
+
+    /* ✅ Ajuste global para que en móviles siempre se adapte a la pantalla */
+    @media only screen and (max-width: 768px) {
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow-x: hidden;
+        -webkit-text-size-adjust: 100%;
+      }
+
+      .wrapper {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      img, iframe, video {
+        max-width: 100%;
+        height: auto;
+      }
+    }
+</style>
 
   {% block extra_css %}{% endblock %}
 </head>

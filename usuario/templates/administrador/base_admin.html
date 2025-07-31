@@ -77,9 +77,14 @@
           REPORTES
         </button>
       </a>
-        <a href="{% url 'opciones_datos' %}">
+      <a href="{% url 'opciones_datos' %}">
         <button class="{% if request.resolver_match.url_name == 'opciones_datos' %}btn-inicio-activo{% endif %}">
           ANALISIS
+        </button>
+      </a>
+      <a href="{% url 'subir_pdf' %}">
+        <button class="{% if request.resolver_match.url_name == 'subir_pdf' %}btn-inicio-activo{% endif %}">
+          MANUAL DE USUARIO
         </button>
       </a>
   </div>

@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #'django_extensions',
     'bache',
-    'usuario',
+    'usuario.apps.UsuarioConfig',
     'reportes',
 ]
 

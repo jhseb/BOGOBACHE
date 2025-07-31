@@ -57,6 +57,9 @@ urlpatterns = [
     path('analisis/', views_datos.analisis_de_datos, name='analisis_de_datos'),
     path('analisisbache/', views_datos.analisis_baches, name='analisis_de_baches'),
     path('opciones_datos/', views.opciones_datos, name='opciones_datos'),
+    path('opciones_datos_usuario/', views.opciones_datos_usuario, name='opciones_datos_usuario'),
+    path('subir-pdf/', views.subir_pdf, name='subir_pdf'),
+    path('ver-pdfs/', views.ver_pdfs, name='ver_pdfs'),
 
     re_path(r'^reset/password_reset/$', views.CustomPasswordResetView.as_view(
         template_name='registration/password_reset_form.html',

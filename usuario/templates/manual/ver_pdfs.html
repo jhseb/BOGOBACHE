@@ -1,0 +1,44 @@
+{% extends "usuario/principal_usuario.html" %}
+{% load static %}
+{% block titulo %} PDF {% endblock %}
+
+{% block contenido %}
+<div style="
+    width:calc(100% - 80px);
+    max-width:1200px;
+    margin:5px auto; /* 🔹 antes era 20px */
+    padding:0;
+    background:white;
+    position:relative;
+">
+  <h2 style="text-align:center; color:#b00000; margin-top:0; padding:8px 0;">
+    MANUAL DE USUARIO
+  </h2>
+
+  {% if documento %}
+    <div style="padding:5px; position:relative;">
+      
+      <!-- 🔹 BOTÓN MÁS ARRIBA Y MÁS PEQUEÑO -->
+      <a href="{{ documento.archivo.url }}" target="_blank"
+         style="
+            position:absolute; top:0; right:0;
+            background:linear-gradient(45deg, #d32f2f, #b71c1c);
+            color:white; padding:6px 14px; border-radius:6px;
+            text-decoration:none; font-weight:bold; font-size:13px;
+            box-shadow:0px 3px 6px rgba(0,0,0,0.2);
+            transition:all 0.3s ease;
+         "
+         onmouseover="this.style.transform='scale(1.05)'"
+         onmouseout="this.style.transform='scale(1)'">
+         🔗 Abrir en otra pestaña
+      </a>
+
+      <iframe src="{{ documento.archivo.url }}" 
+              width="100%" height="650px" 
+              style="border:none; display:block; margin-top:35px;"></iframe>
+    </div>
+  {% else %}
+    <p style="text-align:center;">No hay ningún PDF cargado.</p>
+  {% endif %}
+</div>
+{% endblock %}
