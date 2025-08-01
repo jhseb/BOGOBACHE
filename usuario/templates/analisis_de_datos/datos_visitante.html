@@ -1,0 +1,366 @@
+{% extends "visitante/base.html" %}
+
+{% block content %}
+<div style="background-color: #ffffff; min-height: 100vh; padding: 30px;">
+    <h2 style="text-align:center; color:#b00000; font-size: 26px;">{{ title }}</h2>
+
+    <p style="text-align:center; font-size: 18px; color:black; margin-top: 10px;">
+        Total de reportes registrados: <strong>{{ total_reportes }}</strong>
+    </p>
+
+    <div style="text-align: center; margin-top: 20px;">
+        <button onclick="abrirModal('modal_filtros')" class="boton-principal">
+            Aplicar filtros
+        </button>
+    </div>
+
+    <!-- CONTENEDOR DE GRÁFICOS -->
+    <div style="
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 40px;
+        margin-top: 40px;
+        background-color: #ffffff;
+        padding-bottom: 20px;
+    ">
+
+        <!-- Gráfico 1 -->
+        <div class="grafico-contenedor">
+            <h2 class="titulo-grafico">Distribución Tipo de Vehículo</h2>
+            <img src="data:image/png;base64,{{ grafico_base64 }}" class="grafico-estandar" onclick="abrirModal('modal1')" />
+            <div id="modal1" class="modal">
+                <span class="cerrar" onclick="cerrarModal('modal1')">&times;</span>
+                <img class="modal-contenido" src="data:image/png;base64,{{ grafico_base64 }}">
+            </div>
+        </div>
+
+        <!-- Gráfico 2 -->
+        <div class="grafico-contenedor">
+            <h2 class="titulo-grafico">Distribución por Hora del Evento</h2>
+            <img src="data:image/png;base64,{{ grafico_hora_base64 }}" class="grafico-estandar" onclick="abrirModal('modal2')" />
+            <div id="modal2" class="modal">
+                <span class="cerrar" onclick="cerrarModal('modal2')">&times;</span>
+                <img class="modal-contenido" src="data:image/png;base64,{{ grafico_hora_base64 }}">
+            </div>
+        </div>
+
+        <!-- Gráfico 3 -->
+        <div class="grafico-contenedor">
+            <h2 class="titulo-grafico">Servicios Mejor Calificados</h2>
+            <img src="data:image/png;base64,{{ grafico_servicios_base64 }}" class="grafico-estandar" onclick="abrirModal('modal3')" />
+            <div id="modal3" class="modal">
+                <span class="cerrar" onclick="cerrarModal('modal3')">&times;</span>
+                <img class="modal-contenido" src="data:image/png;base64,{{ grafico_servicios_base64 }}">
+            </div>
+        </div>
+
+        <!-- Gráfico 4 -->
+        <div class="grafico-contenedor">
+            <h2 class="titulo-grafico">Servicios Peor Calificados</h2>
+            <img src="data:image/png;base64,{{ grafico_peor_base64 }}" class="grafico-estandar" onclick="abrirModal('modal4')" />
+            <div id="modal4" class="modal">
+                <span class="cerrar" onclick="cerrarModal('modal4')">&times;</span>
+                <img class="modal-contenido" src="data:image/png;base64,{{ grafico_peor_base64 }}">
+            </div>
+        </div>
+
+        <!-- Gráfico 5 -->
+        <div class="grafico-contenedor">
+            <h2 class="titulo-grafico">
+                {% if dia_seleccionado %}
+                    Reportes del Día: {{ dia_seleccionado|capfirst }}
+                {% else %}
+                    Reportes por Día de la Semana
+                {% endif %}
+            </h2>
+            <img src="data:image/png;base64,{{ grafico_dia_base64 }}" class="grafico-estandar" onclick="abrirModal('modal5')" />
+            <div id="modal5" class="modal">
+                <span class="cerrar" onclick="cerrarModal('modal5')">&times;</span>
+                <img class="modal-contenido" src="data:image/png;base64,{{ grafico_dia_base64 }}">
+            </div>
+        </div>
+
+        <!-- Gráfico 6 -->
+        <div class="grafico-contenedor">
+            <h2 class="titulo-grafico">Promedio de Satisfacción</h2>
+            <img src="data:image/png;base64,{{ grafico_satisf_base64 }}" class="grafico-estandar" onclick="abrirModal('modal6')" />
+            <div id="modal6" class="modal">
+                <span class="cerrar" onclick="cerrarModal('modal6')">&times;</span>
+                <img class="modal-contenido" src="data:image/png;base64,{{ grafico_satisf_base64 }}">
+            </div>
+        </div>
+
+        <!-- Gráfico 7 -->
+        <div class="grafico-contenedor">
+            <h2 class="titulo-grafico">
+                {% if tipo_evento_seleccionado == "heridos" %}
+                    Promedio de Heridos
+                {% elif tipo_evento_seleccionado == "fallecidos" %}
+                    Promedio de Fallecidos
+                {% else %}
+                    Promedio de Heridos y Fallecidos
+                {% endif %}
+            </h2>
+            <img src="data:image/png;base64,{{ grafico_heridos_muertos_base64 }}" class="grafico-estandar" onclick="abrirModal('modal7')" />
+            <div id="modal7" class="modal">
+                <span class="cerrar" onclick="cerrarModal('modal7')">&times;</span>
+                <img class="modal-contenido" src="data:image/png;base64,{{ grafico_heridos_muertos_base64 }}">
+            </div>
+        </div>
+
+        <!-- Gráfico 8 -->
+        <div class="grafico-contenedor">
+            <h2 class="titulo-grafico">Reportes por Condición Climática</h2>
+            <img src="data:image/png;base64,{{ grafico_clima_base64 }}" class="grafico-estandar" onclick="abrirModal('modal8')" />
+            <div id="modal8" class="modal">
+                <span class="cerrar" onclick="cerrarModal('modal8')">&times;</span>
+                <img class="modal-contenido" src="data:image/png;base64,{{ grafico_clima_base64 }}">
+            </div>
+        </div>
+
+        <!-- 📊 NUEVO GRÁFICO TOP ASEGURADORAS -->
+        <div class="grafico-contenedor">
+            <h2 class="titulo-grafico">Top 5 Aseguradoras Más Mencionadas</h2>
+            <img src="data:image/png;base64,{{ grafico_top_aseguradoras_base64 }}" class="grafico-estandar" onclick="abrirModal('modal9')" />
+            <div id="modal9" class="modal">
+                <span class="cerrar" onclick="cerrarModal('modal9')">&times;</span>
+                <img class="modal-contenido" src="data:image/png;base64,{{ grafico_top_aseguradoras_base64 }}">
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL DE FILTROS -->
+    <div id="modal_filtros" class="modal">
+        <div class="modal-contenedor">
+            <span class="cerrar" onclick="cerrarModal('modal_filtros')">&times;</span>
+            <h3 style="text-align:center; color:#b00000; margin-bottom: 20px;">Filtrar Datos</h3>
+            <form method="get">
+                <div class="form-grid">
+
+                    <div>
+                        <label for="servicio">Servicio:</label>
+                        <select name="servicio" id="servicio">
+                            <option value="">Todos</option>
+                            <option value="aseguradora" {% if servicio_seleccionado == "aseguradora" %}selected{% endif %}>Aseguradora</option>
+                            <option value="abogados" {% if servicio_seleccionado == "abogados" %}selected{% endif %}>Abogados</option>
+                            <option value="bomberos" {% if servicio_seleccionado == "bomberos" %}selected{% endif %}>Bomberos</option>
+                            <option value="medicos" {% if servicio_seleccionado == "medicos" %}selected{% endif %}>Médicos</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="dia">Día:</label>
+                        <select name="dia" id="dia">
+                            <option value="">Todos</option>
+                            {% for d in dias_semana %}
+                                <option value="{{ d }}" {% if dia_seleccionado == d %}selected{% endif %}>{{ d|capfirst }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="satisfaccion">Satisfacción:</label>
+                        <select name="satisfaccion" id="satisfaccion">
+                            <option value="">Todas</option>
+                            <option value="muy_deficiente" {% if satisfaccion_seleccionada == "muy_deficiente" %}selected{% endif %}>Muy deficiente</option>
+                            <option value="deficiente" {% if satisfaccion_seleccionada == "deficiente" %}selected{% endif %}>Deficiente</option>
+                            <option value="aceptable" {% if satisfaccion_seleccionada == "aceptable" %}selected{% endif %}>Aceptable</option>
+                            <option value="bueno" {% if satisfaccion_seleccionada == "bueno" %}selected{% endif %}>Bueno</option>
+                            <option value="excelente" {% if satisfaccion_seleccionada == "excelente" %}selected{% endif %}>Excelente</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="tipo_evento">Tipo de evento:</label>
+                        <select name="tipo_evento" id="tipo_evento">
+                            <option value="ambos" {% if tipo_evento_seleccionado == "ambos" %}selected{% endif %}>Ambos</option>
+                            <option value="heridos" {% if tipo_evento_seleccionado == "heridos" %}selected{% endif %}>Heridos</option>
+                            <option value="fallecidos" {% if tipo_evento_seleccionado == "fallecidos" %}selected{% endif %}>Fallecidos</option>
+                        </select>
+                    </div>
+
+                    <div style="grid-column: span 2;">
+                        <label for="aseguradora">Filtrar por aseguradora:</label>
+                        <select name="aseguradora" id="aseguradora" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+                            <option value="">Todas</option>
+                            {% for a in lista_aseguradoras %}
+                                <option value="{{ a }}" {% if aseguradora_seleccionada == a %}selected{% endif %}>{{ a }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div style="grid-column: span 2;">
+                        <label for="clima">Condición climática:</label>
+                        <select name="clima" id="clima">
+                            <option value="">Todos</option>
+                            <option value="despejado" {% if clima_seleccionado == "despejado" %}selected{% endif %}>Despejado</option>
+                            <option value="parcialmente nublado" {% if clima_seleccionado == "parcialmente nublado" %}selected{% endif %}>Parcialmente nublado</option>
+                            <option value="nublado" {% if clima_seleccionado == "nublado" %}selected{% endif %}>Nublado</option>
+                            <option value="lluvia_suave" {% if clima_seleccionado == "lluvia_suave" %}selected{% endif %}>Lluvia suave</option>
+                            <option value="tormenta" {% if clima_seleccionado == "tormenta" %}selected{% endif %}>Tormenta</option>
+                            <option value="niebla" {% if clima_seleccionado == "niebla" %}selected{% endif %}>Niebla</option>
+                            <option value="viento_fuerte" {% if clima_seleccionado == "viento_fuerte" %}selected{% endif %}>Viento fuerte</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="text-align:center; margin-top: 25px;">
+                    <button type="submit" class="boton-principal">Aplicar Filtros</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ====== ESTILOS ====== -->
+<style>
+html, body, main, .container, .content, .wrapper {
+    background-color: #ffffff !important;
+}
+
+.titulo-grafico {
+    color: #b00000;
+    font-size: 18px;
+    margin-bottom: 12px;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.grafico-contenedor {
+    text-align: center;
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.grafico-contenedor:hover .grafico-estandar {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.grafico-contenedor:hover .titulo-grafico {
+    transform: scale(1.1);
+    color: #870000;
+}
+
+/* Botón principal mejorado */
+.boton-principal {
+    background-color: #b00000;
+    color: white;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+.boton-principal:hover {
+    background-color: #870000;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.3);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.85);
+    padding-top: 60px;
+}
+
+/* Modal mejorado con animación */
+.modal-contenedor {
+    background: #fff;
+    padding: 35px 30px;
+    margin: auto;
+    max-width: 650px;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    position: relative;
+    animation: aparecer 0.3s ease-out;
+}
+@keyframes aparecer {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.modal-contenido {
+    display: block;
+    margin: auto;
+    max-width: 90%;
+    max-height: 80%;
+    border-radius: 16px;
+    border: 4px solid #fff;
+    box-shadow: 0 0 25px rgba(0,0,0,0.5);
+}
+
+/* Botón de cerrar mejorado */
+.cerrar {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 35px;
+    color: #b00000;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+.cerrar:hover { transform: scale(1.2); color: #870000; }
+
+.grafico-estandar {
+    width: 300px; height: 300px;
+    object-fit: contain;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Grid de filtros mejorado */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.form-grid label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Selects mejorados */
+.form-grid select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: #fafafa;
+}
+.form-grid select:hover {
+    border-color: #b00000;
+    background: #fff;
+}
+.form-grid select:focus {
+    border-color: #b00000;
+    box-shadow: 0 0 5px rgba(176, 0, 0, 0.4);
+    outline: none;
+}
+</style>
+
+
+<script>
+function abrirModal(id) { document.getElementById(id).style.display = "block"; }
+function cerrarModal(id) { document.getElementById(id).style.display = "none"; }
+window.onclick = function(e) {
+    if (e.target.classList.contains('modal')) { e.target.style.display = "none"; }
+}
+</script>
+{% endblock %}

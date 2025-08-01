@@ -1,0 +1,74 @@
+{% extends "visitante/base.html" %}
+
+{% block titulo %}GESTIÓN DE USUARIOS{% endblock %}
+
+{% block content %}
+<style>
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    background-color: #fff;
+  }
+
+  .panel-admin {
+    max-width: 550px; /* 🔹 Un poco más ancho */
+    margin: 50px auto;
+    background-color: #fff;
+    padding: 25px 30px; /* 🔹 Más espacio interno */
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .panel-admin h2 {
+    font-size: 24px; /* 🔹 Ligeramente más grande */
+    font-weight: bold;
+    color: #b10000;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+
+  .panel-admin p.legend {
+    font-size: 15px; /* 🔹 Un poco más grande */
+    color: #555;
+    margin-bottom: 22px;
+  }
+
+  .panel-admin ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 12px;
+  }
+
+  .panel-admin li {
+    background-color: #b10000;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+  }
+
+  .panel-admin li:hover {
+    transform: scale(1.03);
+  }
+
+  .panel-admin li a {
+    display: block;
+    padding: 12px; /* 🔹 Botones un poco más grandes */
+    color: #fff;
+    font-size: 17px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+</style>
+
+<div class="panel-admin">
+  <h2>📊 Estadísticas de la Aplicación</h2>
+  <p class="legend">Aquí podrás acceder a un análisis de datos detallado sobre los datos registrados en Bogobache.</p>
+
+  <ul>
+    <li><a href="{% url 'visitante_graficas_bache' %}">📊 Baches</a></li>
+    <li><a href="{% url 'visitante_graficas' %}">📈 Reportes</a></li>
+  </ul>
+</div>
+{% endblock %}

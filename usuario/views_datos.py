@@ -13,6 +13,7 @@ from django.db import IntegrityError, connection
 from django.utils import timezone
 from django.utils.timezone import localtime
 from io import BytesIO
+from .models import RegistroSesion
 
 # Formularios
 from .form import usuarioForm
@@ -741,3 +742,298 @@ def analisis_baches(request):
 
 
 
+def visitante_graficas(request):
+    title = "Analisis de reportes"
+
+    servicio_filtro = request.GET.get("servicio", "")
+    dia_filtro = request.GET.get("dia", "")
+    satisfaccion_filtro = request.GET.get("satisfaccion", "")
+    tipo_evento_filtro = request.GET.get("tipo_evento", "ambos")
+    aseguradora_filtro = request.GET.get("aseguradora", "")
+    clima_filtro = request.GET.get("clima", "")
+
+    dias_semana = ["lunes","martes","miercoles","jueves","viernes","sabado","domingo"]
+
+    qs = Reporte.objects.filter(involucrado_reporte=1)
+
+    if aseguradora_filtro:
+        qs = qs.filter(nombre_aseguradora=aseguradora_filtro)
+
+    # === Gráfico tipo_vehiculo ===
+    tipos = qs.values_list("tipo_vehiculo", flat=True)
+    conteo_tipos = Counter(tipos)
+    etiquetas_tipos = list(conteo_tipos.keys())
+    valores_tipos = list(conteo_tipos.values())
+
+    plt.figure(figsize=(6, 6))
+    plt.pie(valores_tipos, labels=etiquetas_tipos, autopct="%1.1f%%", startangle=90)
+    plt.axis("equal")
+    buf1 = io.BytesIO()
+    plt.savefig(buf1, format="png")
+    buf1.seek(0)
+    grafico_base64 = base64.b64encode(buf1.getvalue()).decode("utf-8")
+    buf1.close()
+    plt.close()
+
+    # === Gráfico hora_evento ===
+    horas = qs.values_list("hora_evento", flat=True)
+    conteo_horas = Counter(horas)
+    etiquetas_horas = list(conteo_horas.keys())
+    valores_horas = list(conteo_horas.values())
+
+    plt.figure(figsize=(6, 6))
+    plt.pie(valores_horas, labels=etiquetas_horas, autopct="%1.1f%%", startangle=90)
+    plt.axis("equal")
+    buf2 = io.BytesIO()
+    plt.savefig(buf2, format="png")
+    buf2.seek(0)
+    grafico_hora_base64 = base64.b64encode(buf2.getvalue()).decode("utf-8")
+    buf2.close()
+    plt.close()
+
+    # === Otros gráficos ===
+    grafico_servicios_base64 = servicios_mas_y_menos(servicio_filtro)
+    grafico_peor_base64 = servicios_peor_calificados(servicio_filtro)
+    grafico_dia_base64 = grafico_dias_con_mas_reportes(dia_filtro)
+    grafico_satisf_base64 = grafico_promedio_satisfaccion(satisfaccion_filtro)
+    grafico_heridos_muertos_base64 = grafico_promedio_heridos_muertos(tipo_evento_filtro)
+    grafico_clima_base64 = grafico_condicion_climatica(clima_filtro)
+
+    # === NUEVO: Top aseguradoras ===
+    grafico_top_aseguradoras_base64, lista_aseguradoras = grafico_top_aseguradoras(qs)
+
+    total_reportes = qs.count()
+
+    return render(request, "analisis_de_datos/datos_visitante.html", {
+        "title": title,
+        "grafico_base64": grafico_base64,
+        "grafico_hora_base64": grafico_hora_base64,
+        "grafico_servicios_base64": grafico_servicios_base64,
+        "grafico_peor_base64": grafico_peor_base64,
+        "grafico_dia_base64": grafico_dia_base64,
+        "grafico_satisf_base64": grafico_satisf_base64,
+        "servicio_seleccionado": servicio_filtro,
+        "dia_seleccionado": dia_filtro,
+        "satisfaccion_seleccionada": satisfaccion_filtro,
+        "tipo_evento_seleccionado": tipo_evento_filtro,
+        "clima_seleccionado": clima_filtro,
+        "grafico_heridos_muertos_base64": grafico_heridos_muertos_base64,
+        "grafico_clima_base64": grafico_clima_base64,
+        "grafico_top_aseguradoras_base64": grafico_top_aseguradoras_base64,
+        "aseguradora_seleccionada": aseguradora_filtro,
+        "lista_aseguradoras": lista_aseguradoras,
+        "total_reportes": total_reportes,
+        "dias_semana": dias_semana,
+    })
+ 
+
+def visitante_graficas_bache(request):
+    title = 'Analisis de baches'
+
+    localidad_filtro = request.GET.get('localidad', '')
+    tipo_calle_filtro = request.GET.get('tipo_calle', '')
+    estado_filtro = request.GET.get('estado', '')
+
+    # Establecer el locale a español para que los meses salgan en español en los gráficos
+    try:
+        locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')  # Linux/Mac
+    except locale.Error:
+        try:
+            locale.setlocale(locale.LC_TIME, 'es_CO.UTF-8')  # Colombia (si disponible)
+        except locale.Error:
+            try:
+                locale.setlocale(locale.LC_TIME, 'Spanish_Spain.1252')  # Windows
+            except locale.Error:
+                locale.setlocale(locale.LC_TIME, '')  # Fallback
+
+    grafico_localidades_base64 = grafico_top_localidades(localidad_filtro)
+    grafico_tipo_calle_base64 = grafico_top_tipos_calle(tipo_calle_filtro)
+    grafico_estado_base64 = grafico_estado_baches()
+    grafico_estado_con_proceso_base64 = grafico_estado_baches_con_proceso()
+    grafico_localidades_accidentes_base64 = grafico_top_localidades_accidentes(localidad_filtro)
+    grafico_barras_estado_mes_base64 = grafico_barras_por_mes_estado(estado_filtro)
+
+    top_ids = [loc[0] for loc in Counter(Bache.objects.values_list('localidad_id', flat=True)).most_common(5)]
+    localidades_top = Localidad.objects.filter(id__in=top_ids)
+    total_reportes = Bache.objects.count()
+
+    return render(request, 'analisis_de_datos/datos_bache _visitante.html', {
+        'title': title,
+        'total_reportes': total_reportes,
+        'grafico_localidades_base64': grafico_localidades_base64,
+        'grafico_tipo_calle_base64': grafico_tipo_calle_base64,
+        'grafico_estado_base64': grafico_estado_base64,
+        'grafico_estado_con_proceso_base64': grafico_estado_con_proceso_base64,
+        'grafico_localidades_accidentes_base64': grafico_localidades_accidentes_base64,
+        'grafico_barras_estado_mes_base64': grafico_barras_estado_mes_base64,
+        'localidades': localidades_top,
+        'localidad_seleccionada': localidad_filtro,
+        'tipos_calle': Tipo_calle.choices,
+        'tipo_calle_seleccionado': tipo_calle_filtro,
+        'estado_seleccionado': estado_filtro,
+        'opciones_estado': ['sin_arreglar', 'en_proceso', 'arreglado'],
+    })
+
+import matplotlib.pyplot as plt
+import base64
+from io import BytesIO
+from django.db.models import Count
+from django.db.models.functions import ExtractWeekDay
+import locale
+
+import matplotlib.pyplot as plt
+import base64
+from io import BytesIO
+from django.db.models import Count
+from django.db.models.functions import ExtractWeekDay
+import locale
+from .models import RegistroSesion
+
+import matplotlib.pyplot as plt
+import base64
+from io import BytesIO
+from django.db.models import Count
+from django.db.models.functions import ExtractWeekDay
+from .models import RegistroSesion
+
+from django.db.models.functions import ExtractWeekDay
+from django.db.models import Count
+import locale, base64
+from io import BytesIO
+from matplotlib.ticker import MaxNLocator
+import matplotlib.pyplot as plt
+from django.db.models.functions import ExtractIsoWeekDay
+from django.db.models.functions import ExtractWeekDay
+from django.db.models import Count
+import matplotlib.pyplot as plt
+import base64
+from io import BytesIO
+import locale
+from datetime import timedelta
+from django.db.models import Func, Count
+class DayOfWeek(Func):
+    function = "DAYOFWEEK"
+    template = "%(function)s(%(expressions)s)"
+
+
+def grafico_visitas_por_dia(dias_filtrar=None):
+    try:
+        locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+    except:
+        locale.setlocale(locale.LC_TIME, '')
+
+    from .models import RegistroSesion, Usuario
+
+    # 1️⃣ Obtener cédulas de usuarios con rol=1
+    usuarios_validos = Usuario.objects.filter(rol=1).values_list("cedula", flat=True)
+
+    # 2️⃣ Solo registros de la última semana
+    hace_7_dias = timezone.now() - timedelta(days=7)
+
+    registros = (
+        RegistroSesion.objects
+        .exclude(fecha_login__isnull=True)
+        .filter(username__in=usuarios_validos, fecha_login__gte=hace_7_dias)
+    )
+
+    # 3️⃣ Contar visitas por día
+    contador = Counter()
+
+    for r in registros:
+        if not r.fecha_login:
+            continue
+
+        # Convertir a hora local antes de obtener el día
+        fecha_local = timezone.localtime(r.fecha_login)
+        dia = fecha_local.isoweekday()
+
+        # Filtrar por días si se indicó
+        if dias_filtrar:
+            dias_filtrar = [int(d) for d in dias_filtrar]
+            if dia not in dias_filtrar:
+                continue
+
+        contador[dia] += 1
+
+    # 4️⃣ Mapeo de días
+    dias_map = {1: "Lun", 2: "Mar", 3: "Mié", 4: "Jue", 5: "Vie", 6: "Sáb", 7: "Dom"}
+
+    # 5️⃣ Preparar datos ordenados
+    x, y = [], []
+    for i in range(1, 8):
+        if i in contador:
+            x.append(dias_map[i])
+            y.append(contador[i])
+
+    if not x:
+        x, y = ["Sin datos"], [0]
+
+    # 6️⃣ Crear gráfico de líneas
+    fig, ax = plt.subplots()
+    ax.plot(x, y, marker="o", color="#b00000", linewidth=2)
+
+    ax.set_title("Visitas por Día de la Semana (Últimos 7 días)")
+    ax.set_xlabel("Día")
+    ax.set_ylabel("Cantidad de Visitas")
+    ax.grid(True, linestyle="--", alpha=0.5)
+
+    # ✅ Forzar números enteros en el eje Y
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+    imagen_base64 = base64.b64encode(buffer.read()).decode()
+    plt.close(fig)
+
+    return imagen_base64
+
+def graficas_usuario(request):
+    from .models import RegistroSesion, Usuario
+    from django.utils import timezone
+    from datetime import timedelta
+
+    # Mapeo de días
+    dias_map = dict(zip(["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"], range(1,8)))
+
+    # Leer el día seleccionado
+    dia_seleccionado = request.GET.get("dia")
+    dias_filtrar = [dias_map[dia_seleccionado]] if dia_seleccionado in dias_map else None
+
+    # Usuarios con rol=1
+    usuarios_validos = Usuario.objects.filter(rol=1).values_list("cedula", flat=True)
+
+    # Registros de la última semana
+    hace_7_dias = timezone.now() - timedelta(days=7)
+    registros_qs = RegistroSesion.objects.filter(
+        username__in=usuarios_validos,
+        fecha_login__gte=hace_7_dias
+    )
+
+    # Aplicar el filtro de día correctamente
+    registros = []
+    for r in registros_qs:
+        if not r.fecha_login:
+            continue
+        # Convertir a hora local antes de comparar
+        fecha_local = timezone.localtime(r.fecha_login)
+        dia = fecha_local.isoweekday()
+
+        if dias_filtrar and dia not in dias_filtrar:
+            continue
+
+        registros.append(r)
+
+    # Contar usuarios válidos filtrados
+    total_usuarios = len(registros)
+
+    # ✅ Generar la gráfica pasando el filtro correctamente
+    grafico_visitas = grafico_visitas_por_dia(dias_filtrar=dias_filtrar)
+
+    return render(request, "analisis_de_datos/datos_usuarios.html", {
+        "title": "Análisis de Visitas (Últimos 7 días)",
+        "total_usuarios": total_usuarios,
+        "grafico_visitas": grafico_visitas,
+        "dia_seleccionado": dia_seleccionado,
+        "dias_semana": list(dias_map.keys()),
+    })

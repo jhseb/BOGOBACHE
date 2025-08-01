@@ -991,3 +991,8 @@ def subir_pdf(request):
 def ver_pdfs(request):
     documento = Documento.objects.order_by('-fecha_subida').first()
     return render(request, 'manual/ver_pdfs.html', {'documento': documento})
+
+def ver_datos_visitante(request):
+    title = 'PÁGINA'
+    return render(request, 'analisis_de_datos/opciones_datos_visitante.html', {'title': title})   
+
