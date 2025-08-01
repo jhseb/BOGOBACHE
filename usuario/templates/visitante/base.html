@@ -316,7 +316,8 @@
         {% else %}
           <a href="{% url 'ver_filtrado_baches' %}" class="{% if request.path == '/' %}active{% endif %}">Inicio</a>
           <a href="{% url 'somos' %}" class="{% if request.resolver_match.url_name == 'somos' %}active{% endif %}">Quiénes somos</a>
-          <a href="{% url 'ver_datos_visitante' %}" class="{% if request.resolver_match.url_name == 'ver_datos_visitante' %}active{% endif %}">Estadisticas</a>
+          
+          <a href="{% url 'ver_datos_visitante' %}" class="{% if request.resolver_match.url_name == 'ver_datos_visitante' %}active{% endif %}">Estadísticas</a>
           <a href="{% url 'sesion' %}" class="{% if request.resolver_match.url_name == 'sesion' %}active{% endif %}">Inicio de sesión</a>
         {% endif %}
       </nav>
