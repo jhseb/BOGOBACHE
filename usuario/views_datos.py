@@ -12,7 +12,17 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.db import IntegrityError, connection
 from django.utils import timezone
 from django.utils.timezone import localtime
+
 from io import BytesIO
+import base64
+import locale
+from datetime import timedelta
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
+
+from django.db.models import Count, Func
+from django.db.models.functions import ExtractWeekDay, ExtractIsoWeekDay
+
 from .models import RegistroSesion
 
 # Formularios
@@ -874,43 +884,7 @@ def visitante_graficas_bache(request):
         'opciones_estado': ['sin_arreglar', 'en_proceso', 'arreglado'],
     })
 
-import matplotlib.pyplot as plt
-import base64
-from io import BytesIO
-from django.db.models import Count
-from django.db.models.functions import ExtractWeekDay
-import locale
 
-import matplotlib.pyplot as plt
-import base64
-from io import BytesIO
-from django.db.models import Count
-from django.db.models.functions import ExtractWeekDay
-import locale
-from .models import RegistroSesion
-
-import matplotlib.pyplot as plt
-import base64
-from io import BytesIO
-from django.db.models import Count
-from django.db.models.functions import ExtractWeekDay
-from .models import RegistroSesion
-
-from django.db.models.functions import ExtractWeekDay
-from django.db.models import Count
-import locale, base64
-from io import BytesIO
-from matplotlib.ticker import MaxNLocator
-import matplotlib.pyplot as plt
-from django.db.models.functions import ExtractIsoWeekDay
-from django.db.models.functions import ExtractWeekDay
-from django.db.models import Count
-import matplotlib.pyplot as plt
-import base64
-from io import BytesIO
-import locale
-from datetime import timedelta
-from django.db.models import Func, Count
 class DayOfWeek(Func):
     function = "DAYOFWEEK"
     template = "%(function)s(%(expressions)s)"
