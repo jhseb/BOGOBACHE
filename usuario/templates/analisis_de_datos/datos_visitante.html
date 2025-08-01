@@ -15,14 +15,7 @@
     </div>
 
     <!-- CONTENEDOR DE GRÁFICOS -->
-    <div style="
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 40px;
-        margin-top: 40px;
-        background-color: #ffffff;
-        padding-bottom: 20px;
-    ">
+    <div class="contenedor-graficas">
 
         <!-- Gráfico 1 -->
         <div class="grafico-contenedor">
@@ -213,10 +206,30 @@
     </div>
 </div>
 
-<!-- ====== ESTILOS ====== -->
 <style>
 html, body, main, .container, .content, .wrapper {
     background-color: #ffffff !important;
+}
+
+.contenedor-graficas {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    margin-top: 40px;
+    background-color: #ffffff;
+    padding-bottom: 20px;
+}
+
+/* 📱 En móvil: 1 columna */
+@media (max-width: 768px) {
+    .contenedor-graficas {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+    .grafico-estandar {
+        width: 90%;
+        height: auto;
+    }
 }
 
 .titulo-grafico {
@@ -242,7 +255,6 @@ html, body, main, .container, .content, .wrapper {
     color: #870000;
 }
 
-/* Botón principal mejorado */
 .boton-principal {
     background-color: #b00000;
     color: white;
@@ -271,7 +283,6 @@ html, body, main, .container, .content, .wrapper {
     padding-top: 60px;
 }
 
-/* Modal mejorado con animación */
 .modal-contenedor {
     background: #fff;
     padding: 35px 30px;
@@ -282,6 +293,7 @@ html, body, main, .container, .content, .wrapper {
     position: relative;
     animation: aparecer 0.3s ease-out;
 }
+
 @keyframes aparecer {
     from { opacity: 0; transform: scale(0.9); }
     to { opacity: 1; transform: scale(1); }
@@ -297,7 +309,6 @@ html, body, main, .container, .content, .wrapper {
     box-shadow: 0 0 25px rgba(0,0,0,0.5);
 }
 
-/* Botón de cerrar mejorado */
 .cerrar {
     position: absolute;
     top: 15px;
@@ -311,7 +322,8 @@ html, body, main, .container, .content, .wrapper {
 .cerrar:hover { transform: scale(1.2); color: #870000; }
 
 .grafico-estandar {
-    width: 300px; height: 300px;
+    width: 300px; 
+    height: 300px;
     object-fit: contain;
     border-radius: 12px;
     cursor: pointer;
@@ -319,7 +331,6 @@ html, body, main, .container, .content, .wrapper {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Grid de filtros mejorado */
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -334,7 +345,6 @@ html, body, main, .container, .content, .wrapper {
     display: block;
 }
 
-/* Selects mejorados */
 .form-grid select {
     width: 100%;
     padding: 10px 12px;
@@ -354,7 +364,6 @@ html, body, main, .container, .content, .wrapper {
     outline: none;
 }
 </style>
-
 
 <script>
 function abrirModal(id) { document.getElementById(id).style.display = "block"; }
