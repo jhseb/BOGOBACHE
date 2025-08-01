@@ -99,6 +99,7 @@ def obtener_usuario(request):
         return usu
     return None  # Si el usuario no está autenticado, retorna None
 
+@user_passes_test(is_admin, login_url='denied_access')  
 def crear_usuario(request):
     #cliente0 = obtener_usuario(request)
     formulario = usuarioForm(request.POST or None, request.FILES or None)
@@ -114,7 +115,7 @@ def usuario_view(request):
     usuarios = Usuario.objects.all()
     return render(request, 'usuario/index.html',{'usuarios':usuarios})
 
-
+@user_passes_test(is_admin, login_url='denied_access')  
 def editar_usuario(request, id):
     usuario1 = get_object_or_404(Usuario, cedula=id)
     formulario = usuarioForm(request.POST or None, request.FILES or None, instance=usuario1)
@@ -653,6 +654,7 @@ def establecer_nueva_contrasena(request):
     return render(request, 'usuario/usuario_contraseña/nueva_contrasena.html')
 
 
+@user_passes_test(is_usuario, login_url='denied_access')
 def datos_personales(request):
     usuario1 = Usuario.objects.get(cedula=request.user.username)
     formulario = usuarioForm(request.POST or None, request.FILES or None, instance=usuario1)
