@@ -25,28 +25,40 @@ def actualizar_email_reporte(sender, instance, **kwargs):
 
 @receiver(user_logged_in)
 def registrar_login(sender, request, user, **kwargs):
-    RegistroSesion.objects.create(
-        username=user.username,
-        fecha_login=now()
-    )
+    try:
+        # Buscar el Usuario según la cédula almacenada en user.username
+        usuario = Usuario.objects.get(cedula=user.username)
+
+        RegistroSesion.objects.create(
+            username=usuario,
+            fecha_login=now()
+        )
+    except Usuario.DoesNotExist:
+        print(f"⚠️ No existe un Usuario con cédula {user.username}")
 
 
 @receiver(user_logged_out)
 def registrar_logout(sender, request, user, **kwargs):
-    ultima_sesion = RegistroSesion.objects.filter(
-        username=user.username, fecha_logout__isnull=True
-    ).last()
+    try:
+        usuario = Usuario.objects.get(cedula=user.username)
 
-    if ultima_sesion:
-        ultima_sesion.fecha_logout = now()
+        ultima_sesion = RegistroSesion.objects.filter(
+            username=usuario, fecha_logout__isnull=True
+        ).last()
 
-        # Calcular diferencia
-        diferencia = ultima_sesion.fecha_logout - ultima_sesion.fecha_login
-        total_segundos = int(diferencia.total_seconds())
-        horas = total_segundos // 3600
-        minutos = (total_segundos % 3600) // 60
-        segundos = total_segundos % 60
+        if ultima_sesion:
+            ultima_sesion.fecha_logout = now()
 
-        # Guardar directamente como HH:MM:SS
-        ultima_sesion.duracion = f"{horas:02d}:{minutos:02d}:{segundos:02d}"
-        ultima_sesion.save()
+            # Calcular diferencia
+            diferencia = ultima_sesion.fecha_logout - ultima_sesion.fecha_login
+            total_segundos = int(diferencia.total_seconds())
+            horas = total_segundos // 3600
+            minutos = (total_segundos % 3600) // 60
+            segundos = total_segundos % 60
+
+            # Guardar como HH:MM:SS
+            ultima_sesion.duracion = f"{horas:02d}:{minutos:02d}:{segundos:02d}"
+            ultima_sesion.save()
+
+    except Usuario.DoesNotExist:
+        print(f"⚠️ No existe un Usuario con cédula {user.username}")

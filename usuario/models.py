@@ -4,7 +4,7 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.utils.timezone import now
 from django.contrib import admin
-
+from django.conf import settings
 
 class Usuario(models.Model):
     cedula = models.CharField(
@@ -82,10 +82,12 @@ class Documento(models.Model):
 
 
 class RegistroSesion(models.Model):
-    username = models.CharField(max_length=150)
+    username = models.ForeignKey(
+        'Usuario',  # Asegúrate que 'Usuario' esté definido en el mismo archivo o importa correctamente
+        to_field='cedula',
+        on_delete=models.CASCADE,
+        verbose_name="Cédula o Nombre de Usuario"
+    )
     fecha_login = models.DateTimeField(default=now)
     fecha_logout = models.DateTimeField(null=True, blank=True)
-    duracion = models.CharField(max_length=20, null=True, blank=True)  # Guardar como texto HH:MM:SS
-
-    def __str__(self):
-        return f"{self.username} - {self.fecha_login.strftime('%Y-%m-%d %H:%M')}"
+    duracion = models.CharField(max_length=20, null=True, blank=True)
