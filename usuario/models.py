@@ -83,7 +83,7 @@ class Documento(models.Model):
 
 class RegistroSesion(models.Model):
     username = models.ForeignKey(
-        'Usuario',  # Asegúrate que 'Usuario' esté definido en el mismo archivo o importa correctamente
+        'Usuario', 
         to_field='cedula',
         on_delete=models.CASCADE,
         verbose_name="Cédula o Nombre de Usuario"
