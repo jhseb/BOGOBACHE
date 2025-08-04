@@ -13,6 +13,10 @@ from django.db import IntegrityError, connection
 from django.utils import timezone
 from django.utils.timezone import localtime
 
+import io, base64
+import matplotlib.pyplot as plt
+from collections import Counter
+from django.shortcuts import render
 from io import BytesIO
 import base64
 import locale
@@ -307,15 +311,11 @@ def grafico_condicion_climatica(clima=''):
 
     return base64.b64encode(image_png).decode('utf-8')
 
-import io, base64
-import matplotlib.pyplot as plt
-from collections import Counter
-from django.shortcuts import render
-
 
 def grafico_top_aseguradoras(qs):
     aseguradoras = qs.values_list("nombre_aseguradora", flat=True)
-    conteo = Counter(a for a in aseguradoras if a)
+
+    conteo = Counter(a for a in aseguradoras if a and a.upper() != "N/A")
 
     top5 = conteo.most_common(5)
     if not top5:
@@ -337,6 +337,7 @@ def grafico_top_aseguradoras(qs):
     plt.close()
 
     return grafico_base64, [a for a, _ in top5]
+
 
 
 def analisis_de_datos(request):

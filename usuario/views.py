@@ -23,7 +23,7 @@ from django.contrib.auth.models import Group
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.views import PasswordResetView
-from .models import Documento
+from .models import Documento,Documento_admin
 from django.core.files.storage import default_storage
 # Create your views here.
 def index(request):
@@ -985,6 +985,47 @@ def subir_pdf(request):
         form = DocumentoForm()
 
     documento = Documento.objects.order_by('-fecha_subida').first()
+    return render(request, 'manual/subir_pdf.html', {
+        'form': form,
+        'documento': documento
+    })
+
+
+def subir_pdf_admin(request):
+    if request.method == 'POST':
+        form = DocumentoForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Eliminar PDF anterior
+            anterior = Documento_admin.objects.first()
+            if anterior:
+                if anterior.archivo and default_storage.exists(anterior.archivo.name):
+                    default_storage.delete(anterior.archivo.name)
+                anterior.delete()
+
+            form.save()
+
+            # ✅ Si es AJAX, devolvemos JSON
+            if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                return JsonResponse({
+                    "ok": True,
+                    "mensaje": "✅ PDF actualizado correctamente"
+                })
+
+            # ✅ Si es petición normal
+            messages.success(request, "✅ PDF actualizado correctamente")
+        else:
+            if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                return JsonResponse({
+                    "ok": False,
+                    "mensaje": "❌ Error en el formulario"
+                })
+
+            messages.error(request, "❌ Error en el formulario")
+
+    else:
+        form = DocumentoForm()
+
+    documento = Documento_admin.objects.order_by('-fecha_subida').first()
     return render(request, 'manual/subir_pdf.html', {
         'form': form,
         'documento': documento

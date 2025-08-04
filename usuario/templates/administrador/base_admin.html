@@ -87,6 +87,11 @@
           MANUAL DE USUARIO
         </button>
       </a>
+      <a href="{% url 'subir_pdf_admin' %}">
+        <button class="{% if request.resolver_match.url_name == 'subir_pdf_admin' %}btn-inicio-activo{% endif %}">
+          MANUAL DE ADMINISTRADOR
+        </button>
+      </a>
   </div>
 
   <div class="contenido">

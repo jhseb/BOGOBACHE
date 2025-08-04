@@ -61,6 +61,7 @@ urlpatterns = [
     path('opciones_datos/', views.opciones_datos, name='opciones_datos'),
     path('opciones_datos_usuario/', views.opciones_datos_usuario, name='opciones_datos_usuario'),
     path('subir-pdf/', views.subir_pdf, name='subir_pdf'),
+    path('subir-pdf-admin/', views.subir_pdf_admin, name='subir_pdf_admin'),
     path('ver-pdfs/', views.ver_pdfs, name='ver_pdfs'),
     path('opciones_datos_visitante/', views.ver_datos_visitante, name='ver_datos_visitante'),
     path('visitante_graficas/', views_datos.visitante_graficas, name='visitante_graficas'),

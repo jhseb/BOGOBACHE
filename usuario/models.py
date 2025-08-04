@@ -79,7 +79,13 @@ class Documento(models.Model):
     def __str__(self):
         return self.titulo
     
+class Documento_admin(models.Model):
+    titulo = models.CharField(max_length=100)
+    archivo = models.FileField(upload_to='pdfs/')
+    fecha_subida = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.titulo
 
 class RegistroSesion(models.Model):
     username = models.ForeignKey(
