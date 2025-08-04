@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from .models import  Usuario
 from reportes.models import Reporte
 from django.core.mail import send_mail
-from .form import usuarioForm, DocumentoForm
+from .form import usuarioForm, DocumentoForm,DocumentoFormAdmin
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.db import IntegrityError
@@ -993,7 +993,7 @@ def subir_pdf(request):
 
 def subir_pdf_admin(request):
     if request.method == 'POST':
-        form = DocumentoForm(request.POST, request.FILES)
+        form = DocumentoFormAdmin(request.POST, request.FILES)
         if form.is_valid():
             # Eliminar PDF anterior
             anterior = Documento_admin.objects.first()
@@ -1023,7 +1023,7 @@ def subir_pdf_admin(request):
             messages.error(request, "❌ Error en el formulario")
 
     else:
-        form = DocumentoForm()
+        form = DocumentoFormAdmin()
 
     documento = Documento_admin.objects.order_by('-fecha_subida').first()
     return render(request, 'manual/subir_pdf.html', {

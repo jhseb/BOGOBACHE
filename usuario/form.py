@@ -3,7 +3,7 @@ from .models import Usuario
 
 from django import forms
 from .models import Usuario
-from .models import Documento
+from .models import Documento,Documento_admin
 class usuarioForm(forms.ModelForm):
     class Meta:
         model = Usuario
@@ -30,3 +30,7 @@ class DocumentoForm(forms.ModelForm):
         model = Documento
         fields = ['titulo', 'archivo']
 
+class DocumentoFormAdmin(forms.ModelForm):
+    class Meta:
+        model = Documento_admin
+        fields = ['titulo', 'archivo']
