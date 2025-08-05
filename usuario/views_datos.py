@@ -343,6 +343,21 @@ def grafico_top_aseguradoras(qs):
 def analisis_de_datos(request):
     title = "Analisis de reportes"
 
+    # === Determinar plantilla base según rol ===
+    template_base = "visitante/base.html"  # Default
+
+    if request.user.is_authenticated:
+        try:
+            usuario_db = Usuario.objects.get(cedula=request.user.username)
+            if usuario_db.rol == 1:
+                template_base = "usuario/principal_usuario.html"
+            elif usuario_db.rol == 2:
+                template_base = "administrador/base_admin.html"
+
+        except Usuario.DoesNotExist:
+            template_base = "visitante/base.html"
+
+    # === Filtros ===
     servicio_filtro = request.GET.get("servicio", "")
     dia_filtro = request.GET.get("dia", "")
     satisfaccion_filtro = request.GET.get("satisfaccion", "")
@@ -397,13 +412,14 @@ def analisis_de_datos(request):
     grafico_heridos_muertos_base64 = grafico_promedio_heridos_muertos(tipo_evento_filtro)
     grafico_clima_base64 = grafico_condicion_climatica(clima_filtro)
 
-    # === NUEVO: Top aseguradoras ===
+    # === Top aseguradoras ===
     grafico_top_aseguradoras_base64, lista_aseguradoras = grafico_top_aseguradoras(qs)
 
     total_reportes = qs.count()
 
     return render(request, "analisis_de_datos/datos.html", {
         "title": title,
+        "template_base": template_base,  # <<< Se pasa al template
         "grafico_base64": grafico_base64,
         "grafico_hora_base64": grafico_hora_base64,
         "grafico_servicios_base64": grafico_servicios_base64,
@@ -704,9 +720,24 @@ def grafico_barras_por_mes_estado(filtro_estado=''):
 
     return grafico_base64
 
+
 def analisis_baches(request):
     title = 'Analisis de baches'
 
+    # === Determinar plantilla base según rol ===
+    template_base = "visitante/base.html"  # Por defecto visitantes
+
+    if request.user.is_authenticated:
+        try:
+            usuario_db = Usuario.objects.get(cedula=request.user.username)
+            if usuario_db.rol == 1:
+                template_base = "usuario/principal_usuario.html"
+            elif usuario_db.rol == 2:
+                template_base = "administrador/base_admin.html"
+        except Usuario.DoesNotExist:
+            template_base = "visitante/base.html"
+
+    # === Filtros ===
     localidad_filtro = request.GET.get('localidad', '')
     tipo_calle_filtro = request.GET.get('tipo_calle', '')
     estado_filtro = request.GET.get('estado', '')
@@ -716,13 +747,14 @@ def analisis_baches(request):
         locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')  # Linux/Mac
     except locale.Error:
         try:
-            locale.setlocale(locale.LC_TIME, 'es_CO.UTF-8')  # Colombia (si disponible)
+            locale.setlocale(locale.LC_TIME, 'es_CO.UTF-8')  # Colombia
         except locale.Error:
             try:
                 locale.setlocale(locale.LC_TIME, 'Spanish_Spain.1252')  # Windows
             except locale.Error:
                 locale.setlocale(locale.LC_TIME, '')  # Fallback
 
+    # === Gráficos ===
     grafico_localidades_base64 = grafico_top_localidades(localidad_filtro)
     grafico_tipo_calle_base64 = grafico_top_tipos_calle(tipo_calle_filtro)
     grafico_estado_base64 = grafico_estado_baches()
@@ -730,12 +762,14 @@ def analisis_baches(request):
     grafico_localidades_accidentes_base64 = grafico_top_localidades_accidentes(localidad_filtro)
     grafico_barras_estado_mes_base64 = grafico_barras_por_mes_estado(estado_filtro)
 
+    # === Datos extra para la plantilla ===
     top_ids = [loc[0] for loc in Counter(Bache.objects.values_list('localidad_id', flat=True)).most_common(5)]
     localidades_top = Localidad.objects.filter(id__in=top_ids)
     total_reportes = Bache.objects.count()
 
     return render(request, 'analisis_de_datos/datos_bache.html', {
         'title': title,
+        'template_base': template_base,  # <<< Para el extends dinámico
         'total_reportes': total_reportes,
         'grafico_localidades_base64': grafico_localidades_base64,
         'grafico_tipo_calle_base64': grafico_tipo_calle_base64,
@@ -750,8 +784,6 @@ def analisis_baches(request):
         'estado_seleccionado': estado_filtro,
         'opciones_estado': ['sin_arreglar', 'en_proceso', 'arreglado'],
     })
-
-
 
 def visitante_graficas(request):
     title = "Analisis de reportes"

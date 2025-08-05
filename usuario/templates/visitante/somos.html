@@ -1,35 +1,185 @@
-{% extends "visitante/base.html" %}
+{% extends "visitante/base.html" %}  
 {% load static %}
-{% block titulo %} {% endblock %}
+{% block titulo %} BOGOBACHE {% endblock %}
 
 {% block content %}
 
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
-  <main>
-    <div class="content">
-<!-- Imagen sin borde azul -->
+  body {
+    background-color: #ffffff;
+    font-family: 'Poppins', sans-serif;
+  }
+  .content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+  }
+  .logo-img-container {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .logo-img-container img {
+    border-radius: 12px;
+  }
+  h2, h3 {
+    color: #c62828; /* Rojo elegante para títulos */
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+  p {
+    text-align: justify;
+    line-height: 1.8;
+    margin-top: 15px;
+    color: #333;
+  }
+  section {
+    margin-top: 40px;
+  }
+  iframe {
+    border-radius: 10px;
+  }
+  /* Mensaje destacado */
+  .highlight {
+    margin: 25px auto;
+    padding: 18px 25px;
+    background: linear-gradient(to right, #ffe6e6, #fff);
+    border-left: 6px solid #c62828;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: #c62828;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  /* Tarjetas para Misión y Visión rojo más claro */
+  .card-section {
+    background-color: #e53935; /* Rojo más claro */
+    border: none;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+    margin-top: 30px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    color: #fff; /* Todo el contenido blanco */
+  }
+  .card-section:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  }
+  .card-section h3 {
+    margin-bottom: 15px;
+    color: #ffffff; /* Título blanco */
+    font-weight: 700;
+    text-align: center;
+  }
+  .card-section p {
+    margin: 0;
+    font-size: 1rem;
+    color: #ffffff; /* Párrafo blanco */
+  }
+
+  /* Iconos de redes sociales */
+  .social-icons {
+    text-align: center;
+    margin-top: 40px;
+  }
+  .social-icons h4 {
+    color: #c62828;
+    font-weight: 600;
+    margin-bottom: 15px;
+  }
+  .social-icons a {
+    display: inline-block;
+    margin: 0 12px;
+    color: #c62828;
+    font-size: 2rem;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+  .social-icons a:hover {
+    color: #ff5252;
+    transform: scale(1.2);
+  }
+</style>
+
+<!-- CDN de Font Awesome para iconos -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<main>
+  <div class="content">
+
+    <!-- Imagen principal -->
     <div class="logo-img-container">
-          <img src="{% static 'centro.jpeg' %}" alt="Logo BOGOBACHE">
-        </div>
-      <!--<div class="logo-box">BOGOBACHE</div>-->
-
-      <h2>BOGOBACHE - NOS CUIDAMOS ENTRE TODOS</h2>
-
-      <p>
-          BOGOBACHE es una aplicación sin ánimo de lucro que promueve el cuidado vial y la participación ciudadana, brindando información actualizada sobre los baches que afectan la calidad de vida en nuestra ciudad.
-          Nuestro objetivo es generar conciencia sobre el estado de las vías y facilitar el reporte oportuno de baches o incidentes que puedan poner en riesgo la seguridad de todos.
-
-          Al registrarte en nuestra plataforma podrás:
-
-          Recibir notificaciones en tiempo real sobre el estado de los baches cercanos.
-
-          🙌 ¡Súmate a esta comunidad comprometida con el bienestar de todos!
-          Al ser parte de BOGOBACHE, no solo estarás mejor informado, sino que contribuirás activamente a mejorar la movilidad, la seguridad y la calidad de vida de miles de ciudadanos.
-          Te avisaremos cuando un bache que reportaste sea corregido, porque aquí tu voz tiene un impacto real.
-
-          ¡Únete hoy y hagamos de nuestras calles un lugar más seguro para todos!
-        
-      </p>
+      <img src="{% static 'centro.jpeg' %}" alt="Logo BOGOBACHE">
     </div>
-  </main>
+
+    <h2>BOGOBACHE - NOS CUIDAMOS ENTRE TODOS</h2>
+
+    <p>
+      BOGOBACHE es una aplicación sin ánimo de lucro que promueve el cuidado vial y la participación ciudadana, brindando información actualizada sobre los baches que afectan la calidad de vida en nuestra ciudad.
+      Nuestro objetivo es generar conciencia sobre el estado de las vías y facilitar el reporte oportuno de baches o incidentes que puedan poner en riesgo la seguridad de todos.
+    </p>
+
+    <p>
+      Al registrarte en nuestra plataforma podrás recibir notificaciones en tiempo real sobre el estado de los baches cercanos.  
+      🙌 ¡Súmate a esta comunidad comprometida con el bienestar de todos!  
+      Con tu participación, no solo estarás mejor informado, sino que contribuirás activamente a mejorar la movilidad, la seguridad y la calidad de vida de miles de ciudadanos.  
+      Además, te avisaremos cuando un bache que reportaste sea corregido, porque aquí tu voz tiene un impacto real.  
+      <strong>¡Únete hoy y hagamos de nuestras calles un lugar más seguro para todos!</strong>
+    </p>
+
+    <!-- Aviso destacado -->
+    <div class="highlight">
+      🌟 Recuerda registrarte y calificar los servicios que utilices.  
+      Tu opinión nos ayuda a mejorar y ofrecer una mejor experiencia a toda la comunidad.
+    </div>
+
+    <!-- Sección Misión -->
+    <section class="card-section">
+      <h3>MISIÓN</h3>
+      <p>
+        Nuestra misión es promover la seguridad vial y la participación ciudadana a través de la identificación, reporte y seguimiento de los baches en la ciudad, generando conciencia sobre la importancia del cuidado de las vías.
+      </p>
+    </section>
+
+    <!-- Sección Visión -->
+    <section class="card-section">
+      <h3>VISIÓN</h3>
+      <p>
+        Ser la plataforma líder en el reporte colaborativo de baches, contribuyendo a la mejora continua de la infraestructura vial y a la construcción de una ciudad más segura y sostenible.
+      </p>
+    </section>
+
+    <!-- Video de YouTube -->
+    <section style="text-align: center;">
+      <h3>Conoce más sobre nuestro proyecto</h3>
+      <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; max-width:100%; background:#000; margin-top: 15px; border-radius: 10px;">
+        <iframe 
+            src="https://www.youtube.com/embed/v0M5uAUCtSI" 
+            title="Video de YouTube"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+            style="position:absolute; top:0; left:0; width:100%; height:100%; border-radius: 10px;">
+        </iframe>
+      </div>
+    </section>
+
+    <!-- Iconos de redes sociales -->
+    <div class="social-icons">
+      <h4>CONTÁCTANOS EN:</h4>
+      <a href="https://www.facebook.com/profile.php?id=61578816285308" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
+      <a href="https://www.instagram.com/bogobacheteam/" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="https://www.youtube.com/channel/UC6hSK249yiIhHLnFZnoUPXQ" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
+      <a href="https://www.tiktok.com/@bogobache" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
+    </div>
+
+  </div>
+</main>
+
 {% endblock %}
