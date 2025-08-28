@@ -404,7 +404,6 @@
       const errorDiv = document.getElementById(errorId);
 
       if (field.id === "cedula") {
-        
         const valid = /^\d{8,10}$/.test(field.value.trim());
         toggleValidation(field, errorDiv, valid);
         if (!valid) allValid = false;
