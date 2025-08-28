@@ -12,8 +12,8 @@ class Usuario(models.Model):
         max_length=10,
         validators=[
             RegexValidator(
-                regex=r'^\d{10}$',
-                message='La cédula debe tener exactamente 10 dígitos numéricos.'
+                regex=r'^\d{5,10}$',
+                message='La cédula debe tener entre 5 y 10 dígitos numéricos.'
             )
         ],
         verbose_name="Cédula o Nombre de Usuario"

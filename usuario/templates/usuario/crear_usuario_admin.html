@@ -189,14 +189,14 @@
               type="text" 
               name="cedula" 
               id="cedula" 
-              placeholder="8 a 10 dígitos" 
+              placeholder="5 a 10 dígitos" 
               maxlength="10" 
               required
-              pattern="\d{8,10}" 
-              title="La cédula debe tener entre 8 y 10 dígitos numéricos."
+              pattern="\d{5,10}" 
+              title="La cédula debe tener entre 5 y 10 dígitos numéricos."
             >
             <div class="help-text" id="cedula-error" style="display:none;">
-              La cédula debe tener entre 8 y 10 dígitos numéricos.
+              La cédula debe tener entre 5 y 10 dígitos numéricos.
             </div>
           </div>
 
@@ -434,7 +434,7 @@
       const errorDiv = document.getElementById(errorId);
 
       if (field.id === "cedula") {
-        const valid = /^\d{8,10}$/.test(field.value.trim());
+        const valid = /^\d{5,10}$/.test(field.value.trim());
         toggleValidation(field, errorDiv, valid);
         if (!valid) allValid = false;
         return;
