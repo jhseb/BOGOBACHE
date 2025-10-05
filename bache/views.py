@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.http import JsonResponse, Http404
+from django.utils import timezone
 
 from rest_framework import viewsets, status
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -227,9 +228,9 @@ def filtrar_baches(request):
             'foto': b.foto.url if b.foto else "",
             'localidad': b.localidad.nombre if b.localidad else "",
             'upz': b.upz.nombre if b.upz else "",
-            'barrio': b.barrio.nombre if b.barrio else ""
+            'barrio': b.barrio.nombre if b.barrio else "",
+            'created_at': timezone.localtime(b.created_at).strftime("%Y-%m-%d"),
         })
-
     return JsonResponse(baches_data, safe=False)
 
 def obtener_filtros(request):

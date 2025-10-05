@@ -98,6 +98,7 @@
       <div class="cerrar-panel" onclick="cerrarDetallePanel()">×</div>
       <h4>Detalle del Bache</h4>
       <p><strong>ID:</strong> <span id="detalle-id"></span></p>
+      <p><strong>Fecha:</strong> <span id="detalle-fecha"></span></p>
       <p><strong>Foto:</strong><br>
         <img id="detalle-foto" src="" alt="Foto del bache">
       </p>
@@ -189,6 +190,7 @@
     panel.classList.remove("hidden");
 
     document.getElementById("detalle-id").textContent = bache.id_bache;
+    document.getElementById("detalle-fecha").textContent = bache.created_at;
     document.getElementById("detalle-foto").src = bache.foto;
     document.getElementById("detalle-direccion").textContent = bache.direccion;
     document.getElementById("detalle-tipo_calle").textContent = bache.tipo_calle;
